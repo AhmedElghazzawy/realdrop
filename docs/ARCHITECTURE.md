@@ -51,7 +51,7 @@
 | 7 | Integer kurus for money | No float errors; comparisons and medians stay exact |
 | 8 | Collection runs on a server by Oct 27 at the latest (end of roadmap Phase 3) | A sleeping laptop would create gaps in the history, which is our main asset |
 | 9 | Taste profile is plain code (decayed vector + counters) | Explainable, cheap, deletable, testable. No LLM needed |
-| 10 | Next.js frontend, Turkish first | Fast mobile UX, strong ecosystem, easy deploy |
+| 10 | Next.js frontend, English default + Turkish (`/en`, `/tr`) | Fast mobile UX, strong ecosystem, easy deploy |
 | 11 | Free LLMs only: Ollama locally, free API tiers in prod, switchable via env (24 Oct 2026) | Zero budget. Providers are swapped in `.env`, not code; evals decide which model is good enough |
 | 12 | Hosting on no-card free tiers: Neon (DB), GitHub Actions (collection), Render/Vercel later (24 Oct 2026) | Owner gives no card to any provider (Oracle dropped). Revisit if Neon's 0.5 GB or GitHub's 6 h job limit is hit |
 

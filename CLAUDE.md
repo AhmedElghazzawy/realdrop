@@ -46,7 +46,9 @@ daily real price collection -> honest price history -> "real discount" detection
 - When something fails: show the exact error, state the likely cause, fix it. No blind retries.
 - Mind the schedule: `docs/ROADMAP.md` is organised by **phases, not days**; each phase has a latest-finish
   date and there are cut lines. Start the next phase as soon as one is done. Flag scope creep immediately.
-- The owner chats in English. The product UI is Turkish first. Repo files, code, comments are English.
+- The owner chats in English. The product UI is English by default with Turkish
+  as the second language (`/en`, `/tr`); it shows men's clothing only for now (owner decision,
+  25 Oct 2026; a men/women choice comes later). Repo files, code, comments are English.
 
 ## Repo layout
 
@@ -111,8 +113,8 @@ pnpm lint && pnpm typecheck && pnpm test
 - Every LLM output is validated with Pydantic; invalid output is retried once, then falls back.
 - Tests: pytest, `pytest-socket` blocks network, collectors use stored fixtures, pricing logic gets
   property-style tests with synthetic price series.
-- Frontend: tokens from `docs/DESIGN_SYSTEM.md` only; Turkish number/date formatting via `Intl` with
-  `tr-TR`; every component has loading, empty, error and populated states.
+- Frontend: tokens from `docs/DESIGN_SYSTEM.md` only; UI text from `apps/web/src/i18n/{en,tr}.ts` (never
+  hard-coded); number/date formatting via `lib/format.ts` (`Intl`, `en-GB` / `tr-TR`); every component has loading, empty, error and populated states.
 - Logging: structured JSON, no PII, no secrets, no full prompts in production logs.
 
 ## Where to read more (read the one you need; do not load them all)

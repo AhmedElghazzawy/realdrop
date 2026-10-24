@@ -70,7 +70,7 @@ Full scope, users and non-goals: [`docs/PRODUCT.md`](docs/PRODUCT.md).
 - **Data:** PostgreSQL 16 + pgvector (relational, full-text and vectors in one database)
 - **AI:** free and open-source models (Ollama locally, free API tiers in prod) with a hand-written tool loop (no agent frameworks), bge-m3 embeddings,
   bge-reranker
-- **Frontend:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui; Turkish first
+- **Frontend:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui; English default, Turkish second
 - **Ops:** no-card free tiers: Neon (Postgres), GitHub Actions (daily collection), Render + Vercel later, Sentry free
 
 ```
@@ -84,7 +84,7 @@ Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ```
 apps/api/      FastAPI backend (package: realdrop)
-apps/web/      Next.js frontend (Turkish-first)
+apps/web/      Next.js frontend (English + Turkish)
 docs/          product, architecture, data model, AI design, evals, design system, setup, roadmap
 evals/         golden sets for the AI components
 infra/         database init scripts

@@ -43,7 +43,7 @@ your size really drops, and lets you search in plain Turkish or English.
 | Should | Shopping assistant with tools and the number-grounding guard |
 | Should | Taste profile, onboarding quiz, "for you" ordering |
 | Should | Email alerts |
-| Could | Web push, English UI |
+| Could | Web push, women's clothing (UI is English + Turkish; men only for now, owner 25 Oct 2026) |
 
 ## Explicit non-goals for this release
 

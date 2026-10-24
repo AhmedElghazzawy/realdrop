@@ -43,8 +43,10 @@ small text. Colour is never the only carrier of meaning (every badge has text an
 
 ## Number and date formatting
 
-Always through helpers using `Intl` with `tr-TR`: `₺1.299,90`, `%24`, `24 Kas 2026`. Never concatenate
-strings by hand. Prices in the API are kurus; convert at the edge.
+Always through `lib/format.ts`, which uses `Intl` in the page language: `en-GB` (`₺1,299.90`, `24%`,
+`24 Nov 2026`, the default) or `tr-TR` (`₺1.299,90`, `%24`, `24 Kas 2026`). Never concatenate strings by
+hand; UI text lives in `src/i18n/en.ts` and `tr.ts`. Shop text (titles, categories) stays Turkish and
+gets `lang="tr"`. Prices in the API are kurus; convert at the edge.
 
 ## Core components
 
