@@ -20,18 +20,25 @@ Follow in order. Stop and ask the owner at every **[ASK]**.
 
 ## 2. Skeleton
 
-Create `apps/api/src/realdrop/collectors/<slug>/` with `collector.py`, `parser.py`, `fixtures/`, `__init__.py`.
+Copy the template `apps/api/src/realdrop/collectors/_example/` to `collectors/<slug>/` (`collector.py`,
+`parser.py`, `fixtures/`, `__init__.py`) and `tests/collectors/test_example_collector.py` to
+`tests/collectors/test_<slug>.py`. Keep the shape; replace the endpoints, parsing and fixtures.
 
 ## 3. Implement
 
 - Subclass `BrandCollector` (`collectors/base.py`): set `slug`, `rate_limit_rps` (default 1), implement
-  `async def fetch_catalog(self) -> AsyncIterator[RawProduct]`.
-- Use the shared `httpx.AsyncClient` with `COLLECTOR_USER_AGENT`, timeouts, retries with exponential
-  backoff on 429/5xx, and jitter. Honour `Retry-After`.
+  `async def fetch_catalog(self) -> AsyncIterator[RawProduct | ItemFailure]`. A product that fails to
+  parse becomes an `ItemFailure` (counted in `items_failed`); it never ends the run.
+- Do all HTTP through `self.client` (`collectors/http.py`, `PoliteClient`). It already sends
+  `COLLECTOR_USER_AGENT`, rate-limits with jitter, obeys robots.txt (incl. Crawl-delay), retries
+  429/5xx with exponential backoff, honours `Retry-After`, and raises `CollectorBlockedError` on 401/403.
+  Never call httpx directly.
 - On 403 or a block/CAPTCHA page: stop the brand, record the run as failed with the reason, tell the owner.
+  For a block page served with 200, detect it in the collector and raise `CollectorBlockedError`.
   Do not rotate proxies, spoof fingerprints, solve CAPTCHAs or log in.
-- `parser.py` is pure: raw payload in, `RawProduct` out. Prices to integer kurus
-  (`"1.299,90 TL"` -> `129990`). Normalize size labels and colors with the taxonomy helpers.
+- `parser.py` is pure: raw payload in, `RawProduct` out. Prices to integer kurus with
+  `collectors/money.py`: `parse_tr_price("1.299,90 TL")` -> `129990`, `decimal_to_minor(1299.9)` for
+  JSON numbers. Never `float` or `round()` a price. Normalize size labels and colors with the taxonomy helpers.
   Use `realdrop.text` for any casing.
 - Emit `original_price_minor` only when the site shows a strike-through or "old price"; otherwise `None`.
 

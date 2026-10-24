@@ -1,0 +1,29 @@
+{
+  "products": [
+    {
+      "id": "1001",
+      "url": "https://shop.example.com/urun/siyah-oversize-kaban-1001",
+      "name": "  Siyah   Oversize KABAN ",
+      "description": "Yün karışımlı, düşük omuzlu oversize kaban.",
+      "category": "Kadın > Dış Giyim > Kaban",
+      "images": ["https://cdn.example.com/1001-1.jpg", "https://cdn.example.com/1001-2.jpg"],
+      "variants": [
+        {"sku": "1001-S", "size": "S", "color": "Siyah", "price": "2.499,90 TL", "old_price": "3.299,90 TL", "stock": 4},
+        {"sku": "1001-M", "size": "M", "color": "Siyah", "price": "2.499,90 TL", "old_price": "3.299,90 TL", "stock": 1},
+        {"sku": "1001-L", "size": "L", "color": "Siyah", "price": "2.499,90 TL", "old_price": "3.299,90 TL", "stock": 0}
+      ]
+    },
+    {
+      "id": "1002",
+      "url": "https://shop.example.com/urun/basic-tisort-1002",
+      "name": "Basic Tişört",
+      "description": null,
+      "category": "Erkek > Tişört",
+      "images": [],
+      "variants": [
+        {"sku": "1002-M", "size": "M", "color": "Beyaz", "price": "₺299", "old_price": null, "stock": 0}
+      ]
+    }
+  ],
+  "next_page": 2
+}
