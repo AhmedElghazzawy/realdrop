@@ -1,5 +1,6 @@
 """DeFacto parser and collector against real pages saved on 24 Oct 2026 (fixtures/)."""
 
+import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -186,3 +187,14 @@ async def test_collector_only_fetches_its_shard() -> None:
                 async for item in collector.fetch_catalog()
             ]
     assert sorted(seen) == sorted({TROUSERS, BRA, BABY_SET, GONE})  # each exactly once
+
+
+def test_sitemap_with_stale_tail_after_the_root_still_parses() -> None:
+    # Shape of DeFacto's product-5.xml on 24 Oct 2026.
+    xml = load("sitemap_product.xml") + "let Yaka Kazak</image:title>\n  </url>\n</urlset>\n"
+    assert parser.sitemap_locs(xml) == [TROUSERS, BRA]
+
+
+def test_sitemap_that_is_not_xml_still_raises() -> None:
+    with pytest.raises(ET.ParseError):
+        parser.sitemap_locs("<html>Bakım</html")
