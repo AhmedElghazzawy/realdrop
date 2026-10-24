@@ -6,8 +6,11 @@ deliberately not registered.
 """
 
 from realdrop.collectors.base import BrandCollector
+from realdrop.collectors.defacto.collector import DefactoCollector
 
-COLLECTORS: dict[str, type[BrandCollector]] = {}
+COLLECTORS: dict[str, type[BrandCollector]] = {
+    DefactoCollector.slug: DefactoCollector,
+}
 
 
 def get_collector_class(slug: str) -> type[BrandCollector]:
