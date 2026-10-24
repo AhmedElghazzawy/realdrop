@@ -5,14 +5,14 @@ services:
     environment:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: app
-      POSTGRES_DB: fiyat
+      POSTGRES_DB: realdrop
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./infra/initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d fiyat"]
+      test: ["CMD-SHELL", "pg_isready -U app -d realdrop"]
       interval: 5s
       timeout: 3s
       retries: 10

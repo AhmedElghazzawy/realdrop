@@ -3,7 +3,7 @@
 ## One line
 
 Turkish shoppers see "70% off!" everywhere on Black Friday, and many of those discounts are inflated.
-fiyatgercek records real prices every day, tells you what the discount **really** is, alerts you when
+RealDrop records real prices every day, tells you what the discount **really** is, alerts you when
 your size really drops, and lets you search in plain Turkish or English.
 
 ## The problem

@@ -7,7 +7,7 @@ description: Checklist for changing the database schema safely with SQLAlchemy m
 
 **[ASK]** before any data-model change that is not already described in `docs/DATA_MODEL.md`.
 
-1. **Model first.** Edit or add the SQLAlchemy model in `src/fiyat/models/`. Money columns are
+1. **Model first.** Edit or add the SQLAlchemy model in `src/realdrop/models/`. Money columns are
    `Integer`/`BigInteger` (kurus); timestamps are `DateTime(timezone=True)`; vectors use
    `from pgvector.sqlalchemy import Vector` with dimension 1024.
 2. **Generate:** `cd apps/api && uv run alembic revision --autogenerate -m "short_snake_case_message"`.

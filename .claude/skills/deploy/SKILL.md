@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Release and deployment checklist for fiyatgercek to the production VPS (Docker Compose via Coolify), including migrations, backups, scheduled jobs, health checks, smoke tests and rollback. Use for first deploy and every release.
+description: Release and deployment checklist for RealDrop to the production VPS (Docker Compose via Coolify), including migrations, backups, scheduled jobs, health checks, smoke tests and rollback. Use for first deploy and every release.
 ---
 
 # Deploy

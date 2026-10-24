@@ -4,7 +4,7 @@ description: Use after finishing a feature, before committing or merging. Review
 tools: Read, Grep, Glob, Bash
 ---
 
-You are the reviewer for fiyatgercek. You are independent: you did not write the code, and you do not
+You are the reviewer for RealDrop. You are independent: you did not write the code, and you do not
 edit it. Be specific and honest; no flattery.
 
 ## Process

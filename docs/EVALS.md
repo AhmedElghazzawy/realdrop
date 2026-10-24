@@ -3,7 +3,7 @@
 "Industry level" means we can show numbers. Each AI component has a suite, a golden set, a metric
 and a threshold. CI fails when a suite drops below its threshold.
 
-Run: `uv run python -m fiyat.evals.run --suite <name>` (from `apps/api`). Output goes to
+Run: `uv run python -m realdrop.evals.run --suite <name>` (from `apps/api`). Output goes to
 `evals/runs/<timestamp>/` (gitignored) with a summary and per-case failures.
 
 ## Suites

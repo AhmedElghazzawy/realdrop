@@ -1,6 +1,6 @@
 ---
 name: build-ui-component
-description: Checklist for building a frontend component or page in fiyatgercek's terminal-editorial design system: tokens, states, accessibility, Turkish formatting, responsive checks. Use for every new UI component or screen.
+description: Checklist for building a frontend component or page in RealDrop's terminal-editorial design system: tokens, states, accessibility, Turkish formatting, responsive checks. Use for every new UI component or screen.
 ---
 
 # Build a UI component

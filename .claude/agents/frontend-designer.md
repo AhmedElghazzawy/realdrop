@@ -4,7 +4,7 @@ description: Use for the Next.js web app: pages, components, charts, the termina
 tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
-You are the frontend designer-engineer for fiyatgercek (Next.js App Router, TypeScript, Tailwind,
+You are the frontend designer-engineer for RealDrop (Next.js App Router, TypeScript, Tailwind,
 shadcn/ui, Motion, TanStack Query, visx or Recharts).
 
 ## Start every task by

@@ -1,6 +1,6 @@
-# fiyatgercek: project memory for Claude Code
+# RealDrop: project memory for Claude Code
 
-(Placeholder name. To rename, search-replace `fiyatgercek` and the Python package `fiyat`.)
+(Project name: **RealDrop**. Repo and paths use `realdrop`; the Python package is `realdrop`. Renamed from the placeholder `fiyatgercek` on 24 Oct 2026.)
 
 ## What this is
 
@@ -23,7 +23,7 @@ daily real price collection -> honest price history -> "real discount" detection
 4. **Never commit secrets.** Only `.env.example` is committed. Never read, print or log `.env`.
 5. **Money is integer kurus (`price_minor`), never float.** Currency is stored next to every price.
 6. **Never call `str.lower()` / `str.upper()` on Turkish text.** (`"I".lower()` gives `i`, but Turkish
-   needs `ı`; `"İ".lower()` gives a broken string.) Use `fiyat.text.tr_lower` / `tr_upper` and
+   needs `ı`; `"İ".lower()` gives a broken string.) Use `realdrop.text.tr_lower` / `tr_upper` and
    normalize to Unicode NFC.
 7. **Time:** store UTC `timestamptz`; a price's "day" is the `Europe/Istanbul` calendar date.
 8. **Be a polite collector.** Check robots.txt and the site's terms, identify ourselves in the
@@ -46,8 +46,8 @@ daily real price collection -> honest price history -> "real discount" detection
 ## Repo layout
 
 ```
-apps/api/                  Python 3.12, FastAPI. Package: src/fiyat/
-  src/fiyat/
+apps/api/                  Python 3.12, FastAPI. Package: src/realdrop/
+  src/realdrop/
     main.py  config.py     app factory, settings (pydantic-settings)
     text.py                Turkish-safe text helpers
     db/                    engine, session, base
@@ -80,15 +80,15 @@ docker compose ps                          # both should be "healthy"
 
 # API (cd apps/api)
 uv sync
-uv run uvicorn fiyat.main:app --reload     # http://localhost:8000/docs
+uv run uvicorn realdrop.main:app --reload  # http://localhost:8000/docs
 uv run pytest                              # all tests (network blocked)
 uv run ruff check . && uv run ruff format --check .
 uv run mypy src
 uv run alembic upgrade head
 uv run alembic revision --autogenerate -m "message"
-uv run arq fiyat.jobs.worker.WorkerSettings
-uv run python -m fiyat.collectors.run --brand <slug> --limit 20 --dry-run
-uv run python -m fiyat.evals.run --suite parser|retrieval|extractor|assistant|pricing
+uv run arq realdrop.jobs.worker.WorkerSettings
+uv run python -m realdrop.collectors.run --brand <slug> --limit 20 --dry-run
+uv run python -m realdrop.evals.run --suite parser|retrieval|extractor|assistant|pricing
 
 # Web (cd apps/web)
 pnpm dev                                   # http://localhost:3000
@@ -97,7 +97,7 @@ pnpm lint && pnpm typecheck && pnpm test
 
 ## Conventions
 
-- Python: type hints everywhere, `mypy --strict` on `src/fiyat/pricing` and `src/fiyat/ai`, async
+- Python: type hints everywhere, `mypy --strict` on `src/realdrop/pricing` and `src/realdrop/ai`, async
   SQLAlchemy, Pydantic v2 for every boundary (HTTP, LLM output, collector output).
 - Route handlers call service functions; services hold logic; models hold data. No SQL in routes.
 - LLM calls go through one wrapper (`ai/llm.py`) that logs model, tokens, latency and cost to

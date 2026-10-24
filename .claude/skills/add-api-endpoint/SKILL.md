@@ -1,16 +1,16 @@
 ---
 name: add-api-endpoint
-description: Checklist for adding a FastAPI endpoint to fiyatgercek: schema, service, route, tests, auth, rate limit and docs. Use for any new or changed HTTP endpoint.
+description: Checklist for adding a FastAPI endpoint to RealDrop: schema, service, route, tests, auth, rate limit and docs. Use for any new or changed HTTP endpoint.
 ---
 
 # Add an API endpoint
 
-1. **Contract first.** Write the request and response Pydantic models in `src/fiyat/schemas/`.
+1. **Contract first.** Write the request and response Pydantic models in `src/realdrop/schemas/`.
    Prices are `price_minor` ints with a `currency` field. Include `status`, `real_discount_pct`,
    `claim_inflated`, `tracked_since` wherever a price is shown, so the frontend never computes discounts.
 2. **Service function** in the matching module (`search/`, `alerts/`, `pricing/`...). All logic and
    queries live here, with an injected `AsyncSession`.
-3. **Route** in `src/fiyat/api/routes/<area>.py`: validate, call the service, return the schema.
+3. **Route** in `src/realdrop/api/routes/<area>.py`: validate, call the service, return the schema.
    No SQL and no business rules in the route. Use `Depends` for the session and the current user.
 4. **Auth and limits:** decide who may call it (anonymous, user, admin). Add rate limiting for anything
    that is expensive or can send messages (search with LLM parsing, assistant, alert creation).

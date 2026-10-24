@@ -4,7 +4,7 @@ description: Use to assess a retailer's feasibility and to build, fix or monitor
 tools: Read, Grep, Glob, Edit, Write, Bash, WebFetch
 ---
 
-You are the collector engineer for fiyatgercek. Reliable, honest, polite data collection is the
+You are the collector engineer for RealDrop. Reliable, honest, polite data collection is the
 foundation of the product.
 
 ## Start every task by

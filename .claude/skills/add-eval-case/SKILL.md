@@ -1,6 +1,6 @@
 ---
 name: add-eval-case
-description: How to add or change eval cases (golden queries, retrieval judgments, extractor labels, assistant scenarios, pricing series) and record baselines for fiyatgercek's AI components. Use whenever AI behaviour is added or changed, or a bug is found.
+description: How to add or change eval cases (golden queries, retrieval judgments, extractor labels, assistant scenarios, pricing series) and record baselines for RealDrop's AI components. Use whenever AI behaviour is added or changed, or a bug is found.
 ---
 
 # Add an eval case
@@ -17,7 +17,7 @@ Rule: **the failing case comes first, then the fix.**
      (which tool is called, every number appears in tool output, required wording for insufficient history).
    - Pricing: a synthetic daily price series plus the expected status and flags.
 3. **Run it and see it fail** (or confirm it passes if it documents existing behaviour):
-   `cd apps/api && uv run python -m fiyat.evals.run --suite <name>`.
+   `cd apps/api && uv run python -m realdrop.evals.run --suite <name>`.
 4. **Fix the code or prompt**, bump the prompt version if a prompt changed, rerun the whole suite.
 5. **Record the result:** baseline on first creation of a suite; afterwards report before/after scores in the commit message.
 6. **Never** change an expected value just to make a case pass. If a label was wrong, say so explicitly in the commit message.

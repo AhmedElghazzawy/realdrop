@@ -1,4 +1,4 @@
-# fiyatgercek
+# RealDrop
 
 **Honest prices for Turkish fashion.** An AI shopping-intelligence web app that records real prices
 every day, tells you what a discount **really** is, alerts you when your size really drops, and lets
@@ -29,7 +29,7 @@ you search in plain Turkish or English.
 
 On Black Friday Turkish shoppers see "70% off!" everywhere, and many of those discounts are inflated:
 the "original" price was raised just before the sale. Existing price trackers focus on electronics and
-ignore what matters in fashion: size, color and stock. fiyatgercek fixes that with data it collects
+ignore what matters in fashion: size, color and stock. RealDrop fixes that with data it collects
 itself.
 
 ## Features (launch scope)
@@ -76,7 +76,7 @@ Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Repository layout
 
 ```
-apps/api/      FastAPI backend (package: fiyat)      [built in Phase 1]
+apps/api/      FastAPI backend (package: realdrop)   [built in Phase 1]
 apps/web/      Next.js frontend                      [built in Phase 1]
 docs/          product, architecture, data model, AI design, evals, design system, setup, roadmap
 evals/         golden sets for the AI components
@@ -106,7 +106,7 @@ Requires Docker (OrbStack), `uv`, Node and `pnpm`. See [`docs/SETUP.md`](docs/SE
 cp .env.example .env            # then add your own keys; never commit .env
 docker compose up -d            # Postgres (pgvector) + Redis
 
-cd apps/api && uv sync && uv run uvicorn fiyat.main:app --reload   # http://localhost:8000/docs
+cd apps/api && uv sync && uv run uvicorn realdrop.main:app --reload   # http://localhost:8000/docs
 cd apps/web && pnpm install && pnpm dev                            # http://localhost:3000
 ```
 
@@ -128,4 +128,4 @@ Copyright © 2026 Ahmed Elghazzawy. All rights reserved. The source is public to
 no license is granted to reuse it yet.
 
 Price data shown by the app belongs to the respective retailers; brand names are their owners'
-trademarks. fiyatgercek is not affiliated with any retailer.
+trademarks. RealDrop is not affiliated with any retailer.

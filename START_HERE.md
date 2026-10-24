@@ -8,8 +8,8 @@ the docs, agents and skills are read when needed. Everything is a specification 
 
 ```bash
 mkdir -p ~/dev && cd ~/dev
-unzip ~/Downloads/fiyatgercek-kit.zip      # creates ~/dev/fiyatgercek
-cd fiyatgercek
+unzip ~/Downloads/realdrop-kit.zip      # creates ~/dev/realdrop
+cd realdrop
 code .
 ```
 

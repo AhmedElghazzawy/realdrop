@@ -1,6 +1,6 @@
 ---
 name: add-brand-collector
-description: Step-by-step checklist for adding a new retailer collector to fiyatgercek, from feasibility check to registered, tested, scheduled collector. Use whenever a new brand is added or an existing collector is rebuilt.
+description: Step-by-step checklist for adding a new retailer collector to RealDrop, from feasibility check to registered, tested, scheduled collector. Use whenever a new brand is added or an existing collector is rebuilt.
 ---
 
 # Add a brand collector
@@ -20,7 +20,7 @@ Follow in order. Stop and ask the owner at every **[ASK]**.
 
 ## 2. Skeleton
 
-Create `apps/api/src/fiyat/collectors/<slug>/` with `collector.py`, `parser.py`, `fixtures/`, `__init__.py`.
+Create `apps/api/src/realdrop/collectors/<slug>/` with `collector.py`, `parser.py`, `fixtures/`, `__init__.py`.
 
 ## 3. Implement
 
@@ -32,7 +32,7 @@ Create `apps/api/src/fiyat/collectors/<slug>/` with `collector.py`, `parser.py`,
   Do not rotate proxies, spoof fingerprints, solve CAPTCHAs or log in.
 - `parser.py` is pure: raw payload in, `RawProduct` out. Prices to integer kurus
   (`"1.299,90 TL"` -> `129990`). Normalize size labels and colors with the taxonomy helpers.
-  Use `fiyat.text` for any casing.
+  Use `realdrop.text` for any casing.
 - Emit `original_price_minor` only when the site shows a strike-through or "old price"; otherwise `None`.
 
 ## 4. Fixtures and tests
@@ -45,7 +45,7 @@ Create `apps/api/src/fiyat/collectors/<slug>/` with `collector.py`, `parser.py`,
 ## 5. Register and dry-run
 
 1. Add the collector to `collectors/registry.py`.
-2. Run `uv run python -m fiyat.collectors.run --brand <slug> --limit 20 --dry-run`.
+2. Run `uv run python -m realdrop.collectors.run --brand <slug> --limit 20 --dry-run`.
 3. Show the owner the printed sample (10 products with variants and prices). **[ASK] approve before storing.**
 4. Run without `--dry-run` for the same 20 products and verify rows in `products`, `variants`,
    `price_observations`.

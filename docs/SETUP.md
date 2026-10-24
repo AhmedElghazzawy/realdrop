@@ -16,7 +16,7 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
 2. **Git:** `git init -b main` if needed. Confirm `git config user.name` and `user.email` exist; if not,
    ask the owner for them. Do not run `gh auth login`; the owner does that.
 3. **Backend:** `mkdir -p apps && cd apps && uv init api --python 3.12`. Create the package layout
-   from `CLAUDE.md` under `apps/api/src/fiyat/` (empty `__init__.py` files and `text.py` with
+   from `CLAUDE.md` under `apps/api/src/realdrop/` (empty `__init__.py` files and `text.py` with
    `tr_lower`, `tr_upper`, `normalize` and tests). Add dependencies:
    `fastapi "uvicorn[standard]" "sqlalchemy[asyncio]" asyncpg alembic pydantic-settings httpx selectolax arq anthropic pgvector`
    and dev: `pytest pytest-asyncio pytest-socket ruff mypy`. Configure `pyproject.toml` for ruff,
@@ -26,7 +26,7 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
 5. **Containers:** make sure OrbStack is running, then `docker compose up -d` and
    `docker compose ps` (both services healthy). The init script installs the `vector`, `unaccent`
    and `pg_trgm` extensions on first start. Verify:
-   `docker compose exec db psql -U app -d fiyat -c "\dx"`.
+   `docker compose exec db psql -U app -d realdrop -c "\dx"`.
 6. **Env:** `cp .env.example .env` if `.env` does not exist. Never print `.env`. The owner puts
    `ANTHROPIC_API_KEY` in it personally.
 7. **Verify (report as a checklist):**
@@ -39,7 +39,7 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
 
 ## Owner-only steps
 
-- `gh auth login` (GitHub.com, HTTPS, browser), then `gh repo create fiyatgercek --private --source=. --push`.
+- `gh auth login` (GitHub.com, HTTPS, browser), then `gh repo create realdrop --private --source=. --push`.
 - Create an Anthropic API key in the Console with a small monthly spend limit and put it in `.env`.
 - Create a Telegram bot with BotFather later (Phase: alerts) and put the token in `.env`.
 
