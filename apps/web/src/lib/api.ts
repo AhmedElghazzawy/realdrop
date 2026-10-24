@@ -83,14 +83,18 @@ export function getStats(): Promise<Stats> {
   return get("/stats");
 }
 
+export type Audience = "men" | "women";
+
 export function getProducts(params: {
   q?: string;
+  audience?: Audience;
   sort?: SortOrder;
   limit?: number;
   offset?: number;
 }): Promise<ProductList> {
   const search = new URLSearchParams();
   if (params.q) search.set("q", params.q);
+  if (params.audience) search.set("audience", params.audience);
   if (params.sort) search.set("sort", params.sort);
   search.set("limit", String(params.limit ?? 48));
   search.set("offset", String(params.offset ?? 0));

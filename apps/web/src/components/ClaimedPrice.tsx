@@ -1,7 +1,8 @@
+import { getDictionary, getLocale } from "@/i18n";
 import { claimedDiscount, formatMoney, formatPercent } from "@/lib/format";
 
 // The shop's claimed old price and claimed discount, shown as a claim, never as a fact.
-export function ClaimedPrice({
+export async function ClaimedPrice({
   price,
   claimed,
   currency,
@@ -12,10 +13,11 @@ export function ClaimedPrice({
 }) {
   const discount = claimedDiscount(price, claimed);
   if (claimed === null || discount === null) return null;
+  const [locale, t] = [await getLocale(), await getDictionary()];
   return (
     <span className="text-xs text-muted">
-      <span className="line-through">{formatMoney(claimed, currency)}</span>{" "}
-      <span title="Mağazanın iddia ettiği indirim">mağaza: −{formatPercent(discount)}</span>
+      <span className="line-through">{formatMoney(locale, claimed, currency)}</span>{" "}
+      <span title={t.claim.title}>{t.claim.shopSays(formatPercent(locale, discount))}</span>
     </span>
   );
 }

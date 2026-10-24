@@ -1,12 +1,22 @@
+import { getDictionary, getLocale } from "@/i18n";
 import type { PricePoint } from "@/lib/api";
 import { formatDay, formatMoney } from "@/lib/format";
 
 // Server-rendered SVG: the price people paid each day (solid) and the shop's claimed old price
 // (dashed, --warn). No chart library needed for one line; Phase 8 adds hover and 30/90-day ranges.
-export function PriceChart({ history, currency }: { history: PricePoint[]; currency: string }) {
+export async function PriceChart({
+  history,
+  currency,
+}: {
+  history: PricePoint[];
+  currency: string;
+}) {
+  const [locale, t] = [await getLocale(), await getDictionary()];
   if (history.length === 0) {
-    return <p className="text-sm text-muted">Henüz onaylanmış fiyat yok.</p>;
+    return <p className="text-sm text-muted">{t.chart.noData}</p>;
   }
+  const money = (minor: number) => formatMoney(locale, minor, currency);
+  const day = (iso: string) => formatDay(locale, iso);
   const width = 640;
   const height = 220;
   const pad = { top: 16, right: 16, bottom: 28, left: 72 };
@@ -37,7 +47,7 @@ export function PriceChart({ history, currency }: { history: PricePoint[]; curre
         viewBox={`0 0 ${width} ${height}`}
         className="w-full"
         role="img"
-        aria-label={`Fiyat geçmişi, ${history.length} gün. Son fiyat ${formatMoney(last.price_minor, currency)}.`}
+        aria-label={t.chart.aria(history.length, money(last.price_minor))}
       >
         {[hi, (hi + lo) / 2, lo].map((v) => (
           <g key={v}>
@@ -48,7 +58,7 @@ export function PriceChart({ history, currency }: { history: PricePoint[]; curre
               textAnchor="end"
               className="fill-[var(--muted)] font-mono text-[11px]"
             >
-              {formatMoney(Math.round(v), currency)}
+              {money(Math.round(v))}
             </text>
           </g>
         ))}
@@ -71,17 +81,17 @@ export function PriceChart({ history, currency }: { history: PricePoint[]; curre
               stroke="var(--warn)"
               strokeWidth={1.5}
             >
-              <title>{`${formatDay(p.day)}: mağaza iddiası ${formatMoney(p.original_price_minor, currency)}`}</title>
+              <title>{t.chart.claimedPoint(day(p.day), money(p.original_price_minor))}</title>
             </circle>
           ),
         )}
         {history.map((p, i) => (
           <circle key={p.day} cx={x(i)} cy={y(p.price_minor)} r={3.5} fill="var(--text)">
-            <title>{`${formatDay(p.day)}: ${formatMoney(p.price_minor, currency)}`}</title>
+            <title>{`${day(p.day)}: ${money(p.price_minor)}`}</title>
           </circle>
         ))}
         <text x={pad.left} y={height - 8} className="fill-[var(--muted)] text-[11px]">
-          {formatDay(history[0].day)}
+          {day(history[0].day)}
         </text>
         {history.length > 1 ? (
           <text
@@ -90,17 +100,16 @@ export function PriceChart({ history, currency }: { history: PricePoint[]; curre
             textAnchor="end"
             className="fill-[var(--muted)] text-[11px]"
           >
-            {formatDay(last.day)}
+            {day(last.day)}
           </text>
         ) : null}
       </svg>
       <figcaption className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-4 bg-text" /> Ödenen fiyat (günlük en düşük)
+          <span className="inline-block h-0.5 w-4 bg-text" /> {t.chart.paid}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 border-t border-dashed border-warn" /> Mağazanın
-          &quot;eski fiyat&quot; iddiası
+          <span className="inline-block w-4 border-t border-dashed border-warn" /> {t.chart.claimed}
         </span>
       </figcaption>
     </figure>
