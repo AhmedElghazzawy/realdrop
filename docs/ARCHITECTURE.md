@@ -53,19 +53,23 @@
 | 9 | Taste profile is plain code (decayed vector + counters) | Explainable, cheap, deletable, testable. No LLM needed |
 | 10 | Next.js frontend, Turkish first | Fast mobile UX, strong ecosystem, easy deploy |
 | 11 | Free LLMs only: Ollama locally, free API tiers in prod, switchable via env (24 Oct 2026) | Zero budget. Providers are swapped in `.env`, not code; evals decide which model is good enough |
+| 12 | Hosting on no-card free tiers: Neon (DB), GitHub Actions (collection), Render/Vercel later (24 Oct 2026) | Owner gives no card to any provider (Oracle dropped). Revisit if Neon's 0.5 GB or GitHub's 6 h job limit is hit |
 
 ## Scaling assumptions (launch)
 
 6 brands x ~3,000 tracked products x ~6 variants ~= 100k variants. One observation per variant per run;
-every 4 hours near Black Friday ~= 600k rows/day at most. Partition `price_observations` by month only
+every 4 hours near Black Friday ~= 600k rows/day at most. **Neon's free 0.5 GB cannot hold that**
+(~160 bytes/row with indexes): one brand daily (~45k rows, ~7 MB/day) fits until launch, more brands or
+4-hourly runs need change-only observations (a data-model decision for Phase 4). Partition `price_observations` by month only
 if needed after launch. The assistant is the per-user load on free-tier rate limits: daily caps per user (see `AI_DESIGN.md`).
 
 ## Environments
 
 - **dev**: Docker Compose (Postgres+pgvector, Redis) on the Mac; API and web run natively.
-- **prod**: one free server (Oracle Cloud Always Free ARM: up to 4 cores / 24 GB) with Docker Compose
-  via Coolify; Postgres backups daily. A paid VPS (Hetzner, ~5 EUR/month) only if the owner agrees;
-  Sentry for errors; Langfuse (self-hosted) for LLM traces in the first week after launch if time allows.
+- **prod**: free tiers that need no credit card (ADR 12). Database: **Neon** free Postgres (0.5 GB,
+  pgvector). Collection: **GitHub Actions** scheduled workflow (`.github/workflows/collect.yml`, free and
+  unlimited for a public repo). Later: API on **Render** free, web on **Vercel** free. Sentry free for
+  errors. Nothing paid without the owner's explicit OK. Setup: `docs/DEPLOY.md`.
 
 ## Failure behaviour
 

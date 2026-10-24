@@ -1,4 +1,4 @@
-# RealDrop API / jobs image. Multi-arch base images, so it builds on the Oracle ARM server as is.
+# RealDrop API / jobs image (for Render or any Docker host later). Multi-arch base images.
 # The package is installed non-editable into /opt/venv; settings come from environment variables
 # (compose), never from a .env file inside the image.
 FROM ghcr.io/astral-sh/uv:0.12.23 AS uv

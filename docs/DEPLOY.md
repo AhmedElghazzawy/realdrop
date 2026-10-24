@@ -1,0 +1,51 @@
+# Production setup (free tiers, no credit card)
+
+ADR 12: everything runs on free tiers that need no card. Phase 3 needs only the first two rows.
+
+| Piece | Service | Status |
+|---|---|---|
+| Database | Neon free Postgres (0.5 GB) | Phase 3 |
+| Daily collection | GitHub Actions, `.github/workflows/collect.yml` | Phase 3 |
+| API | Render free web service (Docker, `apps/api/Dockerfile`) | Phase 7-8 |
+| Web | Vercel free (Next.js) | Phase 8 |
+
+## 1. Neon database (owner, ~3 min)
+
+1. <https://console.neon.tech> -> **New project**: name `realdrop`, Postgres **16**, region
+   **AWS Europe Central 1 (Frankfurt)** (closest to Turkey and to the data we collect).
+2. On the project dashboard click **Connect** and copy the connection string (any variant works:
+   `config.asyncpg_url` turns Neon's string into an asyncpg URL and uses the direct, non-pooled host).
+3. Store it as a GitHub secret **without pasting it anywhere else** (from the repo folder on the Mac,
+   right after copying it):
+
+   ```bash
+   pbpaste | gh secret set DATABASE_URL
+   ```
+
+The first workflow run creates the tables and extensions (`alembic upgrade head`).
+
+## 2. Collection on GitHub Actions
+
+- Scheduled daily at 00:00 UTC (03:00 Turkey). GitHub can start scheduled runs late under load,
+  and disables schedules after 60 days without repo activity (not a risk while we build daily).
+- Manual run (test or catch-up): Actions -> collect -> **Run workflow** (brand, optional limit), or
+  `gh workflow run collect -f brand=defacto -f limit=20`.
+- Each job: install, migrate, collect one brand. Two runs of the same brand never overlap. A job
+  is killed after 330 min (GitHub's limit is 6 h; a full DeFacto pass is ~2.5-3 h).
+- Every run, including failed and blocked ones, is a row in `collection_runs`; the job log shows the
+  same summary.
+
+## Checking on it
+
+```bash
+gh run list --workflow collect --limit 5
+gh run view --log <run-id> | tail -20
+```
+
+## Limits to watch
+
+- **Storage 0.5 GB**: one brand daily is ~7 MB/day (fits until launch). More brands or 4-hourly runs
+  need change-only observations first (Phase 4 decision). Check usage in the Neon console.
+- **Datacenter IPs**: some shops block cloud IPs. If a run stops with `CollectorBlockedError`, we stop
+  for that brand and decide; we never route around a block.
+- **Backups**: Neon keeps a short restore window on the free tier. A `pg_dump` export comes in Phase 12.

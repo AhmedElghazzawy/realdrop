@@ -71,7 +71,7 @@ Full scope, users and non-goals: [`docs/PRODUCT.md`](docs/PRODUCT.md).
 - **AI:** free and open-source models (Ollama locally, free API tiers in prod) with a hand-written tool loop (no agent frameworks), bge-m3 embeddings,
   bge-reranker
 - **Frontend:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui; Turkish first
-- **Ops:** Docker Compose on one free server (Oracle Cloud Always Free), Sentry free tier
+- **Ops:** no-card free tiers: Neon (Postgres), GitHub Actions (daily collection), Render + Vercel later, Sentry free
 
 ```
 retailer feeds -> collectors -> validate (glitch filter) -> Postgres + pgvector -> FastAPI -> Next.js

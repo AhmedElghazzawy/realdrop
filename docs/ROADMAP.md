@@ -35,9 +35,8 @@ Latest finish: 27 Oct.
       stability). Pick the easiest. (Six checked; DeFacto is brand 1.)
 - [x] Brand 1 collector against fixtures; dry run of 20 products.
 - [x] Brand 1 stored in DB with validation (glitch filter).
-- [ ] Set up the free server (Oracle Cloud Always Free; paid VPS only with the owner's OK), deploy
-      collection with a daily job. **Collection is now running without the laptop.**
-      Kit ready and tested locally: `docs/DEPLOY_ORACLE.md`, `infra/prod/`. Waiting on the account.
+- [ ] Production database on Neon free + daily collection on GitHub Actions (`docs/DEPLOY.md`; no-card
+      free tiers only, ADR 12). **Collection is now running without the laptop.**
 
 ## Phase 4: more brands and the real-drop rule
 

@@ -1,0 +1,53 @@
+# Daily price collection on GitHub's free runners (free and unlimited for public repos).
+# Writes to the Neon database in the DATABASE_URL repository secret. docs/DEPLOY.md.
+name: collect
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # 03:00 Turkey time. GitHub may start scheduled runs some minutes late.
+  workflow_dispatch:
+    inputs:
+      brand:
+        description: Collector slug
+        default: defacto
+        required: true
+      limit:
+        description: Stop after this many items (empty = full catalog)
+        default: ""
+        required: false
+
+jobs:
+  collect:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Scheduled runs collect every brand; a manual run only the one asked for.
+        brand: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', inputs.brand)) || fromJSON('["defacto"]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330 # GitHub's hard limit is 6 h; a full DeFacto pass is ~2.5-3 h
+    concurrency:
+      group: collect-${{ matrix.brand }}
+      cancel-in-progress: false # never two runs of the same brand at once
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      COLLECTOR_USER_AGENT: realdrop-bot/0.1 (+https://github.com/AhmedElghazzawy/realdrop)
+      APP_ENV: production
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+      - name: Install
+        run: uv sync --frozen --no-dev
+      - name: Check the secret is set
+        run: test -n "$DATABASE_URL" || { echo "::error::Repository secret DATABASE_URL is missing"; exit 1; }
+      - name: Migrate
+        run: uv run alembic upgrade head
+      - name: Collect
+        env: # inputs go through env, never straight into the script (no shell injection)
+          BRAND: ${{ matrix.brand }}
+          LIMIT: ${{ inputs.limit }}
+        run: uv run python -m realdrop.collectors.run --brand "$BRAND" ${LIMIT:+--limit "$LIMIT"}

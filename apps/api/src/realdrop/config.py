@@ -6,8 +6,9 @@ which always win over the file.
 
 from functools import lru_cache
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # src/realdrop/config.py -> parents[4] is the repo root, where docker-compose.yml and .env live.
@@ -33,6 +34,39 @@ class Settings(BaseSettings):
     llm_model_main: str = "gemma4:12b"
 
     collector_user_agent: str = "realdrop-bot/0.1 (+https://github.com/AhmedElghazzawy/realdrop)"
+
+    @field_validator("database_url")
+    @classmethod
+    def _asyncpg_url(cls, url: str) -> str:
+        return asyncpg_url(url)
+
+
+def asyncpg_url(url: str) -> str:
+    """Accept a connection string exactly as Neon (or any host) shows it and make it asyncpg-ready.
+
+    `postgresql://u:p@ep-x-pooler.eu-central-1.aws.neon.tech/db?sslmode=require&channel_binding=require`
+    -> `postgresql+asyncpg://u:p@ep-x.eu-central-1.aws.neon.tech/db?ssl=require`
+
+    - Driver prefix `postgresql+asyncpg`.
+    - libpq-only options (`sslmode`, `channel_binding`) are not understood by asyncpg; `sslmode`
+      becomes asyncpg's `ssl`.
+    - Neon's pooled host (`-pooler`) runs PgBouncer in transaction mode, which breaks asyncpg's
+      prepared statements; the direct host is the same name without `-pooler`. A job that opens a
+      handful of connections does not need the pooler.
+    """
+    parts = urlsplit(url)
+    scheme = parts.scheme
+    if scheme in ("postgres", "postgresql"):
+        scheme = "postgresql+asyncpg"
+    netloc = parts.netloc
+    if netloc.endswith(".neon.tech"):
+        netloc = netloc.replace("-pooler.", ".", 1)
+    query = dict(parse_qsl(parts.query))
+    query.pop("channel_binding", None)
+    sslmode = query.pop("sslmode", None)
+    if sslmode and sslmode != "disable" and "ssl" not in query:
+        query["ssl"] = sslmode
+    return urlunsplit((scheme, netloc, parts.path, urlencode(query), parts.fragment))
 
 
 @lru_cache

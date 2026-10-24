@@ -126,6 +126,7 @@ pnpm lint && pnpm typecheck && pnpm test
 | Quality gates and golden sets | `docs/EVALS.md` |
 | UI look and components | `docs/DESIGN_SYSTEM.md` |
 | Machine setup | `docs/SETUP.md` |
+| Production (Neon, GitHub Actions, Render, Vercel) | `docs/DEPLOY.md` |
 | Phases, deadlines, cut lines | `docs/ROADMAP.md` |
 
 ## Definition of done
