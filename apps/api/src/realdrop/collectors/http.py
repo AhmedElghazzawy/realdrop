@@ -2,7 +2,8 @@
 
 - Identifies itself with COLLECTOR_USER_AGENT.
 - At most `rate_limit_rps` requests per second, plus random jitter; honours robots.txt Crawl-delay.
-- Obeys robots.txt (RFC 9309: 4xx means no rules, unreachable means stay out).
+- Obeys robots.txt (RFC 9309 incl. wildcards, see robots.py; 4xx means no rules, unreachable means
+  stay out).
 - Retries 429, 5xx and network errors with exponential backoff, honouring Retry-After.
 - Stops on 401/403: raises CollectorBlockedError. Never retries, rotates, or works around a block.
 
@@ -17,9 +18,10 @@ from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import urlsplit
-from urllib.robotparser import RobotFileParser
 
 import httpx
+
+from realdrop.collectors.robots import RobotsRules
 
 
 class CollectorError(Exception):
@@ -28,6 +30,11 @@ class CollectorError(Exception):
 
 class CollectorBlockedError(CollectorError):
     """403/401, or robots.txt says no. Stop this brand and tell the owner; do not work around it."""
+
+
+class RobotsDisallowedError(CollectorBlockedError):
+    """robots.txt disallows this one URL. Nothing was requested; a collector may skip just this
+    item (as an ItemFailure) instead of ending the run."""
 
 
 class CollectorGaveUpError(CollectorError):
@@ -59,7 +66,7 @@ class PoliteClient:
         self._rng = rng
         self._next_request_at = 0.0
         # Parsed robots.txt per origin; None means "no rules" (robots.txt was a 4xx).
-        self._robots: dict[str, RobotFileParser | None] = {}
+        self._robots: dict[str, RobotsRules | None] = {}
         self._http = httpx.AsyncClient(
             headers={"User-Agent": user_agent, "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.5"},
             timeout=timeout_s,
@@ -135,22 +142,19 @@ class PoliteClient:
         rules = self._robots[origin]
         if rules is None:
             return
-        if not rules.can_fetch(self._user_agent, url):
-            raise CollectorBlockedError(f"robots.txt disallows {url}")
-        delay = rules.crawl_delay(self._user_agent)
-        if delay is not None and float(delay) > self._min_interval_s:
-            self._min_interval_s = float(delay)
+        if not rules.can_fetch(url):
+            raise RobotsDisallowedError(f"robots.txt disallows {url}")
+        if rules.crawl_delay is not None and rules.crawl_delay > self._min_interval_s:
+            self._min_interval_s = rules.crawl_delay
 
-    async def _load_robots(self, origin: str) -> RobotFileParser | None:
+    async def _load_robots(self, origin: str) -> RobotsRules | None:
         try:
             response = await self._send(f"{origin}/robots.txt", None)
         except CollectorGaveUpError as exc:
             raise CollectorBlockedError(f"robots.txt unreachable at {origin}: {exc}") from exc
         if 400 <= response.status_code < 500:
             return None
-        rules = RobotFileParser()
-        rules.parse(response.text.splitlines())
-        return rules
+        return RobotsRules(response.text, self._user_agent)
 
 
 def _parse_retry_after(value: str) -> float | None:
