@@ -92,50 +92,77 @@ async def store_product(
     raw: RawProduct,
     observed_at: datetime,
 ) -> Counter[PriceStatus]:
-    """Upsert the product and its variants, then add one observation per variant.
-    Returns how many observations got each status."""
-    product = await _upsert_product(session, brand_id, raw, observed_at)
-    variants = await _upsert_variants(session, product, raw)
+    """Store one product; see store_products."""
+    return await store_products(
+        session, brand_id=brand_id, run_id=run_id, batch=[(raw, observed_at)]
+    )
+
+
+async def store_products(
+    session: AsyncSession,
+    *,
+    brand_id: uuid.UUID,
+    run_id: uuid.UUID,
+    batch: list[tuple[RawProduct, datetime]],
+) -> Counter[PriceStatus]:
+    """Upsert a batch of products and their variants, then add one observation per variant.
+    Returns how many observations got each status.
+
+    Set-based on purpose: about ten database round trips per batch instead of per product. Against
+    a remote database (~0.1 s per round trip) that is the difference between a 7 h and a 3 h run.
+    """
+    if not batch:
+        return Counter()
+    products = await _upsert_products(session, brand_id, batch)
+    variants = await _upsert_variants(session, products, [raw for raw, _ in batch])
     ids = [v.id for v in variants.values()]
 
+    # One history window for the whole batch: its items were observed seconds apart.
+    earliest = min(observed_at for _, observed_at in batch)
     last_confirmed = await _last_confirmed(session, ids)
-    recent = await _confirmed_since(session, ids, observed_at - config.MEDIAN_WINDOW)
-    held = await _held_since(session, ids, observed_at - config.PENDING_EXPIRY)
+    recent = await _confirmed_since(session, ids, earliest - config.MEDIAN_WINDOW)
+    held = await _held_since(session, ids, earliest - config.PENDING_EXPIRY)
 
     counts: Counter[PriceStatus] = Counter()
-    for raw_variant in raw.variants:
-        variant = variants[raw_variant.external_sku]
-        verdict = classify(
-            raw_variant.price_minor,
-            raw_variant.original_price_minor,
-            last_confirmed.get(variant.id),
-            recent[variant.id],
-        )
-        status, reason = verdict.status, verdict.reason
-        if status is PriceStatus.PENDING:
-            confirmed = confirming(raw_variant.price_minor, observed_at, held[variant.id])
-            if confirmed:
-                await session.execute(
-                    update(PriceObservation)
-                    .where(PriceObservation.id.in_([h.observation_id for h in confirmed]))
-                    .values(status=PriceStatus.CONFIRMED, reject_reason=None)
-                )
-                status, reason = PriceStatus.CONFIRMED, None
-        session.add(
-            PriceObservation(
-                variant_id=variant.id,
-                run_id=run_id,
-                observed_at=observed_at,
-                price_minor=raw_variant.price_minor,
-                original_price_minor=raw_variant.original_price_minor,
-                currency=raw.currency,
-                in_stock=raw_variant.in_stock,
-                status=status,
-                # Pending rows keep their reason too, so a held price can be explained.
-                reject_reason=reason,
+    now_confirmed: list[int] = []
+    observations: list[PriceObservation] = []
+    for raw, observed_at in batch:
+        for raw_variant in raw.variants:
+            variant = variants[(raw.external_id, raw_variant.external_sku)]
+            verdict = classify(
+                raw_variant.price_minor,
+                raw_variant.original_price_minor,
+                last_confirmed.get(variant.id),
+                recent[variant.id],
             )
+            status, reason = verdict.status, verdict.reason
+            if status is PriceStatus.PENDING:
+                confirmed = confirming(raw_variant.price_minor, observed_at, held[variant.id])
+                if confirmed:
+                    now_confirmed += [h.observation_id for h in confirmed]
+                    status, reason = PriceStatus.CONFIRMED, None
+            observations.append(
+                PriceObservation(
+                    variant_id=variant.id,
+                    run_id=run_id,
+                    observed_at=observed_at,
+                    price_minor=raw_variant.price_minor,
+                    original_price_minor=raw_variant.original_price_minor,
+                    currency=raw.currency,
+                    in_stock=raw_variant.in_stock,
+                    status=status,
+                    # Pending rows keep their reason too, so a held price can be explained.
+                    reject_reason=reason,
+                )
+            )
+            counts[status] += 1
+    if now_confirmed:
+        await session.execute(
+            update(PriceObservation)
+            .where(PriceObservation.id.in_(now_confirmed))
+            .values(status=PriceStatus.CONFIRMED, reject_reason=None)
         )
-        counts[status] += 1
+    session.add_all(observations)
     await session.flush()
     return counts
 
@@ -159,42 +186,60 @@ async def expire_pending(session: AsyncSession, now: datetime) -> int:
     return int(result.rowcount)  # type: ignore[attr-defined]
 
 
-async def _upsert_product(
-    session: AsyncSession, brand_id: uuid.UUID, raw: RawProduct, observed_at: datetime
-) -> Product:
-    product = await session.scalar(
-        select(Product).where(Product.brand_id == brand_id, Product.external_id == raw.external_id)
-    )
-    if product is None:
-        product = Product(brand_id=brand_id, external_id=raw.external_id, first_seen_at=observed_at)
-        session.add(product)
-    product.url = str(raw.url)
-    product.title_raw = raw.title
-    product.description_raw = raw.description
-    product.category_raw = raw.category_raw
-    product.image_urls = [str(u) for u in raw.image_urls]
-    product.content_hash = content_hash(raw)
-    product.last_seen_at = observed_at
-    product.is_active = True
+async def _upsert_products(
+    session: AsyncSession, brand_id: uuid.UUID, batch: list[tuple[RawProduct, datetime]]
+) -> dict[str, Product]:
+    external_ids = [raw.external_id for raw, _ in batch]
+    products = {
+        p.external_id: p
+        for p in await session.scalars(
+            select(Product).where(
+                Product.brand_id == brand_id, Product.external_id.in_(external_ids)
+            )
+        )
+    }
+    for raw, observed_at in batch:
+        product = products.get(raw.external_id)
+        if product is None:
+            product = Product(
+                brand_id=brand_id, external_id=raw.external_id, first_seen_at=observed_at
+            )
+            session.add(product)
+            products[raw.external_id] = product
+        product.url = str(raw.url)
+        product.title_raw = raw.title
+        product.description_raw = raw.description
+        product.category_raw = raw.category_raw
+        product.image_urls = [str(u) for u in raw.image_urls]
+        product.content_hash = content_hash(raw)
+        product.last_seen_at = observed_at
+        product.is_active = True
     await session.flush()
-    return product
+    return products
 
 
 async def _upsert_variants(
-    session: AsyncSession, product: Product, raw: RawProduct
-) -> dict[str, Variant]:
+    session: AsyncSession, products: dict[str, Product], raws: list[RawProduct]
+) -> dict[tuple[str, str], Variant]:
+    """Variants keyed by (product external_id, variant external_sku)."""
+    by_product_id = {p.id: external_id for external_id, p in products.items()}
     existing = {
-        v.external_sku: v
-        for v in await session.scalars(select(Variant).where(Variant.product_id == product.id))
+        (by_product_id[v.product_id], v.external_sku): v
+        for v in await session.scalars(
+            select(Variant).where(Variant.product_id.in_(list(by_product_id)))
+        )
     }
-    for raw_variant in raw.variants:
-        variant = existing.get(raw_variant.external_sku)
-        if variant is None:
-            variant = Variant(product_id=product.id, external_sku=raw_variant.external_sku)
-            session.add(variant)
-            existing[raw_variant.external_sku] = variant
-        variant.size_label = raw_variant.size_label
-        variant.color_raw = raw_variant.color_raw
+    for raw in raws:
+        product = products[raw.external_id]
+        for raw_variant in raw.variants:
+            key = (raw.external_id, raw_variant.external_sku)
+            variant = existing.get(key)
+            if variant is None:
+                variant = Variant(product_id=product.id, external_sku=raw_variant.external_sku)
+                session.add(variant)
+                existing[key] = variant
+            variant.size_label = raw_variant.size_label
+            variant.color_raw = raw_variant.color_raw
     await session.flush()
     return existing
 

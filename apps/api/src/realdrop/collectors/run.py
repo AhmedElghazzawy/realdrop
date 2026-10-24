@@ -4,7 +4,7 @@
     uv run python -m realdrop.collectors.run --brand defacto            # full run, stored
 
 --dry-run prints what was collected and stores nothing. A stored run records a `collection_runs`
-row, writes each product in its own transaction (a crash loses at most one product), passes every
+row, writes products in batches of 20 per transaction (a crash loses one batch at most), runs every
 price through the glitch filter, and finally expires pending prices nobody confirmed in time.
 """
 
@@ -23,6 +23,7 @@ from realdrop.models import PriceStatus
 from realdrop.pipeline import store
 
 MAX_FAILURES_IN_NOTES = 20
+BATCH_SIZE = 20  # products per transaction; see store.store_products
 
 
 def format_try(minor: int) -> str:
@@ -89,6 +90,19 @@ async def stored_run(slug: str, limit: int | None) -> int:
     failure_notes: list[str] = []
     stopped_by: str | None = None
     started = time.monotonic()
+    pending: list[tuple[RawProduct, datetime]] = []
+
+    async def flush() -> Counter[PriceStatus]:
+        """Store the buffered products in one transaction (a crash loses at most one batch)."""
+        if not pending:
+            return Counter()
+        async with sessionmaker() as session, session.begin():
+            counts = await store.store_products(
+                session, brand_id=brand_id, run_id=run_id, batch=pending
+            )
+        pending.clear()
+        return counts
+
     try:
         async with collector_class.make_client() as client:
             catalog = collector_class(client).fetch_catalog()
@@ -99,21 +113,18 @@ async def stored_run(slug: str, limit: int | None) -> int:
                         if len(failure_notes) < MAX_FAILURES_IN_NOTES:
                             failure_notes.append(f"{item.source}: {item.reason}")
                     else:
-                        async with sessionmaker() as session, session.begin():
-                            statuses += await store.store_product(
-                                session,
-                                brand_id=brand_id,
-                                run_id=run_id,
-                                raw=item,
-                                observed_at=datetime.now(UTC),
-                            )
+                        pending.append((item, datetime.now(UTC)))
                         products += 1
+                        if len(pending) >= BATCH_SIZE:
+                            statuses += await flush()
                     if limit is not None and products + failures >= limit:
                         break
             finally:
                 await catalog.aclose()  # type: ignore[attr-defined]
+        statuses += await flush()
     except CollectorError as exc:
         stopped_by = f"{type(exc).__name__}: {exc}"
+        statuses += await flush()  # keep what was collected before the stop
     except BaseException as exc:  # a bug or Ctrl-C: still close the run row, then re-raise
         stopped_by = f"crashed: {type(exc).__name__}: {exc}"
         raise

@@ -147,3 +147,26 @@ async def test_finish_run_status(db_session: AsyncSession) -> None:
         10,
         1,
     )
+
+
+async def test_batch_of_new_and_known_products(db_session: AsyncSession) -> None:
+    brand_id, run_id = await setup(db_session)
+    await store.store_product(
+        db_session, brand_id=brand_id, run_id=run_id, raw=coat(), observed_at=T0
+    )
+    jacket = RawProduct(
+        external_id="2002",
+        url="https://shop.example.com/ceket-2002",
+        title="Ceket",
+        currency="TRY",
+        variants=[RawVariant(external_sku="2002-M", price_minor=50_000, in_stock=False)],
+    )
+    counts = await store.store_products(
+        db_session,
+        brand_id=brand_id,
+        run_id=run_id,
+        batch=[(coat(price=1_000), T0 + DAY), (jacket, T0 + DAY)],
+    )
+    assert counts == {PriceStatus.PENDING: 2, PriceStatus.CONFIRMED: 1}
+    titles = await db_session.scalars(select(Product.title_raw).order_by(Product.external_id))
+    assert list(titles) == ["Siyah Kaban", "Ceket"]
