@@ -20,8 +20,8 @@ you search in plain Turkish or English.
 | Phase | Focus | Status |
 |---|---|---|
 | 1 | Environment, free/open-source models | ✅ Done |
-| 2 | Backend foundation: database schema, `/health`, collector base | 🟡 In progress |
-| 3 | First brand collecting daily on a server | ⚪ Planned |
+| 2 | Backend foundation: database schema, `/health`, collector base | ✅ Done |
+| 3 | First brand collecting daily on a server | 🟡 Next |
 | 4 | More brands, price roll-ups, real-drop rule | ⚪ Planned |
 | 5 | Taxonomy and AI extractor | ⚪ Planned |
 | 6 | Hybrid search: embeddings, full-text, reranker | ⚪ Planned |

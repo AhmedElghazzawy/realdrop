@@ -19,13 +19,13 @@ Latest finish: 24 Oct.
 - [x] Switch to free and open-source models only (ADR 11).
 - [ ] Owner reads `docs/PRODUCT.md`, `docs/ROADMAP.md`, `docs/AI_DESIGN.md` once.
 
-## Phase 2: backend foundation
+## Phase 2: backend foundation ✅
 
-Latest finish: 25 Oct.
+Latest finish: 25 Oct. Done 24 Oct.
 
-- [ ] Settings, async DB session, app factory. `/health`. (`text.py` tests: done in Phase 1.)
-- [ ] Alembic setup + first migration (catalog, prices, runs).
-- [ ] Base collector interface, polite HTTP client, price parsing + fixture-test pattern.
+- [x] Settings, async DB session, app factory. `/health`. (`text.py` tests: done in Phase 1.)
+- [x] Alembic setup + first migration (catalog, prices, runs).
+- [x] Base collector interface, polite HTTP client, price parsing + fixture-test pattern.
 
 ## Phase 3: first brand collecting on a server
 
