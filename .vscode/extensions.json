@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "ms-azuretools.vscode-docker",
+    "bradlc.vscode-tailwindcss",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "tamasfe.even-better-toml",
+    "humao.rest-client",
+    "ckolkman.vscode-postgres",
+    "anthropic.claude-code"
+  ]
+}

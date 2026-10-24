@@ -1,0 +1,20 @@
+{"id":"q001","query":"siyah oversize kışlık kaban 2000 TL altı","lang":"tr","expect":{"category":"coat","colors":["black"],"fit":"oversize","season":["winter"],"max_price_minor":200000},"notes":"basic Turkish query with price ceiling"}
+{"id":"q002","query":"beyaz basic tişört","lang":"tr","expect":{"category":"tshirt","colors":["white"]},"notes":"simple"}
+{"id":"q003","query":"düğün için çok resmi olmayan gömlek","lang":"tr","expect":{"category":"shirt","occasion":"wedding","formality":"smart_casual"},"hard":true,"notes":"vague intent should map to occasion and formality, not keywords"}
+{"id":"q004","query":"mavi straight fit kot pantolon 42 beden","lang":"tr","expect":{"category":"jeans","colors":["blue"],"fit":"straight","sizes":["42"]},"notes":"42 is a size, not a price"}
+{"id":"q005","query":"black hoodie under 1500 TL","lang":"en","expect":{"category":"hoodie","colors":["black"],"max_price_minor":150000},"notes":"English query"}
+{"id":"q006","query":"kadın bej trençkot","lang":"tr","expect":{"category":"trench","colors":["beige"],"gender":"women"},"notes":"trençkot -> trench"}
+{"id":"q007","query":"koton siyah deri ceket","lang":"tr","expect":{"category":"jacket","colors":["black"],"brand":"koton"},"notes":"brand slug lowercased with Turkish-safe handling"}
+{"id":"q008","query":"erkek lacivert takım elbise 50 beden","lang":"tr","expect":{"category":"suit","colors":["navy"],"gender":"men","sizes":["50"]},"notes":"lacivert -> navy"}
+{"id":"q009","query":"erkek siyah jogger eşofman altı M beden","lang":"tr","expect":{"category":"jogger","colors":["black"],"gender":"men","sizes":["M"]},"notes":"M is a size"}
+{"id":"q010","query":"gri oversize sweatshirt 800 tl altı","lang":"tr","expect":{"category":"sweatshirt","colors":["grey"],"fit":"oversize","max_price_minor":80000},"notes":"lowercase tl"}
+{"id":"q011","query":"hafif ama sıcak tutan mont","lang":"tr","expect":{"season":["winter"]},"hard":true,"notes":"mostly semantic; category is ambiguous (jacket vs puffer), so it is not checked; semantic_text must keep the meaning"}
+{"id":"q012","query":"yazlık keten pantolon bej","lang":"tr","expect":{"category":"trousers","colors":["beige"],"season":["summer"]},"notes":"keten (linen) is material, kept in semantic_text"}
+{"id":"q013","query":"kız arkadaşıma hediye kazak bordo","lang":"tr","expect":{"category":"sweater","colors":["burgundy"],"gender":"women"},"hard":true,"notes":"gift context implies women; bordo -> burgundy"}
+{"id":"q014","query":"levi's 501 benzeri kot","lang":"tr","expect":{"category":"jeans"},"expect_absent":["brand"],"hard":true,"notes":"'benzeri' means similar to, so the brand must NOT become a hard filter"}
+{"id":"q015","query":"3 bin liranın altında palto kadın","lang":"tr","expect":{"category":"coat","gender":"women","max_price_minor":300000},"notes":"'3 bin' = 3000"}
+{"id":"q016","query":"mavi gömlek slim fit ofis için","lang":"tr","expect":{"category":"shirt","colors":["blue"],"fit":"slim","occasion":"office"},"notes":"here mavi is a color; no brand"}
+{"id":"q017","query":"en ucuz basic tişört gerçekten indirimde","lang":"tr","expect":{"category":"tshirt","sort":"price_asc","real_discount_only":true},"hard":true,"notes":"'gerçekten indirimde' = only real discounts"}
+{"id":"q018","query":"Mavi'nin mavi ceketi","lang":"tr","expect":{"category":"jacket","colors":["blue"],"brand":"mavi"},"hard":true,"notes":"brand Mavi vs color mavi in one query; handles the apostrophe suffix"}
+{"id":"q019","query":"çocuk için kırmızı mont 8 yaş","lang":"tr","expect":{"category":"jacket","colors":["red"],"gender":"kids","sizes":["8Y"]},"hard":true,"notes":"'8 yaş' is a kids size normalized to 8Y"}
+{"id":"q020","query":"siyah t-shirt M beden max 300 tl","lang":"mixed","expect":{"category":"tshirt","colors":["black"],"sizes":["M"],"max_price_minor":30000},"notes":"mixed Turkish and English"}

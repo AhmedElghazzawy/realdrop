@@ -1,0 +1,103 @@
+# fiyatgercek
+
+**Honest prices for Turkish fashion.** An AI shopping-intelligence web app that records real prices
+every day, tells you what a discount **really** is, alerts you when your size really drops, and lets
+you search in plain Turkish or English.
+
+> Status: **Day 1 (24 Oct 2026)**. Specs and project memory only; application code is being built
+> following [`docs/ROADMAP.md`](docs/ROADMAP.md). Launch target: **Black Friday, 27 Nov 2026**.
+
+## Why
+
+On Black Friday Turkish shoppers see "70% off!" everywhere, and many of those discounts are inflated:
+the "original" price was raised just before the sale. Existing price trackers focus on electronics and
+ignore what matters in fashion: size, color and stock. fiyatgercek fixes that with data it collects
+itself.
+
+## Features (launch scope)
+
+| | Feature |
+|---|---|
+| Must | Daily (later every-few-hours) price collection from 5-6 Turkish brands, running on a server |
+| Must | Product pages: price chart, size/stock, **real-discount badge**, link out to the retailer |
+| Must | Search: Turkish/English query parser + hybrid retrieval (full-text + vectors) + rerank |
+| Must | Telegram alerts per size (target price or minimum real discount) |
+| Must | Black Friday page: real best deals and inflated-claim examples |
+| Must | KVKK basics: privacy notice, consent, delete-my-data |
+| Should | Shopping assistant with tools and a **number-grounding guard** |
+| Should | Taste profile and "for you" ordering |
+
+Full scope, users and non-goals: [`docs/PRODUCT.md`](docs/PRODUCT.md).
+
+## Core principles
+
+1. **The AI never invents prices.** Discounts are computed in code from stored history
+   (`pricing/`). LLMs only call tools and explain the numbers those tools return.
+2. **Every AI feature ships with evals.** No eval, not done ([`docs/EVALS.md`](docs/EVALS.md)).
+3. **Honest about limits.** Claims say "based on prices we observed since <date>"; a variant with
+   under 14 days of data gets no real-discount claim.
+4. **Polite collection.** Respect robots.txt and terms, identify ourselves, rate-limit, prefer feeds
+   and JSON endpoints, never scrape behind a login, collect no personal data.
+
+## Tech stack
+
+- **Backend:** Python 3.12, FastAPI, SQLAlchemy 2.0 (async), Pydantic v2, Alembic, Arq + Redis
+- **Data:** PostgreSQL 16 + pgvector (relational, full-text and vectors in one database)
+- **AI:** Anthropic SDK with a hand-written tool loop (no agent frameworks), bge-m3 embeddings,
+  bge-reranker
+- **Frontend:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui; Turkish first
+- **Ops:** Docker Compose, one VPS, Sentry
+
+```
+retailer feeds -> collectors -> validate (glitch filter) -> Postgres + pgvector -> FastAPI -> Next.js
+                                                   \-> extract -> embed -> alerts -> Telegram
+```
+
+Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+## Repository layout
+
+```
+apps/api/      FastAPI backend (package: fiyat)      [built in Phase 1]
+apps/web/      Next.js frontend                      [built in Phase 1]
+docs/          product, architecture, data model, AI design, evals, design system, setup, roadmap
+evals/         golden sets for the AI components
+infra/         database init scripts
+.claude/       Claude Code agents, skills, hooks and settings
+CLAUDE.md      project rules and memory for Claude Code
+```
+
+## Documentation
+
+| Doc | What's in it |
+|---|---|
+| [PRODUCT](docs/PRODUCT.md) | Problem, users, scope, non-goals, launch targets, legal notes |
+| [ROADMAP](docs/ROADMAP.md) | Day-by-day plan to 27 Nov and the cut lines |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, data flow, decision log (ADRs) |
+| [DATA_MODEL](docs/DATA_MODEL.md) | Tables, the real-drop rule, glitch filter, alert rule |
+| [AI_DESIGN](docs/AI_DESIGN.md) | Extractor, query parser, assistant loop, taste profile |
+| [EVALS](docs/EVALS.md) | Quality gates and golden sets |
+| [DESIGN_SYSTEM](docs/DESIGN_SYSTEM.md) | UI tokens and components |
+| [SETUP](docs/SETUP.md) | Local machine setup (macOS) |
+
+## Getting started (local dev)
+
+Requires Docker (OrbStack), `uv`, Node and `pnpm`. See [`docs/SETUP.md`](docs/SETUP.md).
+
+```bash
+cp .env.example .env            # then add your own keys; never commit .env
+docker compose up -d            # Postgres (pgvector) + Redis
+
+cd apps/api && uv sync && uv run uvicorn fiyat.main:app --reload   # http://localhost:8000/docs
+cd apps/web && pnpm install && pnpm dev                            # http://localhost:3000
+```
+
+## Built with Claude Code
+
+This repo is built together with [Claude Code](https://claude.com/claude-code). `CLAUDE.md` and
+`.claude/` hold the rules, specialist agents (architect, reviewer, collector, search/ML, frontend)
+and step-by-step skills it follows.
+
+## Author
+
+Ahmed Elghazzawy, computer-engineering student building this to learn and ship.
