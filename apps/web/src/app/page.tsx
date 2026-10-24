@@ -1,69 +1,133 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Suspense } from "react";
+import { PriceCard } from "@/components/PriceCard";
+import { getProducts, type SortOrder } from "@/lib/api";
+import { formatCount } from "@/lib/format";
 
-export default function Home() {
+const SORTS: { value: SortOrder; label: string }[] = [
+  { value: "recent", label: "En son görülen" },
+  { value: "claimed_discount", label: "Mağaza indirimi (iddia)" },
+  { value: "price_asc", label: "Fiyat: düşükten" },
+  { value: "price_desc", label: "Fiyat: yüksekten" },
+];
+const PAGE_SIZE = 48;
+
+type Search = { q?: string; sort?: string; page?: string };
+
+function readSearch(raw: Record<string, string | string[] | undefined>): Required<Search> {
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+  const sort = one(raw.sort);
+  return {
+    q: one(raw.q).slice(0, 100),
+    sort: SORTS.some((s) => s.value === sort) ? sort : "recent",
+    page: String(Math.max(1, Number.parseInt(one(raw.page), 10) || 1)),
+  };
+}
+
+export default function Home(props: PageProps<"/">) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="flex flex-col gap-6">
+      <section className="flex flex-col gap-2">
+        <h1 className="font-serif text-4xl leading-tight sm:text-5xl">
+          İndirim gerçek mi? <span className="text-muted">Fiyat geçmişi söylesin.</span>
+        </h1>
+        <p className="max-w-2xl text-sm text-muted">
+          Her gün mağazaların fiyatlarını kaydediyoruz. 14 günlük geçmiş birikince her ürün için
+          &quot;gerçek indirim&quot; hesabı açılacak; o zamana kadar mağazanın iddiasını ve
+          gözlemlediğimiz fiyatı yan yana gösteriyoruz.
+        </p>
+      </section>
+      <Suspense fallback={<GridSkeleton />}>
+        <Results searchParams={props.searchParams} />
+      </Suspense>
     </div>
+  );
+}
+
+async function Results({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { q, sort, page } = readSearch(await searchParams);
+  const pageNumber = Number(page);
+  const data = await getProducts({
+    q: q || undefined,
+    sort: sort as SortOrder,
+    limit: PAGE_SIZE,
+    offset: (pageNumber - 1) * PAGE_SIZE,
+  });
+  const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
+  const link = (p: number) => `/?${new URLSearchParams({ q, sort, page: String(p) })}`;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <form className="flex flex-col gap-2 sm:flex-row" action="/" role="search">
+        <label htmlFor="q" className="sr-only">
+          Ürün ara
+        </label>
+        <input
+          id="q"
+          name="q"
+          defaultValue={q}
+          placeholder="Ürün ara: kaban, jean, gömlek…"
+          className="h-11 w-full rounded-card sm:flex-1 border border-line bg-surface px-3 text-sm placeholder:text-muted"
+        />
+        <label htmlFor="sort" className="sr-only">
+          Sıralama
+        </label>
+        <select
+          id="sort"
+          name="sort"
+          defaultValue={sort}
+          className="h-11 rounded-card border border-line bg-surface px-3 text-sm"
+        >
+          {SORTS.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+        <button className="h-11 rounded-card bg-text px-5 text-sm font-medium text-bg">Ara</button>
+      </form>
+
+      <p className="font-mono text-xs text-muted tabular">
+        {formatCount(data.total)} ürün{q ? ` · “${q}”` : ""}
+      </p>
+
+      {data.items.length === 0 ? (
+        <div className="rounded-card border border-dashed border-line p-10 text-center text-sm text-muted">
+          {q ? "Bu aramaya uyan ürün yok." : "Henüz ürün toplanmadı. İlk toplama gece 03:00'te."}
+        </div>
+      ) : (
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {data.items.map((product) => (
+            <li key={product.id}>
+              <PriceCard product={product} />
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {lastPage > 1 ? (
+        <nav className="flex items-center justify-center gap-4 text-sm" aria-label="Sayfalar">
+          {pageNumber > 1 ? <Link href={link(pageNumber - 1)}>← Önceki</Link> : null}
+          <span className="font-mono text-muted tabular">
+            {pageNumber} / {lastPage}
+          </span>
+          {pageNumber < lastPage ? <Link href={link(pageNumber + 1)}>Sonraki →</Link> : null}
+        </nav>
+      ) : null}
+    </div>
+  );
+}
+
+function GridSkeleton() {
+  return (
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4" aria-busy="true">
+      {Array.from({ length: 8 }, (_, i) => (
+        <li key={i} className="aspect-[3/5] animate-pulse rounded-card bg-surface" />
+      ))}
+    </ul>
   );
 }

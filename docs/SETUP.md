@@ -56,3 +56,17 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
 - Apple Silicon image issues: `pgvector/pgvector:pg16` is multi-arch; if pulling fails, check the network.
 - Init SQL does not run again once the volume exists. To re-run it:
   `docker compose down -v` (deletes local DB data; ask the owner first).
+
+## Run the app locally (API + web)
+
+```bash
+# Terminal 1, API on :8010 (8000 may be taken by another project). Uses DATABASE_URL from .env
+# (local Docker). To browse the live cloud data instead, start it with the Neon URL injected:
+#   DATABASE_URL="$(npx -y neonctl connection-string --project-id frosty-sun-14684999)" \
+cd apps/api && PYTHONPATH=src uv run uvicorn realdrop.main:app --app-dir src --port 8010
+
+# Terminal 2, web on :3000
+cd apps/web && API_URL=http://localhost:8010 pnpm dev
+```
+
+Pages: `/` products (search, sort), `/products/<id>` price history and sizes, `/status` collection runs.
