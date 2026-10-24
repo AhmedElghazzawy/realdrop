@@ -34,7 +34,7 @@ Latest finish: 27 Oct.
 - [x] Feasibility check for the first 3 brands (`docs/brands/<slug>.md`: robots, terms, feed or JSON,
       stability). Pick the easiest. (Six checked; DeFacto is brand 1.)
 - [x] Brand 1 collector against fixtures; dry run of 20 products.
-- [ ] Brand 1 stored in DB with validation (glitch filter).
+- [x] Brand 1 stored in DB with validation (glitch filter).
 - [ ] Set up the free server (Oracle Cloud Always Free; paid VPS only with the owner's OK), deploy
       collection with a daily job. **Collection is now running without the laptop.**
 

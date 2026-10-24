@@ -57,6 +57,9 @@ permanent campaigns will not count as real drops.
 - 20 product pages in a row without product data stops the run (challenge or maintenance page).
   The page includes a CAPTCHA script (probably for login); we never solve or work around one.
 - Dry run 24 Oct 2026: 20 products, 0 failures, 28 s.
+- The site's firewall returns **403 for a User-Agent with the placeholder contact**
+  (`you@example.com`) and 200 for ours with the repo URL. Keep a real contact in `COLLECTOR_USER_AGENT`.
+- First stored run 24 Oct 2026: 20 products, 95 variants, 95 confirmed prices.
 
 ## What could break it
 

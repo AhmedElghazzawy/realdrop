@@ -27,6 +27,7 @@ MAX_PAGES_WITHOUT_DATA = 20
 
 class DefactoCollector(BrandCollector):
     slug = "defacto"
+    name = "DeFacto"
     base_url = BASE_URL
     rate_limit_rps = 1.0
 

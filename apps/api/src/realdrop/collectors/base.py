@@ -84,6 +84,7 @@ class BrandCollector(ABC):
     """Subclass per brand in `collectors/<slug>/collector.py`; see the add-brand-collector skill."""
 
     slug: ClassVar[str]
+    name: ClassVar[str]  # display name for the brands table
     base_url: ClassVar[str]
     rate_limit_rps: ClassVar[float] = 1.0
 

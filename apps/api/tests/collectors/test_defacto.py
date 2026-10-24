@@ -17,7 +17,7 @@ NOW = datetime(2026, 10, 24, 12, 0, tzinfo=UTC)
 BASE = "https://www.defacto.com.tr"
 TROUSERS = f"{BASE}/regular-fit-normal-bel-duz-paca-uzun-boy-pantolon-3455834"
 BRA = f"{BASE}/buzgulu-dantel-detayli-pamuklu-cikarilabilir-kap-sutyen-3518142"
-BABY_SET = f"{BASE}/2li-takim-baskili-kisa-kollu-fitilli-kaskorse-tisort-beli-lastikli-sort-kiz-bebek-3272557"
+BABY_SET = f"{BASE}/2li-takim-baskili-kisa-kollu-fitilli-kaskorse-tisort-beli-lastikli-sort-kiz-bebek-3272557"  # noqa: E501
 GONE = f"{BASE}/silinmis-urun-3000001"
 
 

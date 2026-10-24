@@ -1,19 +1,28 @@
-"""Run one brand's collector by hand.
+"""Run one brand's collector.
 
     uv run python -m realdrop.collectors.run --brand defacto --limit 20 --dry-run
+    uv run python -m realdrop.collectors.run --brand defacto            # full run, stored
 
---dry-run prints what was collected and stores nothing. Storing (glitch filter + pipeline/store.py)
-is the next roadmap step; until it exists, a run without --dry-run refuses to start.
+--dry-run prints what was collected and stores nothing. A stored run records a `collection_runs`
+row, writes each product in its own transaction (a crash loses at most one product), passes every
+price through the glitch filter, and finally expires pending prices nobody confirmed in time.
 """
 
 import argparse
 import asyncio
 import sys
 import time
+from collections import Counter
+from datetime import UTC, datetime
 
-from realdrop.collectors.base import ItemFailure, RawProduct
+from realdrop.collectors.base import BrandCollector, ItemFailure, RawProduct
 from realdrop.collectors.http import CollectorError
 from realdrop.collectors.registry import get_collector_class
+from realdrop.db.session import get_sessionmaker
+from realdrop.models import PriceStatus
+from realdrop.pipeline import store
+
+MAX_FAILURES_IN_NOTES = 20
 
 
 def format_try(minor: int) -> str:
@@ -36,7 +45,7 @@ def describe(product: RawProduct) -> str:
     )
 
 
-async def dry_run(slug: str, limit: int) -> int:
+async def dry_run(slug: str, limit: int | None) -> int:
     collector_class = get_collector_class(slug)
     products = failures = 0
     started = time.monotonic()
@@ -50,7 +59,7 @@ async def dry_run(slug: str, limit: int) -> int:
                 else:
                     products += 1
                     print(describe(item))
-                if products + failures >= limit:
+                if limit is not None and products + failures >= limit:
                     break
         except CollectorError as exc:
             print(f"RUN STOPPED: {type(exc).__name__}: {exc}", file=sys.stderr)
@@ -62,15 +71,86 @@ async def dry_run(slug: str, limit: int) -> int:
     return 0
 
 
+async def stored_run(slug: str, limit: int | None) -> int:
+    collector_class: type[BrandCollector] = get_collector_class(slug)
+    sessionmaker = get_sessionmaker()
+    async with sessionmaker() as session, session.begin():
+        brand = await store.get_or_create_brand(
+            session,
+            slug=collector_class.slug,
+            name=collector_class.name,
+            base_url=collector_class.base_url,
+        )
+        run = await store.start_run(session, brand.id)
+        brand_id, run_id = brand.id, run.id
+
+    products = failures = 0
+    statuses: Counter[PriceStatus] = Counter()
+    failure_notes: list[str] = []
+    stopped_by: str | None = None
+    started = time.monotonic()
+    try:
+        async with collector_class.make_client() as client:
+            catalog = collector_class(client).fetch_catalog()
+            try:
+                async for item in catalog:
+                    if isinstance(item, ItemFailure):
+                        failures += 1
+                        if len(failure_notes) < MAX_FAILURES_IN_NOTES:
+                            failure_notes.append(f"{item.source}: {item.reason}")
+                    else:
+                        async with sessionmaker() as session, session.begin():
+                            statuses += await store.store_product(
+                                session,
+                                brand_id=brand_id,
+                                run_id=run_id,
+                                raw=item,
+                                observed_at=datetime.now(UTC),
+                            )
+                        products += 1
+                    if limit is not None and products + failures >= limit:
+                        break
+            finally:
+                await catalog.aclose()  # type: ignore[attr-defined]
+    except CollectorError as exc:
+        stopped_by = f"{type(exc).__name__}: {exc}"
+    except BaseException as exc:  # a bug or Ctrl-C: still close the run row, then re-raise
+        stopped_by = f"crashed: {type(exc).__name__}: {exc}"
+        raise
+    finally:
+        async with sessionmaker() as session, session.begin():
+            expired = await store.expire_pending(session, datetime.now(UTC))
+            summary = (
+                f"prices: {dict((s.value, n) for s, n in statuses.items())}; "
+                f"expired pending: {expired}"
+            )
+            notes = "\n".join(filter(None, [stopped_by, summary, *failure_notes]))
+            status = await store.finish_run(
+                session,
+                run_id,
+                finished_at=datetime.now(UTC),
+                items_seen=products + failures,
+                items_failed=failures,
+                stopped_by=stopped_by,
+                notes=notes,
+            )
+        elapsed = time.monotonic() - started
+        print(
+            f"run {run_id}: {status.value}, {products} products, {failures} failures, "
+            f"{elapsed:.0f}s\n{notes}"
+        )
+    return 1 if stopped_by else 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0] if __doc__ else None)
     parser.add_argument("--brand", required=True, help="collector slug, e.g. defacto")
-    parser.add_argument("--limit", type=int, default=20, help="stop after this many items")
+    parser.add_argument("--limit", type=int, default=None, help="stop after this many items")
     parser.add_argument("--dry-run", action="store_true", help="print only, store nothing")
     args = parser.parse_args()
-    if not args.dry_run:
-        parser.error("storing is not built yet (pipeline/store.py); use --dry-run")
-    return asyncio.run(dry_run(args.brand, args.limit))
+    if args.dry_run:
+        return asyncio.run(dry_run(args.brand, args.limit))
+    return asyncio.run(stored_run(args.brand, args.limit))
 
 
 if __name__ == "__main__":

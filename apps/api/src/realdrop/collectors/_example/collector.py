@@ -15,6 +15,7 @@ MAX_PAGES = 500  # safety stop if the API ever loops
 
 class ExampleCollector(BrandCollector):
     slug = "_example"
+    name = "Example Shop"
     base_url = "https://shop.example.com"
     rate_limit_rps = 1.0
 
