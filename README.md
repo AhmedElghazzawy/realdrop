@@ -76,8 +76,8 @@ Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Repository layout
 
 ```
-apps/api/      FastAPI backend (package: realdrop)   [built in Phase 1]
-apps/web/      Next.js frontend                      [built in Phase 1]
+apps/api/      FastAPI backend (package: realdrop)
+apps/web/      Next.js frontend (Turkish-first)
 docs/          product, architecture, data model, AI design, evals, design system, setup, roadmap
 evals/         golden sets for the AI components
 infra/         database init scripts
