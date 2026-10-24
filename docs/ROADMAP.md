@@ -35,8 +35,9 @@ Latest finish: 27 Oct.
       stability). Pick the easiest. (Six checked; DeFacto is brand 1.)
 - [x] Brand 1 collector against fixtures; dry run of 20 products.
 - [x] Brand 1 stored in DB with validation (glitch filter).
-- [ ] Production database on Neon free + daily collection on GitHub Actions (`docs/DEPLOY.md`; no-card
-      free tiers only, ADR 12). **Collection is now running without the laptop.**
+- [x] Production database on Neon free + daily collection on GitHub Actions (`docs/DEPLOY.md`; no-card
+      free tiers only, ADR 12). **Collection is now running without the laptop.** (Test runs from
+      GitHub to Neon green 25 Oct; first scheduled full runs 25 Oct 03:00 and 15:00 Turkey time.)
 
 ## Phase 4: more brands and the real-drop rule
 
