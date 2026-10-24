@@ -13,7 +13,7 @@ History is the asset competitors cannot fake; every missing day is lost forever.
       Base collector interface + fixture-test pattern.
 - [ ] **Mon 26:** Feasibility check for the first 3 brands (`docs/brands/<slug>.md`: robots, terms, feed or JSON,
       stability). Pick the easiest. Brand 1 collector against fixtures; dry run of 20 products.
-- [ ] **Tue 27:** Brand 1 stored in DB with validation (glitch filter). Rent a VPS, deploy collection with a
+- [ ] **Tue 27:** Brand 1 stored in DB with validation (glitch filter). Set up the free server (Oracle Cloud Always Free; paid VPS only with the owner's OK), deploy collection with a
       daily job. **Collection is now running without the laptop.**
 - [ ] **Wed 28 - Thu 29:** Brands 2 and 3. `price_daily` roll-up, `current_prices`.
 - [ ] **Fri 30 - Sat 31:** Brands 4-6 (as many as are feasible; 4 is fine). Collection health report
@@ -22,13 +22,14 @@ History is the asset competitors cannot fake; every missing day is lost forever.
 ## Week 2: language and search (1-7 Nov)
 
 - [ ] **Sun 1 - Mon 2:** Taxonomy + Turkish synonym maps. Extractor with Pydantic schema; label 60 products by hand.
-- [ ] **Tue 3:** Run extractor on the catalog (dry-run cost estimate first); extractor eval baseline.
+- [ ] **Tue 3:** Run extractor on the catalog with local Ollama (dry-run time estimate first; run overnight); extractor eval baseline.
 - [ ] **Wed 4 - Thu 5:** bge-m3 embeddings pipeline, pgvector HNSW index, full-text index. Hybrid search v1 (RRF).
 - [ ] **Fri 6 - Sat 7:** Reranker. Retrieval judgments for 30 queries; baseline recall@10 and nDCG@10.
 
 ## Week 3: parser and product pages (8-14 Nov)
 
 - [ ] **Sun 8 - Mon 9:** Query parser + golden queries (grow to 60+), parser eval baseline, fallback path.
+      Pick the free API tier for prod (parser and assistant) by comparing candidates on the evals.
 - [ ] **Tue 10 - Wed 11:** Search API with filters + chips contract. Next.js scaffold, design tokens, fonts (Turkish glyph check).
 - [ ] **Thu 12 - Fri 13:** Product page: price chart, real-discount badge, size picker. Search UI.
 - [ ] **Sat 14:** **Checkpoint.** Is search good and are 14+ days of data in? If not, apply the cut lines.
@@ -46,7 +47,7 @@ History is the asset competitors cannot fake; every missing day is lost forever.
 - [ ] **Mon 23:** Black Friday page (real best deals, inflated-claim examples). KVKK pages: privacy notice, consent, delete-my-data.
 - [ ] **Tue 24:** Load check, error pages, Sentry, backups verified (restore test), rate limits.
 - [ ] **Wed 25:** Full eval run; fix the worst failures; freeze features.
-- [ ] **Thu 26:** Soft launch to friends; watch logs, costs and alerts.
+- [ ] **Thu 26:** Soft launch to friends; watch logs, free-tier rate limits and alerts.
 - [ ] **Fri 27:** Black Friday. Monitor collection every few hours. No risky deploys.
 
 ## Cut lines (apply in this order)

@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Release and deployment checklist for RealDrop to the production VPS (Docker Compose via Coolify), including migrations, backups, scheduled jobs, health checks, smoke tests and rollback. Use for first deploy and every release.
+description: Release and deployment checklist for RealDrop to the free production server (Oracle Cloud Always Free ARM, Docker Compose via Coolify), including migrations, backups, scheduled jobs, health checks, smoke tests and rollback. Use for first deploy and every release.
 ---
 
 # Deploy
@@ -12,18 +12,20 @@ except for a hotfix the owner approves.
 
 1. `git status` clean; branch up to date. CI green (tests, ruff, mypy, web lint/typecheck/test, `pricing` evals).
 2. Relevant eval suites meet thresholds (`docs/EVALS.md`); record the scores.
-3. Secrets are set in the server's secret store, not in the repo: `ANTHROPIC_API_KEY`, `DATABASE_URL`,
+3. Secrets are set in the server's secret store, not in the repo: `LLM_API_KEY`, `DATABASE_URL`,
    `REDIS_URL`, `COLLECTOR_USER_AGENT` (with a real contact address), `TELEGRAM_BOT_TOKEN`, `SENTRY_DSN`.
 4. A fresh database backup exists and a restore of it has been tested at least once.
 
 ## First-time server setup (once)
 
-1. Create the VPS (Ubuntu LTS), a non-root user, SSH keys only, firewall allowing 22/80/443, automatic security updates.
-2. Install Docker and Coolify (or plain Docker Compose); connect the GitHub repo.
+1. Create the server: Oracle Cloud Always Free, Ampere ARM shape (Ubuntu LTS). If no free capacity, try
+   another region or ask the owner before any paid VPS. Then a non-root user, SSH keys only, firewall allowing 22/80/443, automatic security updates.
+2. Install Docker and Coolify (or plain Docker Compose); connect the GitHub repo. The server is ARM:
+   every image must be multi-arch or built for `linux/arm64`. Also open the ports in Oracle's VCN security list.
 3. Services: `db` (pgvector image, persistent volume, **not** exposed publicly), `redis`, `api`,
    `worker` (Arq), `scheduler` (collection jobs), `web`. Reverse proxy with automatic HTTPS.
-4. Daily database backup to off-server storage; test a restore.
-5. Sentry for API and web; uptime monitor on `/health`.
+4. Daily database backup to off-server storage (Oracle Always Free object storage); test a restore.
+5. Sentry (free tier) for API and web; a free uptime monitor on `/health`.
 
 ## Release
 
@@ -39,7 +41,7 @@ except for a hotfix the owner approves.
 - Create a test alert, then delete it.
 - Check the latest `collection_runs`: each brand succeeded in the last scheduled window.
 - Ask the assistant one price question; confirm it called a tool and the guard passed.
-- Check Sentry for new errors and `llm_calls` for the cost of the last hour.
+- Check Sentry for new errors and `llm_calls` for errors and rate-limit hits in the last hour.
 
 ## Rollback
 

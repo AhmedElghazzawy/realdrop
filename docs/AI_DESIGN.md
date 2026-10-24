@@ -12,8 +12,25 @@ the code does not exist until we build it, following `docs/ROADMAP.md`.
 3. **Retailer text is untrusted data.** A product title that says "ignore previous instructions"
    is just a string. Tool results are wrapped and labelled as data.
 4. **Measure everything.** Each component has an eval suite (`docs/EVALS.md`) and logs to `llm_calls`.
-5. **Models come from env.** `LLM_MODEL_FAST` for extractor and parser, `LLM_MODEL_MAIN` for the
-   assistant. Check the current model names in the Anthropic docs before changing them.
+5. **Models come from env.** `LLM_BASE_URL` + `LLM_API_KEY` pick the provider, `LLM_MODEL_FAST` the
+   extractor and parser model, `LLM_MODEL_MAIN` the assistant model. Free models only (see below).
+
+## Model choice (free only)
+
+All providers below speak the OpenAI chat-completions API, so `ai/llm.py` uses one client for all.
+
+| Use | Default | Free alternatives |
+|---|---|---|
+| Dev, evals, batch extraction | Ollama on the Mac: `gemma4:12b` | other open models in Ollama (Qwen, Llama); compare on the evals |
+| Prod parser + assistant | a free API tier serving open models (Groq, OpenRouter `:free` models, Gemini free tier) | Ollama on the free server, slower |
+| Embeddings, reranker | bge-m3, bge-reranker-v2-m3, self-hosted | none needed |
+
+- **Pick by evals, not by reputation.** Run the parser, extractor and assistant suites on each candidate.
+- **Free tiers have rate limits and change often.** Check current limits before wiring one in; the
+  wrapper retries on 429 with backoff, then falls back (local model, or the no-LLM paths below).
+- **Free tiers may train on prompts.** Acceptable only because no PII ever goes into prompts.
+- **Smaller models fail more.** Pydantic validation, the retry-once rule and the number-grounding
+  guard are what keep output safe; never relax them for a weaker model.
 
 ## 1. Extractor (batch)
 
@@ -37,8 +54,9 @@ Turns a messy retailer product into structured attributes for filtering and sear
   price. Deterministic rules run first (variant color fields, obvious category keywords); the LLM
   fills the rest. Low-confidence fields are stored as `null` and counted in the eval report.
 - **Mechanics:** tool-use / JSON-schema output, temperature 0, concurrency about 8, cache by
-  `content_hash` plus `extractor_version`, resume-safe batches, a dry run that prints a cost estimate
-  from average token counts before spending anything. Real cost is logged to `llm_calls`.
+  `content_hash` plus `extractor_version`, resume-safe batches, a dry run that prints a time and
+  rate-limit estimate from average token counts and measured speed before starting. Runs on local Ollama
+  by default (free, overnight). Real tokens and latency are logged to `llm_calls`.
 - **Quality gate:** field-level F1 against a hand-labelled set (target >= 0.90 on category and
   color, >= 0.80 on fit and occasion). See `docs/EVALS.md`.
 
@@ -74,7 +92,7 @@ Turkish-lowercased via `tr_lower`. Re-embed only when the text hash changes.
 
 ## 4. Shopping assistant (tool-calling loop)
 
-The only real "agent". A loop we write ourselves with the Anthropic SDK.
+The only real "agent". A loop we write ourselves over the OpenAI-compatible chat API.
 
 ### Tools (all read-only except the two-step `create_alert`)
 
@@ -94,20 +112,21 @@ The only real "agent". A loop we write ourselves with the Anthropic SDK.
 ```python
 async def run_assistant(user, messages, tools, max_iters=6, budget_s=20):
     for _ in range(max_iters):
-        resp = await llm.messages.create(
-            model=settings.llm_model_main, max_tokens=1024,
-            system=SYSTEM_PROMPT, tools=TOOL_SCHEMAS, messages=messages,
+        resp = await llm.chat.completions.create(
+            model=settings.llm_model_main, max_tokens=1024, tools=TOOL_SCHEMAS,
+            messages=[{"role": "system", "content": SYSTEM_PROMPT}, *messages],
         )
-        messages.append({"role": "assistant", "content": resp.content})
-        if resp.stop_reason != "tool_use":
-            return finalize(resp, tool_results_seen)          # runs the grounding guard
-        results = []
-        for block in (b for b in resp.content if b.type == "tool_use"):
-            out = await run_tool(block.name, block.input, user)   # validates input, injects user_id
+        msg = resp.choices[0].message
+        messages.append(msg.model_dump(exclude_none=True))
+        if not msg.tool_calls:
+            return finalize(msg, tool_results_seen)           # runs the grounding guard
+        for call in msg.tool_calls:
+            out = await run_tool(call.function.name, call.function.arguments, user)
+            # run_tool parses + validates the JSON arguments (small models send bad JSON;
+            # the error goes back as the tool result) and injects user_id
             tool_results_seen.append(out)
-            results.append({"type": "tool_result", "tool_use_id": block.id,
-                            "content": json.dumps(out, ensure_ascii=False)})
-        messages.append({"role": "user", "content": results})
+            messages.append({"role": "tool", "tool_call_id": call.id,
+                             "content": json.dumps(out, ensure_ascii=False)})
     return fallback_answer(tool_results_seen)                  # iteration cap hit
 ```
 
@@ -156,6 +175,6 @@ is logged and counted; the eval target is **zero** unverified numbers reaching u
 
 ## Observability
 
-Every LLM call writes `llm_calls` (purpose, model, tokens, latency, cost, trace id). Assistant
+Every LLM call writes `llm_calls` (purpose, provider, model, tokens, latency, trace id). Assistant
 conversations store tool calls and guard results, never secrets. Langfuse tracing is a post-launch
 upgrade if time is short.

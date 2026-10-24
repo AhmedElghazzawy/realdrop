@@ -61,8 +61,9 @@ All ids are UUIDs unless noted. All timestamps are `timestamptz` (UTC). `snapsho
 
 ### Operations
 
-- **llm_calls**: `id`, `purpose` (extractor|parser|assistant|other), `model`, `input_tokens`,
-  `output_tokens`, `latency_ms`, `cost_usd`, `trace_id`, `created_at`.
+- **llm_calls**: `id`, `purpose` (extractor|parser|assistant|other), `provider` (ollama|groq|openrouter|
+  gemini|...), `model`, `input_tokens`, `output_tokens`, `latency_ms`, `status` (ok|invalid|rate_limited|
+  error), `trace_id`, `created_at`. No cost column: free models only.
 - **assistant_usage**: `user_id`, `usage_date`, `messages_count`, `tokens`. PK `(user_id, usage_date)`.
 
 ## Glitch filter (`pipeline/validate.py`)

@@ -10,7 +10,7 @@ you search in plain Turkish or English.
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/Postgres%2016-pgvector-4169E1?logo=postgresql&logoColor=white)
-![Claude](https://img.shields.io/badge/AI-Anthropic%20Claude-D97757?logo=anthropic&logoColor=white)
+![Open models](https://img.shields.io/badge/AI-open%20models%20(Ollama)-black?logo=ollama&logoColor=white)
 
 > **Built in public, in 5 weeks.** Started 24 Oct 2026, launching on Black Friday, 27 Nov 2026.
 > Follow the commits and the [roadmap](docs/ROADMAP.md) to watch it come together.
@@ -61,10 +61,10 @@ Full scope, users and non-goals: [`docs/PRODUCT.md`](docs/PRODUCT.md).
 
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2.0 (async), Pydantic v2, Alembic, Arq + Redis
 - **Data:** PostgreSQL 16 + pgvector (relational, full-text and vectors in one database)
-- **AI:** Anthropic SDK with a hand-written tool loop (no agent frameworks), bge-m3 embeddings,
+- **AI:** free and open-source models (Ollama locally, free API tiers in prod) with a hand-written tool loop (no agent frameworks), bge-m3 embeddings,
   bge-reranker
 - **Frontend:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui; Turkish first
-- **Ops:** Docker Compose, one VPS, Sentry
+- **Ops:** Docker Compose on one free server (Oracle Cloud Always Free), Sentry free tier
 
 ```
 retailer feeds -> collectors -> validate (glitch filter) -> Postgres + pgvector -> FastAPI -> Next.js

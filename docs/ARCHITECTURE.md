@@ -18,7 +18,7 @@
            |             |  variants, prices,|    search/    assistant/
            |             |  embeddings,      |    hybrid     loop + tools
            |             |  users, signals,  |         |         |
-           |             |  alerts           |    LLM (Anthropic)  Embeddings + reranker
+           |             |  alerts           |    LLM (free/open)  Embeddings + reranker
            |             +---------+---------+    (parser, extractor, assistant)  (bge-m3, bge-reranker)
            |                       |
            +---> extract -> embed -> alerts evaluate -> notify (Telegram, email, push)
@@ -44,7 +44,7 @@
 |---|---|---|
 | 1 | One Postgres for relational data, full-text search and vectors (pgvector) | Fewer moving parts for a 5-week build; hybrid search in one SQL query path |
 | 2 | Arq + Redis for jobs, not Celery | Async-native, tiny, enough for scheduled collection and fan-out |
-| 3 | Anthropic SDK with a hand-written tool loop, no agent framework | The owner must learn the loop; fewer hidden behaviours; easier to test |
+| 3 | OpenAI-compatible client with a hand-written tool loop, no agent framework | The owner must learn the loop; fewer hidden behaviours; easier to test; one client works with Ollama and every free API tier |
 | 4 | Discounts computed in code, LLM only explains | Trust is the product. LLMs must never be the source of a price |
 | 5 | Self-hosted bge-m3 + reranker | Good Turkish quality, no per-query cost; CPU is acceptable at launch scale |
 | 6 | Append-only `price_observations`, derived `price_daily` | Glitch confirmation needs raw observations; history stays auditable |
@@ -52,17 +52,19 @@
 | 8 | Collection runs on a server from Oct 27 | A sleeping laptop would create gaps in the history, which is our main asset |
 | 9 | Taste profile is plain code (decayed vector + counters) | Explainable, cheap, deletable, testable. No LLM needed |
 | 10 | Next.js frontend, Turkish first | Fast mobile UX, strong ecosystem, easy deploy |
+| 11 | Free LLMs only: Ollama locally, free API tiers in prod, switchable via env (24 Oct 2026) | Zero budget. Providers are swapped in `.env`, not code; evals decide which model is good enough |
 
 ## Scaling assumptions (launch)
 
 6 brands x ~3,000 tracked products x ~6 variants ~= 100k variants. One observation per variant per run;
 every 4 hours near Black Friday ~= 600k rows/day at most. Partition `price_observations` by month only
-if needed after launch. The assistant is the per-user cost: daily caps per user (see `AI_DESIGN.md`).
+if needed after launch. The assistant is the per-user load on free-tier rate limits: daily caps per user (see `AI_DESIGN.md`).
 
 ## Environments
 
 - **dev**: Docker Compose (Postgres+pgvector, Redis) on the Mac; API and web run natively.
-- **prod**: one VPS (Hetzner or similar) with Docker Compose via Coolify; Postgres backups daily;
+- **prod**: one free server (Oracle Cloud Always Free ARM: up to 4 cores / 24 GB) with Docker Compose
+  via Coolify; Postgres backups daily. A paid VPS (Hetzner, ~5 EUR/month) only if the owner agrees;
   Sentry for errors; Langfuse (self-hosted) for LLM traces after launch week 1 if time allows.
 
 ## Failure behaviour

@@ -10,15 +10,16 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
 ## Phase 1: environment
 
 1. **Check installed tools:** `brew`, `git`, `gh`, `python3.12`, `uv`, `node`, `pnpm`, OrbStack (Docker),
-   the `code` command. Install only what is missing:
-   `brew install git gh python@3.12 uv node pnpm` and `brew install --cask orbstack`.
+   Ollama, the `code` command. Install only what is missing:
+   `brew install git gh python@3.12 uv node pnpm ollama` and `brew install --cask orbstack`.
+   Then `ollama pull gemma4:12b` (the free local LLM, about 8 GB).
    If `brew` itself is missing, stop and tell the owner.
 2. **Git:** `git init -b main` if needed. Confirm `git config user.name` and `user.email` exist; if not,
    ask the owner for them. Do not run `gh auth login`; the owner does that.
 3. **Backend:** `mkdir -p apps && cd apps && uv init api --python 3.12`. Create the package layout
    from `CLAUDE.md` under `apps/api/src/realdrop/` (empty `__init__.py` files and `text.py` with
    `tr_lower`, `tr_upper`, `normalize` and tests). Add dependencies:
-   `fastapi "uvicorn[standard]" "sqlalchemy[asyncio]" asyncpg alembic pydantic-settings httpx selectolax arq anthropic pgvector`
+   `fastapi "uvicorn[standard]" "sqlalchemy[asyncio]" asyncpg alembic pydantic-settings httpx selectolax arq openai pgvector`
    and dev: `pytest pytest-asyncio pytest-socket ruff mypy`. Configure `pyproject.toml` for ruff,
    mypy (strict on `pricing` and `ai`) and pytest (asyncio mode auto, `--disable-socket`).
 4. **Frontend:** `pnpm create next-app@latest apps/web --typescript --tailwind --app --eslint --src-dir --use-pnpm`.
@@ -27,20 +28,22 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
    `docker compose ps` (both services healthy). The init script installs the `vector`, `unaccent`
    and `pg_trgm` extensions on first start. Verify:
    `docker compose exec db psql -U app -d realdrop -c "\dx"`.
-6. **Env:** `cp .env.example .env` if `.env` does not exist. Never print `.env`. The owner puts
-   `ANTHROPIC_API_KEY` in it personally.
+6. **Env:** `cp .env.example .env` if `.env` does not exist. Never print `.env`. Defaults point at
+   local Ollama (free, no key). Free API tier keys, if used, are put in by the owner personally.
 7. **Verify (report as a checklist):**
-   - `cd apps/api && uv run python -c "import fastapi, sqlalchemy, anthropic, pgvector; print('ok')"`
+   - `cd apps/api && uv run python -c "import fastapi, sqlalchemy, openai, pgvector; print('ok')"`
    - `cd apps/api && uv run pytest` passes (the `text.py` tests)
    - `cd apps/api && uv run ruff check . && uv run mypy src`
    - `cd apps/web && pnpm dev` serves `localhost:3000`, then stop it
    - `docker compose ps` shows `db` and `redis` healthy
+   - `ollama list` shows `gemma4:12b`, and it answers through `LLM_BASE_URL` (OpenAI-compatible API)
 8. **Commit:** `chore: bootstrap monorepo` (check `git status` first: no `.env`, no `node_modules`).
 
 ## Owner-only steps
 
 - `gh auth login` (GitHub.com, HTTPS, browser), then `gh repo create realdrop --private --source=. --push`.
-- Create an Anthropic API key in the Console with a small monthly spend limit and put it in `.env`.
+- Later (Week 3): create a free API key on a free tier (Groq, OpenRouter or Google AI Studio) and put it
+  in `.env`. Free tiers only; no card on file.
 - Create a Telegram bot with BotFather later (Phase: alerts) and put the token in `.env`.
 
 ## Troubleshooting

@@ -28,8 +28,8 @@ validated; endpoints have auth and rate limits where needed; no user-controlled 
 
 **AI-specific:** the assistant states no number that is not tool-derived; grounding guard intact;
 `user_id` never model-supplied; LLM output validated; fallback path exists; prompt-injection exposure
-considered; eval cases added or updated and the threshold met; calls logged to `llm_calls`; cost
-impact noted.
+considered; eval cases added or updated and the threshold met; calls logged to `llm_calls`; no paid
+service introduced; rate-limit and latency impact noted.
 
 **Collectors:** robots/terms respected, honest User-Agent, rate limit and backoff present, no
 block-evasion tricks, no personal data collected.
