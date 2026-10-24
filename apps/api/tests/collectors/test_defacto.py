@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 import httpx
 import pytest
 
-from realdrop.collectors.base import ItemFailure, RawProduct
+from realdrop.collectors.base import ItemFailure, RawProduct, Shard
 from realdrop.collectors.defacto import parser
 from realdrop.collectors.defacto.collector import DefactoCollector
 from realdrop.collectors.http import CollectorBlockedError, PoliteClient
@@ -135,8 +135,9 @@ async def test_collector_walks_sitemaps_dedupes_and_skips_missing_products() -> 
 
     products = [r for r in results if isinstance(r, RawProduct)]
     failures = [r for r in results if isinstance(r, ItemFailure)]
-    # product-3.xml comes first in the index; the trousers appear in both sitemaps but count once.
-    assert [p.external_id for p in products] == ["3272557", "3455834", "3518142"]
+    # Pages download concurrently, so order is not guaranteed; the trousers appear in both
+    # sitemaps but are fetched once.
+    assert sorted(p.external_id for p in products) == ["3272557", "3455834", "3518142"]
     assert failures == [ItemFailure(source=GONE, reason="HTTP 404")]
 
 
@@ -172,3 +173,16 @@ def test_dry_run_formats_prices_turkish_style() -> None:
     assert format_try(5) == "0,05 TL"
     product = parser.parse_product(load("product_campaign_waist_length.html"), TROUSERS, NOW)
     assert "779,99 TL (claimed 1.299,99 TL)" in describe(product)
+
+
+async def test_collector_only_fetches_its_shard() -> None:
+    client = PoliteClient(user_agent="realdrop-bot/test", transport=_site(), sleep=no_sleep)
+    seen: list[str] = []
+    async with client:
+        for index in range(2):
+            collector = DefactoCollector(client, shard=Shard(index, 2), now=lambda: NOW)
+            seen += [
+                item.source if isinstance(item, ItemFailure) else str(item.url)
+                async for item in collector.fetch_catalog()
+            ]
+    assert sorted(seen) == sorted({TROUSERS, BRA, BABY_SET, GONE})  # each exactly once

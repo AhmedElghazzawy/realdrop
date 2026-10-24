@@ -2,6 +2,7 @@
 
     uv run python -m realdrop.collectors.run --brand defacto --limit 20 --dry-run
     uv run python -m realdrop.collectors.run --brand defacto            # full run, stored
+    uv run python -m realdrop.collectors.run --brand defacto --shard 0/2  # first half only
 
 --dry-run prints what was collected and stores nothing. A stored run records a `collection_runs`
 row, writes products in batches of 20 per transaction (a crash loses one batch at most), runs every
@@ -15,7 +16,7 @@ import time
 from collections import Counter
 from datetime import UTC, datetime
 
-from realdrop.collectors.base import BrandCollector, ItemFailure, RawProduct
+from realdrop.collectors.base import BrandCollector, ItemFailure, RawProduct, Shard
 from realdrop.collectors.http import CollectorError
 from realdrop.collectors.registry import get_collector_class
 from realdrop.db.session import get_sessionmaker
@@ -46,12 +47,12 @@ def describe(product: RawProduct) -> str:
     )
 
 
-async def dry_run(slug: str, limit: int | None) -> int:
+async def dry_run(slug: str, limit: int | None, shard: Shard) -> int:
     collector_class = get_collector_class(slug)
     products = failures = 0
     started = time.monotonic()
     async with collector_class.make_client() as client:
-        catalog = collector_class(client).fetch_catalog()
+        catalog = collector_class(client, shard=shard).fetch_catalog()
         try:
             async for item in catalog:
                 if isinstance(item, ItemFailure):
@@ -72,7 +73,7 @@ async def dry_run(slug: str, limit: int | None) -> int:
     return 0
 
 
-async def stored_run(slug: str, limit: int | None) -> int:
+async def stored_run(slug: str, limit: int | None, shard: Shard) -> int:
     collector_class: type[BrandCollector] = get_collector_class(slug)
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session, session.begin():
@@ -105,7 +106,7 @@ async def stored_run(slug: str, limit: int | None) -> int:
 
     try:
         async with collector_class.make_client() as client:
-            catalog = collector_class(client).fetch_catalog()
+            catalog = collector_class(client, shard=shard).fetch_catalog()
             try:
                 async for item in catalog:
                     if isinstance(item, ItemFailure):
@@ -132,6 +133,7 @@ async def stored_run(slug: str, limit: int | None) -> int:
         async with sessionmaker() as session, session.begin():
             expired = await store.expire_pending(session, datetime.now(UTC))
             summary = (
+                f"shard {shard.index}/{shard.count}; "
                 f"prices: {dict((s.value, n) for s, n in statuses.items())}; "
                 f"expired pending: {expired}"
             )
@@ -158,10 +160,13 @@ def main() -> int:
     parser.add_argument("--brand", required=True, help="collector slug, e.g. defacto")
     parser.add_argument("--limit", type=int, default=None, help="stop after this many items")
     parser.add_argument("--dry-run", action="store_true", help="print only, store nothing")
+    parser.add_argument(
+        "--shard", type=Shard.parse, default=Shard(), help="part of the catalog, e.g. 0/2"
+    )
     args = parser.parse_args()
     if args.dry_run:
-        return asyncio.run(dry_run(args.brand, args.limit))
-    return asyncio.run(stored_run(args.brand, args.limit))
+        return asyncio.run(dry_run(args.brand, args.limit, args.shard))
+    return asyncio.run(stored_run(args.brand, args.limit, args.shard))
 
 
 if __name__ == "__main__":

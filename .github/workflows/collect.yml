@@ -3,8 +3,12 @@
 name: collect
 
 on:
+  # The DeFacto catalog (~14.6k pages) takes ~5 h at 1 request/s, so it is collected in two halves,
+  # each well inside GitHub's 6 h job limit. Every product is still seen once a day.
+  # GitHub may start scheduled runs some minutes late.
   schedule:
-    - cron: "0 0 * * *" # 03:00 Turkey time. GitHub may start scheduled runs some minutes late.
+    - cron: "0 0 * * *" # 03:00 Turkey time: shard 0/2
+    - cron: "0 12 * * *" # 15:00 Turkey time: shard 1/2
   workflow_dispatch:
     inputs:
       brand:
@@ -12,9 +16,13 @@ on:
         default: defacto
         required: true
       limit:
-        description: Stop after this many items (empty = full catalog)
+        description: Stop after this many items (empty = whole shard)
         default: ""
         required: false
+      shard:
+        description: Part of the catalog, e.g. 0/2 (0/1 = everything)
+        default: "0/1"
+        required: true
 
 jobs:
   collect:
@@ -50,4 +58,5 @@ jobs:
         env: # inputs go through env, never straight into the script (no shell injection)
           BRAND: ${{ matrix.brand }}
           LIMIT: ${{ inputs.limit }}
-        run: uv run python -m realdrop.collectors.run --brand "$BRAND" ${LIMIT:+--limit "$LIMIT"}
+          SHARD: ${{ github.event_name == 'schedule' && (github.event.schedule == '0 0 * * *' && '0/2' || '1/2') || inputs.shard }}
+        run: uv run python -m realdrop.collectors.run --brand "$BRAND" --shard "$SHARD" ${LIMIT:+--limit "$LIMIT"}

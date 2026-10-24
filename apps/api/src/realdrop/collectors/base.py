@@ -6,8 +6,11 @@ price is plausible: storage is `pipeline/store.py`, plausibility is the glitch f
 validated here, never interpreted.
 """
 
+import asyncio
+import zlib
 from abc import ABC, abstractmethod
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
+from dataclasses import dataclass
 from typing import Annotated, ClassVar
 
 from pydantic import (
@@ -80,6 +83,62 @@ class ItemFailure(BaseModel):
     reason: str
 
 
+@dataclass(frozen=True)
+class Shard:
+    """Part `index` of `count` of a brand's catalog, so a large catalog can be collected in several
+    runs (e.g. 03:00 and 15:00) that each stay inside a job time limit. Stable across runs: the same
+    product always lands in the same shard."""
+
+    index: int = 0
+    count: int = 1
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.index < self.count:
+            raise ValueError(f"invalid shard {self.index}/{self.count}")
+
+    @classmethod
+    def parse(cls, text: str) -> "Shard":
+        """'1/2' -> Shard(1, 2)."""
+        index, _, count = text.partition("/")
+        return cls(int(index), int(count))
+
+    def contains(self, key: str) -> bool:
+        return zlib.crc32(key.encode()) % self.count == self.index
+
+
+async def in_flight[T, R](
+    items: Iterable[T], fetch: Callable[[T], Awaitable[R]], limit: int
+) -> AsyncIterator[R]:
+    """Run `fetch` on items with at most `limit` running at once; yield results as they finish.
+
+    The PoliteClient still spaces request starts (1 per second), so this does not raise our rate;
+    it only stops a slow page from holding up the next request. An exception from one fetch ends
+    the iteration and cancels the rest.
+    """
+    pending_items = iter(items)
+    running: set[asyncio.Task[R]] = set()
+
+    def start_next() -> None:
+        for item in pending_items:
+            running.add(asyncio.ensure_future(fetch(item)))
+            return
+
+    for _ in range(limit):
+        start_next()
+    try:
+        while running:
+            done, _ = await asyncio.wait(running, return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                running.discard(task)
+                result = task.result()
+                start_next()
+                yield result
+    finally:
+        for task in running:
+            task.cancel()
+        await asyncio.gather(*running, return_exceptions=True)
+
+
 class BrandCollector(ABC):
     """Subclass per brand in `collectors/<slug>/collector.py`; see the add-brand-collector skill."""
 
@@ -88,8 +147,9 @@ class BrandCollector(ABC):
     base_url: ClassVar[str]
     rate_limit_rps: ClassVar[float] = 1.0
 
-    def __init__(self, client: PoliteClient) -> None:
+    def __init__(self, client: PoliteClient, *, shard: Shard | None = None) -> None:
         self.client = client
+        self.shard = shard or Shard()
 
     @classmethod
     def make_client(cls) -> PoliteClient:

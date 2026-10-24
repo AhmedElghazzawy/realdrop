@@ -65,6 +65,10 @@ class PoliteClient:
         self._clock = clock
         self._rng = rng
         self._next_request_at = 0.0
+        # Callers may run concurrently (several pages in flight); the locks keep request *starts*
+        # spaced and robots.txt fetched once per origin.
+        self._turn_lock = asyncio.Lock()
+        self._robots_lock = asyncio.Lock()
         # Parsed robots.txt per origin; None means "no rules" (robots.txt was a 4xx).
         self._robots: dict[str, RobotsRules | None] = {}
         self._http = httpx.AsyncClient(
@@ -117,12 +121,13 @@ class PoliteClient:
         raise AssertionError("unreachable")
 
     async def _wait_for_turn(self) -> None:
-        now = self._clock()
-        if now < self._next_request_at:
-            await self._sleep(self._next_request_at - now)
-            now = self._next_request_at
-        jitter = self._rng() * 0.5 * self._min_interval_s
-        self._next_request_at = now + self._min_interval_s + jitter
+        async with self._turn_lock:
+            now = self._clock()
+            if now < self._next_request_at:
+                await self._sleep(self._next_request_at - now)
+                now = self._next_request_at
+            jitter = self._rng() * 0.5 * self._min_interval_s
+            self._next_request_at = now + self._min_interval_s + jitter
 
     def _backoff_s(self, attempt: int, retry_after: str | None, url: str) -> float:
         if retry_after is not None:
@@ -137,8 +142,9 @@ class PoliteClient:
     async def _check_robots(self, url: str) -> None:
         parts = urlsplit(url)
         origin = f"{parts.scheme}://{parts.netloc}"
-        if origin not in self._robots:
-            self._robots[origin] = await self._load_robots(origin)
+        async with self._robots_lock:
+            if origin not in self._robots:
+                self._robots[origin] = await self._load_robots(origin)
         rules = self._robots[origin]
         if rules is None:
             return

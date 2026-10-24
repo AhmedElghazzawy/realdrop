@@ -1,5 +1,6 @@
 """PoliteClient against a fake transport and a fake clock: no network, no real waiting."""
 
+import asyncio
 from collections.abc import Callable
 
 import httpx
@@ -75,6 +76,30 @@ async def test_rate_limit_spaces_requests() -> None:
         await client.get(f"{SHOP}/b")
     # 3 requests at 0.5 rps: the 2nd and 3rd each wait 2 s.
     assert fake.sleeps == [2.0, 2.0]
+
+
+class YieldingFakeTime(FakeTime):
+    """Like FakeTime, but sleeping lets other tasks run, as a real sleep does."""
+
+    async def sleep(self, seconds: float) -> None:
+        await super().sleep(seconds)
+        await asyncio.sleep(0)
+
+
+async def test_concurrent_callers_still_start_one_request_per_interval() -> None:
+    fake = YieldingFakeTime()
+    starts: list[float] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        starts.append(fake.now)
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /\n")
+        return httpx.Response(200)
+
+    async with make_client(handler, fake, rate_limit_rps=0.5) as client:
+        await asyncio.gather(*(client.get(f"{SHOP}/p{n}") for n in range(4)))
+    # robots.txt fetched once, then every page start 2 s after the previous one.
+    assert starts == [0.0, 2.0, 4.0, 6.0, 8.0]
 
 
 async def test_robots_disallow_blocks_without_requesting_the_page() -> None:

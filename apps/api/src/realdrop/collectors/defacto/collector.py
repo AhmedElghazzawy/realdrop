@@ -1,9 +1,10 @@
 """DeFacto collector: product URLs from the sitemaps, one polite GET per product page.
 
-About 9,000 product pages; at 1 request/s a full pass takes about 2.5 hours. A product page that
-404s, redirects away (discontinued) or is disallowed by robots.txt is skipped as an ItemFailure.
-Many pages in a row without product data means something is wrong (a challenge or maintenance page
-served with 200), so the run stops instead of hammering the site.
+About 14,600 product pages (Oct 2026). At 1 request/s a full pass takes about 5 hours, so the
+schedule collects it in two shards (`--shard 0/2`, `--shard 1/2`) of about 2.5 hours each.
+A product page that 404s, redirects away (discontinued) or is disallowed by robots.txt is skipped
+as an ItemFailure. Many pages in a row without product data means something is wrong (a challenge
+or maintenance page served with 200), so the run stops instead of hammering the site.
 """
 
 from collections.abc import AsyncIterator, Callable
@@ -11,7 +12,7 @@ from datetime import UTC, datetime
 
 import httpx
 
-from realdrop.collectors.base import BrandCollector, ItemFailure, RawProduct
+from realdrop.collectors.base import BrandCollector, ItemFailure, RawProduct, Shard, in_flight
 from realdrop.collectors.defacto.parser import (
     BASE_URL,
     has_product_data,
@@ -23,6 +24,7 @@ from realdrop.collectors.http import CollectorBlockedError, PoliteClient, Robots
 
 SITEMAP_INDEX = f"{BASE_URL}/sharedxml/tr-tr/sitemapindex.xml"
 MAX_PAGES_WITHOUT_DATA = 20
+PAGES_IN_FLIGHT = 3  # pages downloading at once; request starts stay at rate_limit_rps
 
 
 class DefactoCollector(BrandCollector):
@@ -32,22 +34,31 @@ class DefactoCollector(BrandCollector):
     rate_limit_rps = 1.0
 
     def __init__(
-        self, client: PoliteClient, *, now: Callable[[], datetime] = lambda: datetime.now(UTC)
+        self,
+        client: PoliteClient,
+        *,
+        shard: Shard | None = None,
+        now: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
-        super().__init__(client)
+        super().__init__(client, shard=shard)
         self._now = now
         self._pages_without_data = 0
 
     async def fetch_catalog(self) -> AsyncIterator[RawProduct | ItemFailure]:
+        urls = await self._product_urls()
+        async for item in in_flight(urls, self._fetch_product, PAGES_IN_FLIGHT):
+            yield item
+
+    async def _product_urls(self) -> list[str]:
+        """Every product URL in this shard, deduplicated, in sitemap order (~15k for all shards)."""
         index = await self.client.get(SITEMAP_INDEX)
-        seen: set[str] = set()
+        urls: dict[str, None] = {}
         for sitemap_url in product_sitemaps(index.text):
             sitemap = await self.client.get(sitemap_url)
-            for url in sitemap_locs(sitemap.text):
-                if url in seen:
-                    continue
-                seen.add(url)
-                yield await self._fetch_product(url)
+            urls.update(
+                (url, None) for url in sitemap_locs(sitemap.text) if self.shard.contains(url)
+            )
+        return list(urls)
 
     async def _fetch_product(self, url: str) -> RawProduct | ItemFailure:
         try:
