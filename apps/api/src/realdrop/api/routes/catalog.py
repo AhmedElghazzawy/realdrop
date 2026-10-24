@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from realdrop.db.session import get_session
-from realdrop.schemas.catalog import ProductDetail, ProductList, SortOrder, StatsOut
+from realdrop.schemas.catalog import Audience, ProductDetail, ProductList, SortOrder, StatsOut
 from realdrop.services import catalog
 
 router = APIRouter(tags=["catalog"])
@@ -25,12 +25,13 @@ async def products(
     session: Session,
     q: Annotated[str | None, Query(max_length=100)] = None,
     brand: Annotated[str | None, Query(max_length=64)] = None,
+    audience: Audience | None = None,
     sort: SortOrder = "recent",
     limit: Annotated[int, Query(ge=1, le=100)] = 48,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> ProductList:
     return await catalog.list_products(
-        session, q=q, brand=brand, sort=sort, limit=limit, offset=offset
+        session, q=q, brand=brand, audience=audience, sort=sort, limit=limit, offset=offset
     )
 
 

@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from realdrop.models import Brand, CollectionRun, PriceObservation, PriceStatus, Product, Variant
 from realdrop.schemas.catalog import (
+    Audience,
     BrandStats,
     PricePoint,
     ProductCard,
@@ -26,6 +27,11 @@ from realdrop.schemas.catalog import (
 )
 
 ISTANBUL = "Europe/Istanbul"
+
+# Until the extractor fills product_attributes.gender (Phase 5), the audience comes from the top
+# level of the shop's category path. DeFacto: "Erkek > Giyim > Mont" is men; "Erkek Çocuk - Genç
+# Erkek > ..." (boys) and "Erkek Bebek > ..." (baby) are not: the segment must match exactly.
+AUDIENCE_CATEGORY_ROOT: dict[Audience, str] = {"men": "Erkek", "women": "Kadın"}
 
 
 def _latest_per_variant() -> Select[*tuple[Any, ...]]:
@@ -157,6 +163,7 @@ async def list_products(
     *,
     q: str | None = None,
     brand: str | None = None,
+    audience: Audience | None = None,
     sort: SortOrder = "recent",
     limit: int = 48,
     offset: int = 0,
@@ -168,6 +175,9 @@ async def list_products(
         query = query.where(Product.title_raw.ilike(f"%{_escape_like(q)}%", escape="\\"))
     if brand:
         query = query.where(Brand.slug == brand)
+    if audience:
+        root = _escape_like(AUDIENCE_CATEGORY_ROOT[audience])
+        query = query.where(Product.category_raw.like(f"{root} > %", escape="\\"))
     columns = query.selected_columns
     claimed = case(
         (

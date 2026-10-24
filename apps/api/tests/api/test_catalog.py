@@ -16,13 +16,19 @@ T0 = datetime(2026, 10, 25, 0, 30, tzinfo=UTC)  # 03:30 in Istanbul
 DAY = timedelta(days=1)
 
 
-def product(external_id: str, title: str, price: int, original: int | None = None) -> RawProduct:
+def product(
+    external_id: str,
+    title: str,
+    price: int,
+    original: int | None = None,
+    category: str = "Kadın > Giyim",
+) -> RawProduct:
     return RawProduct(
         external_id=external_id,
         url=f"https://shop.example.com/p-{external_id}",
         title=title,
         image_urls=[f"https://img.example.com/{external_id}.jpg"],
-        category_raw="Kadın > Giyim",
+        category_raw=category,
         currency="TRY",
         variants=[
             RawVariant(
@@ -45,6 +51,8 @@ async def seed(session: AsyncSession) -> None:
     day1 = [
         (product("1", "Siyah Kaban", 200_000, 400_000), T0),
         (product("2", "Beyaz Gömlek", 50_000), T0),
+        (product("3", "Erkek Mont", 300_000, category="Erkek > Giyim > Mont"), T0),
+        (product("4", "Erkek Çocuk Mont", 90_000, category="Erkek Çocuk - Genç Erkek > Giyim"), T0),
     ]
     day2 = [
         (product("1", "Siyah Kaban", 180_000, 400_000), T0 + DAY),
@@ -70,13 +78,13 @@ async def test_stats(db_session: AsyncSession) -> None:
     await seed(db_session)
     body = (await get(db_session, "/stats")).json()
     (brand,) = [b for b in body["brands"] if b["slug"] == "shop"]
-    assert (brand["products"], brand["variants"], brand["observations"]) == (2, 6, 12)
+    assert (brand["products"], brand["variants"], brand["observations"]) == (4, 12, 18)
     assert body["runs"][0]["brand_slug"] == "shop"
 
 
 async def test_list_shows_confirmed_prices_only(db_session: AsyncSession) -> None:
     await seed(db_session)
-    body = (await get(db_session, "/products?sort=price_asc")).json()
+    body = (await get(db_session, "/products?sort=price_asc&audience=women")).json()
     assert body["total"] == 2
     shirt, coat = body["items"]
     assert (shirt["title"], shirt["price_minor"]) == (
@@ -115,3 +123,11 @@ async def test_detail_has_sizes_and_daily_history(db_session: AsyncSession) -> N
 async def test_unknown_product_is_404(db_session: AsyncSession) -> None:
     response = await get(db_session, "/products/00000000-0000-0000-0000-000000000000")
     assert response.status_code == 404
+
+
+async def test_audience_men_excludes_boys(db_session: AsyncSession) -> None:
+    await seed(db_session)
+    body = (await get(db_session, "/products?audience=men")).json()
+    assert [p["title"] for p in body["items"]] == ["Erkek Mont"]
+    assert (await get(db_session, "/products")).json()["total"] == 4
+    assert (await get(db_session, "/products?audience=kids")).status_code == 422

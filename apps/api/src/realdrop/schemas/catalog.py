@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from realdrop.models import RunStatus
 
 SortOrder = Literal["recent", "price_asc", "price_desc", "claimed_discount"]
+Audience = Literal["men", "women"]
 
 
 class BrandStats(BaseModel):
