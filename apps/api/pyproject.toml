@@ -41,6 +41,11 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "ASYNC", "DTZ"]
 # RUF001-003 flag "ambiguous" Unicode letters such as ı and İ. Turkish text is our domain, not a typo.
 ignore = ["RUF001", "RUF002", "RUF003"]
 
+[tool.ruff.lint.isort]
+# apps/api/alembic/ (migrations folder) would otherwise make ruff treat the alembic library as ours.
+known-third-party = ["alembic"]
+known-first-party = ["realdrop"]
+
 [tool.mypy]
 python_version = "3.12"
 plugins = ["pydantic.mypy"]
@@ -61,8 +66,15 @@ warn_return_any = true
 no_implicit_reexport = true
 strict_equality = true
 
+# asyncpg ships no type information; only tests/conftest.py touches it directly.
+[[tool.mypy.overrides]]
+module = ["asyncpg", "asyncpg.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Belt and braces: macOS can flag the venv's .pth file "hidden", which Python 3.12.15+ skips.
+pythonpath = ["src"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 # Block real network in tests. Unix sockets stay allowed: asyncio's event loop needs a socketpair.

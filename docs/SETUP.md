@@ -48,6 +48,9 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
 
 ## Troubleshooting
 
+- `ModuleNotFoundError: No module named 'realdrop'` under `uv run`: macOS flagged the venv's `.pth`
+  files as hidden and Python 3.12.15+ skips hidden `.pth` files. Fix:
+  `chflags nohidden apps/api/.venv/lib/python3.12/site-packages/*.pth`.
 - Port 5432 busy: another Postgres is running; stop it or change the host port in `docker-compose.yml`.
 - `docker: command not found`: open OrbStack once so it installs the CLI.
 - Apple Silicon image issues: `pgvector/pgvector:pg16` is multi-arch; if pulling fails, check the network.
