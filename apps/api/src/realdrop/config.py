@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     llm_model_fast: str = "gemma4:12b"
     llm_model_main: str = "gemma4:12b"
 
-    collector_user_agent: str = "realdrop-bot/0.1 (contact: you@example.com)"
+    collector_user_agent: str = "realdrop-bot/0.1 (+https://github.com/AhmedElghazzawy/realdrop)"
 
 
 @lru_cache

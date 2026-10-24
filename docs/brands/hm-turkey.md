@@ -1,6 +1,6 @@
 # H&M Turkey (`hm-turkey`)
 
-**Recommendation: no-go.** Owner decision: _pending_
+**Recommendation: no-go.** Owner decision: **no-go** (24 Oct 2026)
 
 - Base URL: `https://www2.hm.com/tr_tr`
 - Checked: 24 Oct 2026

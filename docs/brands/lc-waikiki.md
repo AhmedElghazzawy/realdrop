@@ -1,6 +1,6 @@
 # LC Waikiki (`lc-waikiki`)
 
-**Recommendation: no-go.** Owner decision: _pending_
+**Recommendation: no-go.** Owner decision: **no-go** (24 Oct 2026)
 
 - Base URL: `https://www.lcw.com` (`www.lcwaikiki.com` redirects here)
 - Checked: 24 Oct 2026

@@ -1,6 +1,6 @@
 # Mavi (`mavi`)
 
-**Recommendation: no-go for now.** Owner decision: _pending_
+**Recommendation: no-go for now.** Owner decision: **no-go** (24 Oct 2026)
 
 - Base URL: `https://www.mavi.com`
 - Checked: 24 Oct 2026
