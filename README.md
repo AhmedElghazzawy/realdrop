@@ -4,8 +4,26 @@
 every day, tells you what a discount **really** is, alerts you when your size really drops, and lets
 you search in plain Turkish or English.
 
-> Status: **Day 1 (24 Oct 2026)**. Specs and project memory only; application code is being built
-> following [`docs/ROADMAP.md`](docs/ROADMAP.md). Launch target: **Black Friday, 27 Nov 2026**.
+![Status](https://img.shields.io/badge/status-in%20development-orange)
+![Launch](https://img.shields.io/badge/launch-Black%20Friday%2027%20Nov%202026-black)
+![Python](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Postgres%2016-pgvector-4169E1?logo=postgresql&logoColor=white)
+![Claude](https://img.shields.io/badge/AI-Anthropic%20Claude-D97757?logo=anthropic&logoColor=white)
+
+> **Built in public, in 5 weeks.** Started 24 Oct 2026, launching on Black Friday, 27 Nov 2026.
+> Follow the commits and the [roadmap](docs/ROADMAP.md) to watch it come together.
+
+## Progress
+
+| Week | Dates | Focus | Status |
+|---|---|---|---|
+| 1 | 24-31 Oct | Foundation, first brand collectors, collection running on a server | 🟡 In progress |
+| 2 | 1-7 Nov | Taxonomy, AI extractor, embeddings, hybrid search, reranker | ⚪ Planned |
+| 3 | 8-14 Nov | Query parser, search API, Next.js app, product pages | ⚪ Planned |
+| 4 | 15-21 Nov | Users, Telegram alerts, shopping assistant + grounding guard | ⚪ Planned |
+| 5 | 22-27 Nov | Personalization, Black Friday page, KVKK, hardening, launch | ⚪ Planned |
 
 ## Why
 
@@ -100,4 +118,14 @@ and step-by-step skills it follows.
 
 ## Author
 
-Ahmed Elghazzawy, computer-engineering student building this to learn and ship.
+**Ahmed Elghazzawy** ([@AhmedElghazzawy](https://github.com/AhmedElghazzawy)), a computer-engineering
+student building this to learn and ship. Focus: AI engineering (structured extraction, hybrid search,
+tool-calling agents, evals).
+
+## License
+
+Copyright © 2026 Ahmed Elghazzawy. All rights reserved. The source is public to view and learn from;
+no license is granted to reuse it yet.
+
+Price data shown by the app belongs to the respective retailers; brand names are their owners'
+trademarks. fiyatgercek is not affiliated with any retailer.
