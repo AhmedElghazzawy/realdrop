@@ -1,0 +1,41 @@
+# Production on the Oracle Always Free server. Collection only for now (Phase 3); api, worker and web
+# join later. Secrets come from infra/prod/.env on the server (created by setup.sh, never committed).
+#
+#   docker compose -f infra/prod/compose.yml up -d db
+#   docker compose -f infra/prod/compose.yml run --rm app alembic upgrade head
+#   docker compose -f infra/prod/compose.yml run --rm app python -m realdrop.collectors.run --brand defacto
+name: realdrop
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in infra/prod/.env}
+      POSTGRES_DB: realdrop
+    # No `ports:` on purpose: the database is reachable only from containers on this network.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d realdrop"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  # One-off jobs (migrations, collection runs); started with `run --rm`, never kept running.
+  app:
+    build: ../../apps/api
+    image: realdrop-api:latest
+    profiles: ["jobs"]
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+asyncpg://app:${POSTGRES_PASSWORD}@db:5432/realdrop
+      COLLECTOR_USER_AGENT: ${COLLECTOR_USER_AGENT:?set in infra/prod/.env}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

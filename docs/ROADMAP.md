@@ -37,6 +37,7 @@ Latest finish: 27 Oct.
 - [x] Brand 1 stored in DB with validation (glitch filter).
 - [ ] Set up the free server (Oracle Cloud Always Free; paid VPS only with the owner's OK), deploy
       collection with a daily job. **Collection is now running without the laptop.**
+      Kit ready and tested locally: `docs/DEPLOY_ORACLE.md`, `infra/prod/`. Waiting on the account.
 
 ## Phase 4: more brands and the real-drop rule
 

@@ -1,0 +1,9 @@
+[Unit]
+Description=Nightly RealDrop database backup
+
+[Timer]
+OnCalendar=*-*-* 01:00:00 Europe/Istanbul
+Persistent=true
+
+[Install]
+WantedBy=timers.target

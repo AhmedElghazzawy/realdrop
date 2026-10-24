@@ -1,0 +1,11 @@
+# Nightly database dump kept on the server for 14 days. Off-server copies (Oracle object storage)
+# and a tested restore come in Phase 12; until then this protects against our own mistakes only.
+[Unit]
+Description=RealDrop database backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/realdrop
+ExecStart=/bin/sh -c 'mkdir -p /var/backups/realdrop && docker compose -f infra/prod/compose.yml exec -T db pg_dump -U app -Fc realdrop > /var/backups/realdrop/realdrop-$(date -u +%%Y%%m%%d).dump && find /var/backups/realdrop -name "*.dump" -mtime +14 -delete'
