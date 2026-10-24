@@ -42,7 +42,7 @@ skills and the format hook. Phase 1 creates the apps and installs tools.
 ## Owner-only steps
 
 - `gh auth login` (GitHub.com, HTTPS, browser), then `gh repo create realdrop --private --source=. --push`.
-- Later (Week 3): create a free API key on a free tier (Groq, OpenRouter or Google AI Studio) and put it
+- Later (roadmap Phase 7): create a free API key on a free tier (Groq, OpenRouter or Google AI Studio) and put it
   in `.env`. Free tiers only; no card on file.
 - Create a Telegram bot with BotFather later (Phase: alerts) and put the token in `.env`.
 

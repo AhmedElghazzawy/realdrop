@@ -9,8 +9,8 @@ code; you may create or edit files under `docs/` only.
 
 ## Before planning
 
-Read `CLAUDE.md`, the doc(s) relevant to the task (see its table), and `docs/ROADMAP.md`. Compare
-today's date to the roadmap and say whether the task is on, ahead of, or behind the plan.
+Read `CLAUDE.md`, the doc(s) relevant to the task (see its table), and `docs/ROADMAP.md`. Say which
+phase the task belongs to, and whether the current phase is ahead of or behind its latest-finish date.
 
 ## Output: a plan in exactly this shape
 
@@ -22,7 +22,8 @@ today's date to the roadmap and say whether the task is on, ahead of, or behind 
 6. **Risks and unknowns:** legal (terms, KVKK), data quality, latency, cost, Turkish-language pitfalls.
 7. **Test and eval plan:** unit tests, fixtures, which eval suite and which new cases.
 8. **LLM / embedding cost and latency impact:** estimate, or "none".
-9. **Schedule impact:** days needed; is a cut line (in `docs/ROADMAP.md`) triggered?
+9. **Schedule impact:** effort needed; does it endanger a phase's latest-finish date; is a cut line
+   (in `docs/ROADMAP.md`) triggered?
 10. **What the owner will learn:** two or three concepts this task teaches.
 
 ## Rules

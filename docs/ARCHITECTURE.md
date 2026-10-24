@@ -49,7 +49,7 @@
 | 5 | Self-hosted bge-m3 + reranker | Good Turkish quality, no per-query cost; CPU is acceptable at launch scale |
 | 6 | Append-only `price_observations`, derived `price_daily` | Glitch confirmation needs raw observations; history stays auditable |
 | 7 | Integer kurus for money | No float errors; comparisons and medians stay exact |
-| 8 | Collection runs on a server from Oct 27 | A sleeping laptop would create gaps in the history, which is our main asset |
+| 8 | Collection runs on a server by Oct 27 at the latest (end of roadmap Phase 3) | A sleeping laptop would create gaps in the history, which is our main asset |
 | 9 | Taste profile is plain code (decayed vector + counters) | Explainable, cheap, deletable, testable. No LLM needed |
 | 10 | Next.js frontend, Turkish first | Fast mobile UX, strong ecosystem, easy deploy |
 | 11 | Free LLMs only: Ollama locally, free API tiers in prod, switchable via env (24 Oct 2026) | Zero budget. Providers are swapped in `.env`, not code; evals decide which model is good enough |
@@ -65,7 +65,7 @@ if needed after launch. The assistant is the per-user load on free-tier rate lim
 - **dev**: Docker Compose (Postgres+pgvector, Redis) on the Mac; API and web run natively.
 - **prod**: one free server (Oracle Cloud Always Free ARM: up to 4 cores / 24 GB) with Docker Compose
   via Coolify; Postgres backups daily. A paid VPS (Hetzner, ~5 EUR/month) only if the owner agrees;
-  Sentry for errors; Langfuse (self-hosted) for LLM traces after launch week 1 if time allows.
+  Sentry for errors; Langfuse (self-hosted) for LLM traces in the first week after launch if time allows.
 
 ## Failure behaviour
 

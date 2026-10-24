@@ -1,62 +1,123 @@
-# Roadmap: Sat 24 Oct -> Fri 27 Nov 2026
+# Roadmap: phases to Black Friday (Fri 27 Nov 2026)
 
-Assumes about 3-4 focused hours per day. If classes take that time, use the cut lines at the bottom;
-do not silently slip dates. Update the checkboxes as work completes.
+Work goes by **phases, not days**. Start the next phase as soon as the current one is done; finishing
+several in one day is fine. Update the checkboxes and the README progress table as work completes.
 
-**The one thing that cannot slip:** price collection must run on a **server** from **Tue 27 Oct**.
-History is the asset competitors cannot fake; every missing day is lost forever.
+Each phase has a **latest finish** date. Being ahead is the goal; passing a latest-finish date with the
+phase still open is the signal to apply the cut lines at the bottom. Do not silently slip.
 
-## Week 1: foundation and data (24-31 Oct)
+**The one thing that cannot slip:** price collection must run on a **server** as early as possible,
+**27 Oct at the latest** (end of Phase 3). History is the asset competitors cannot fake; every missing
+day is lost forever, and the real-drop rule needs 14+ days of history before it can make any claim.
 
-- [ ] **Sat 24:** Phase 1 environment (`docs/SETUP.md`), kit committed, repo on GitHub, docs read once.
-- [ ] **Sun 25:** Alembic setup + first migration (catalog, prices, runs). `/health`. `text.py` tests.
-      Base collector interface + fixture-test pattern.
-- [ ] **Mon 26:** Feasibility check for the first 3 brands (`docs/brands/<slug>.md`: robots, terms, feed or JSON,
-      stability). Pick the easiest. Brand 1 collector against fixtures; dry run of 20 products.
-- [ ] **Tue 27:** Brand 1 stored in DB with validation (glitch filter). Set up the free server (Oracle Cloud Always Free; paid VPS only with the owner's OK), deploy collection with a
-      daily job. **Collection is now running without the laptop.**
-- [ ] **Wed 28 - Thu 29:** Brands 2 and 3. `price_daily` roll-up, `current_prices`.
-- [ ] **Fri 30 - Sat 31:** Brands 4-6 (as many as are feasible; 4 is fine). Collection health report
-      (success rate per brand). Add `pricing/real_drop.py` with the full test suite (pure functions).
+## Phase 1: environment ✅
 
-## Week 2: language and search (1-7 Nov)
+Latest finish: 24 Oct.
 
-- [ ] **Sun 1 - Mon 2:** Taxonomy + Turkish synonym maps. Extractor with Pydantic schema; label 60 products by hand.
-- [ ] **Tue 3:** Run extractor on the catalog with local Ollama (dry-run time estimate first; run overnight); extractor eval baseline.
-- [ ] **Wed 4 - Thu 5:** bge-m3 embeddings pipeline, pgvector HNSW index, full-text index. Hybrid search v1 (RRF).
-- [ ] **Fri 6 - Sat 7:** Reranker. Retrieval judgments for 30 queries; baseline recall@10 and nDCG@10.
+- [x] Environment from `docs/SETUP.md` (tools, apps scaffolded, Postgres + Redis, Ollama), kit committed,
+      repo on GitHub.
+- [x] Switch to free and open-source models only (ADR 11).
+- [ ] Owner reads `docs/PRODUCT.md`, `docs/ROADMAP.md`, `docs/AI_DESIGN.md` once.
 
-## Week 3: parser and product pages (8-14 Nov)
+## Phase 2: backend foundation
 
-- [ ] **Sun 8 - Mon 9:** Query parser + golden queries (grow to 60+), parser eval baseline, fallback path.
-      Pick the free API tier for prod (parser and assistant) by comparing candidates on the evals.
-- [ ] **Tue 10 - Wed 11:** Search API with filters + chips contract. Next.js scaffold, design tokens, fonts (Turkish glyph check).
-- [ ] **Thu 12 - Fri 13:** Product page: price chart, real-discount badge, size picker. Search UI.
-- [ ] **Sat 14:** **Checkpoint.** Is search good and are 14+ days of data in? If not, apply the cut lines.
+Latest finish: 25 Oct.
 
-## Week 4: alerts and assistant (15-21 Nov)
+- [ ] Settings, async DB session, app factory. `/health`. (`text.py` tests: done in Phase 1.)
+- [ ] Alembic setup + first migration (catalog, prices, runs).
+- [ ] Base collector interface, polite HTTP client, price parsing + fixture-test pattern.
 
-- [ ] **Sun 15 - Mon 16:** Users (email magic link or Telegram login), alerts model, alert evaluation + tests.
-- [ ] **Tue 17:** Telegram bot notifications end to end. Raise collection frequency (every 4 h) for the 3 weeks before the sale.
-- [ ] **Wed 18 - Thu 19:** Assistant tools + loop + number-grounding guard; assistant eval suite.
-- [ ] **Fri 20 - Sat 21:** Assistant UI (streaming, tool chips). Prompt-injection and fabrication tests green.
+## Phase 3: first brand collecting on a server
 
-## Week 5: personalization and launch (22-27 Nov)
+Latest finish: 27 Oct.
 
-- [ ] **Sun 22:** Signals, taste vector + counters, onboarding quiz, bounded re-ranking, "because..." labels.
-- [ ] **Mon 23:** Black Friday page (real best deals, inflated-claim examples). KVKK pages: privacy notice, consent, delete-my-data.
-- [ ] **Tue 24:** Load check, error pages, Sentry, backups verified (restore test), rate limits.
-- [ ] **Wed 25:** Full eval run; fix the worst failures; freeze features.
-- [ ] **Thu 26:** Soft launch to friends; watch logs, free-tier rate limits and alerts.
-- [ ] **Fri 27:** Black Friday. Monitor collection every few hours. No risky deploys.
+- [ ] Feasibility check for the first 3 brands (`docs/brands/<slug>.md`: robots, terms, feed or JSON,
+      stability). Pick the easiest.
+- [ ] Brand 1 collector against fixtures; dry run of 20 products.
+- [ ] Brand 1 stored in DB with validation (glitch filter).
+- [ ] Set up the free server (Oracle Cloud Always Free; paid VPS only with the owner's OK), deploy
+      collection with a daily job. **Collection is now running without the laptop.**
+
+## Phase 4: more brands and the real-drop rule
+
+Latest finish: 31 Oct.
+
+- [ ] Brands 2 and 3. `price_daily` roll-up, `current_prices`.
+- [ ] Brands 4-6 (as many as are feasible; 4 is fine). Collection health report (success rate per brand).
+- [ ] `pricing/real_drop.py` with the full test suite (pure functions).
+
+## Phase 5: taxonomy and extractor
+
+Latest finish: 3 Nov.
+
+- [ ] Taxonomy + Turkish synonym maps. Extractor with Pydantic schema; label 60 products by hand.
+- [ ] Run extractor on the catalog with local Ollama (dry-run time estimate first; run overnight);
+      extractor eval baseline.
+
+## Phase 6: hybrid search
+
+Latest finish: 7 Nov.
+
+- [ ] bge-m3 embeddings pipeline, pgvector HNSW index, full-text index. Hybrid search v1 (RRF).
+- [ ] Reranker. Retrieval judgments for 30 queries; baseline recall@10 and nDCG@10.
+
+## Phase 7: query parser and search API
+
+Latest finish: 11 Nov.
+
+- [ ] Query parser + golden queries (grow to 60+), parser eval baseline, fallback path.
+- [ ] Pick the free API tier for prod (parser and assistant) by comparing candidates on the evals.
+- [ ] Search API with filters + chips contract.
+
+## Phase 8: web app
+
+Latest finish: 14 Nov.
+
+- [ ] Design tokens, fonts (Turkish glyph check) on the existing Next.js scaffold.
+- [ ] Product page: price chart, real-discount badge, size picker. Search UI.
+- [ ] **Checkpoint.** Is search good and are 14+ days of data in? If not, apply the cut lines.
+
+## Phase 9: users and alerts
+
+Latest finish: 17 Nov.
+
+- [ ] Users (email magic link or Telegram login), alerts model, alert evaluation + tests.
+- [ ] Telegram bot notifications end to end.
+- [ ] Raise collection frequency to every 4 h for the run-up to the sale (by 17 Nov at the latest,
+      whatever phase we are in).
+
+## Phase 10: shopping assistant
+
+Latest finish: 21 Nov.
+
+- [ ] Assistant tools + loop + number-grounding guard; assistant eval suite.
+- [ ] Assistant UI (streaming, tool chips). Prompt-injection and fabrication tests green.
+
+## Phase 11: personalization
+
+Latest finish: 22 Nov.
+
+- [ ] Signals, taste vector + counters, onboarding quiz, bounded re-ranking, "because..." labels.
+
+## Phase 12: launch
+
+Latest finish: 27 Nov. The last three steps are tied to fixed dates.
+
+- [ ] Black Friday page (real best deals, inflated-claim examples). KVKK pages: privacy notice, consent,
+      delete-my-data.
+- [ ] Load check, error pages, Sentry, backups verified (restore test), rate limits.
+- [ ] Full eval run; fix the worst failures; **freeze features (25 Nov)**.
+- [ ] **Soft launch to friends (26 Nov)**; watch logs, free-tier rate limits and alerts.
+- [ ] **Black Friday (27 Nov).** Monitor collection every few hours. No risky deploys.
 
 ## Cut lines (apply in this order)
 
-1. **Sat 14 Nov, behind:** drop email alerts and web push (Telegram only). Reduce brands to 4.
-2. **Sat 21 Nov, behind:** assistant becomes non-streaming and answers only about one product at a time
-   (`check_real_discount`, `get_price_history`); no `compare_products`.
-3. **Sun 22 Nov, behind:** taste profile becomes counters only (no vector); keep onboarding.
-4. **Never cut:** server-side collection, the real-drop tests, the number-grounding guard, KVKK basics, honest "tracking since" wording.
+1. **Phase 8 still open on 14 Nov:** drop email alerts and web push (Telegram only). Reduce brands to 4.
+2. **Phase 10 still open on 21 Nov:** assistant becomes non-streaming and answers only about one product
+   at a time (`check_real_discount`, `get_price_history`); no `compare_products`.
+3. **Phase 11 not started by 22 Nov:** taste profile becomes counters only (no vector); keep onboarding.
+4. **Never cut:** server-side collection, the real-drop tests, the number-grounding guard, KVKK basics,
+   honest "tracking since" wording.
 
 ## After launch (not before)
 

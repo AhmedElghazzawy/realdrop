@@ -17,13 +17,20 @@ you search in plain Turkish or English.
 
 ## Progress
 
-| Week | Dates | Focus | Status |
-|---|---|---|---|
-| 1 | 24-31 Oct | Foundation, first brand collectors, collection running on a server | 🟡 In progress |
-| 2 | 1-7 Nov | Taxonomy, AI extractor, embeddings, hybrid search, reranker | ⚪ Planned |
-| 3 | 8-14 Nov | Query parser, search API, Next.js app, product pages | ⚪ Planned |
-| 4 | 15-21 Nov | Users, Telegram alerts, shopping assistant + grounding guard | ⚪ Planned |
-| 5 | 22-27 Nov | Personalization, Black Friday page, KVKK, hardening, launch | ⚪ Planned |
+| Phase | Focus | Status |
+|---|---|---|
+| 1 | Environment, free/open-source models | ✅ Done |
+| 2 | Backend foundation: database schema, `/health`, collector base | 🟡 In progress |
+| 3 | First brand collecting daily on a server | ⚪ Planned |
+| 4 | More brands, price roll-ups, real-drop rule | ⚪ Planned |
+| 5 | Taxonomy and AI extractor | ⚪ Planned |
+| 6 | Hybrid search: embeddings, full-text, reranker | ⚪ Planned |
+| 7 | Query parser and search API | ⚪ Planned |
+| 8 | Web app: search UI, product pages | ⚪ Planned |
+| 9 | Users and Telegram alerts | ⚪ Planned |
+| 10 | Shopping assistant + grounding guard | ⚪ Planned |
+| 11 | Personalization | ⚪ Planned |
+| 12 | Black Friday page, KVKK, hardening, launch | ⚪ Planned |
 
 ## Why
 
@@ -90,7 +97,7 @@ CLAUDE.md      project rules and memory for Claude Code
 | Doc | What's in it |
 |---|---|
 | [PRODUCT](docs/PRODUCT.md) | Problem, users, scope, non-goals, launch targets, legal notes |
-| [ROADMAP](docs/ROADMAP.md) | Day-by-day plan to 27 Nov and the cut lines |
+| [ROADMAP](docs/ROADMAP.md) | Phase-by-phase plan to 27 Nov, deadlines and cut lines |
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, data flow, decision log (ADRs) |
 | [DATA_MODEL](docs/DATA_MODEL.md) | Tables, the real-drop rule, glitch filter, alert rule |
 | [AI_DESIGN](docs/AI_DESIGN.md) | Extractor, query parser, assistant loop, taste profile |

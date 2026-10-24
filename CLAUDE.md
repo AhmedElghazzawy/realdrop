@@ -44,7 +44,8 @@ daily real price collection -> honest price history -> "real discount" detection
 - After every non-obvious change, add 2-4 sentences: **what changed, why, and what to learn from it.**
 - Small commits with clear messages (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
 - When something fails: show the exact error, state the likely cause, fix it. No blind retries.
-- Mind the schedule: `docs/ROADMAP.md` has dates and cut lines. Flag scope creep immediately.
+- Mind the schedule: `docs/ROADMAP.md` is organised by **phases, not days**; each phase has a latest-finish
+  date and there are cut lines. Start the next phase as soon as one is done. Flag scope creep immediately.
 - The owner chats in English. The product UI is Turkish first. Repo files, code, comments are English.
 
 ## Repo layout
@@ -125,7 +126,7 @@ pnpm lint && pnpm typecheck && pnpm test
 | Quality gates and golden sets | `docs/EVALS.md` |
 | UI look and components | `docs/DESIGN_SYSTEM.md` |
 | Machine setup | `docs/SETUP.md` |
-| Dates, cut lines | `docs/ROADMAP.md` |
+| Phases, deadlines, cut lines | `docs/ROADMAP.md` |
 
 ## Definition of done
 

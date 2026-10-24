@@ -31,7 +31,7 @@ Press `Shift+Tab` to enter plan mode, then paste:
 Read CLAUDE.md, then docs/SETUP.md and docs/ROADMAP.md. Today is Sat 24 Oct 2026, Day 1.
 Do Phase 1 from docs/SETUP.md only: check what is already installed, show me a short plan, wait for my
 approval, then run it step by step with a verification after each step. Do not start anything from
-week 1 of the roadmap yet. Ask me before anything that needs my login or my API key.
+Phase 2 of the roadmap yet. Ask me before anything that needs my login or my API key.
 ```
 
 ## 3. Read the files once (20 minutes)
