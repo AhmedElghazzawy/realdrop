@@ -163,7 +163,8 @@ async def test_collector_stops_when_pages_stop_looking_like_products() -> None:
             )
         return httpx.Response(200, text="<html>Lütfen bekleyin...</html>")  # challenge-like page
 
-    with pytest.raises(CollectorBlockedError, match="20 product pages in a row"):
+    # With pages in flight, two can finish in the same tick, so the message may say 20 or 21.
+    with pytest.raises(CollectorBlockedError, match=r"2[01] product pages in a row"):
         await collect(httpx.MockTransport(handler))
 
 
