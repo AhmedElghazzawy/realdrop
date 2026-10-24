@@ -45,7 +45,7 @@ Latest finish: 31 Oct.
 
 - [ ] Brands 2 and 3. `price_daily` roll-up, `current_prices`.
 - [ ] Brands 4-6 (as many as are feasible; 4 is fine). Collection health report (success rate per brand).
-- [ ] `pricing/real_drop.py` with the full test suite (pure functions).
+- [x] `pricing/real_drop.py` with the full test suite (pure functions).
 
 ## Phase 5: taxonomy and extractor
 

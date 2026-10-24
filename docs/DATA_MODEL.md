@@ -106,6 +106,9 @@ Status (exactly one):
 | `price_up` | `real_discount_pct <= -0.03` |
 | `insufficient_history` | see above |
 
+A drop of 10% or more that fails the 7-day-low or in-stock check is `small_drop`: we only say "real
+drop" when all three conditions hold. With no tracked day in the last 7, the 7-day-low check fails.
+
 Flags (independent):
 
 - `claim_inflated`: `claimed_discount_pct >= 0.20` and `claimed_discount_pct - real_discount_pct >= 0.15`.
