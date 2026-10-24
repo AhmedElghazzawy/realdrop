@@ -2,12 +2,13 @@
 
 from fastapi import FastAPI
 
-from realdrop.api.routes import health
+from realdrop.api.routes import catalog, health
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title="RealDrop API", version="0.1.0")
     app.include_router(health.router)
+    app.include_router(catalog.router)
     return app
 
 
