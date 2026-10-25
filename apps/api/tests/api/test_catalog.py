@@ -23,12 +23,15 @@ def product(
     original: int | None = None,
     category: str = "Kadın > Giyim",
 ) -> RawProduct:
+    # As the DeFacto parser sets it: only an exact "Erkek"/"Kadın" category root counts.
+    audience = {"Erkek": "men", "Kadın": "women"}.get(category.split(" > ")[0])
     return RawProduct(
         external_id=external_id,
         url=f"https://shop.example.com/p-{external_id}",
         title=title,
         image_urls=[f"https://img.example.com/{external_id}.jpg"],
         category_raw=category,
+        audience=audience,
         currency="TRY",
         variants=[
             RawVariant(

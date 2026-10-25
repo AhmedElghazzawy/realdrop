@@ -225,3 +225,17 @@ def test_sitemap_with_stale_tail_after_the_root_still_parses() -> None:
 def test_sitemap_that_is_not_xml_still_raises() -> None:
     with pytest.raises(ET.ParseError):
         parser.sitemap_locs("<html>Bakım</html")
+
+
+@pytest.mark.parametrize(
+    ("category", "audience"),
+    [
+        ("Erkek > Giyim > Mont", "men"),
+        ("Kadın > İç Giyim > Sütyen", "women"),
+        ("Erkek Çocuk - Genç Erkek > Giyim", None),
+        ("Erkek Bebek > Giyim", None),
+        (None, None),
+    ],
+)
+def test_audience_from_category_root(category: str | None, audience: str | None) -> None:
+    assert parser._audience(category) == audience

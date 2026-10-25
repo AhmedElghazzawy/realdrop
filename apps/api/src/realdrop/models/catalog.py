@@ -10,6 +10,7 @@ from typing import Any
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     DateTime,
     ForeignKey,
     String,
@@ -49,7 +50,10 @@ class Brand(Base):
 
 class Product(Base):
     __tablename__ = "products"
-    __table_args__ = (UniqueConstraint("brand_id", "external_id"),)
+    __table_args__ = (
+        UniqueConstraint("brand_id", "external_id"),
+        CheckConstraint("audience IN ('men', 'women')", name="audience_values"),
+    )
 
     id: Mapped[uuid.UUID] = uuid_pk()
     brand_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("brands.id", ondelete="RESTRICT"))
@@ -59,6 +63,8 @@ class Product(Base):
     description_raw: Mapped[str | None] = mapped_column(Text)
     image_urls: Mapped[list[str]] = mapped_column(ARRAY(Text), server_default=text("'{}'::text[]"))
     category_raw: Mapped[str | None] = mapped_column(Text)
+    # 'men' | 'women' when the shop says so plainly (collectors/base.py); kids and unclear: NULL.
+    audience: Mapped[str | None] = mapped_column(String(8), index=True)
     content_hash: Mapped[str] = mapped_column(String(64))
     first_seen_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

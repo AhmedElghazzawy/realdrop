@@ -19,7 +19,6 @@ from realdrop.collectors.defacto.parser import (
     has_product_data,
     parse_product,
     product_sitemaps,
-    sitemap_locs,
 )
 from realdrop.collectors.http import (
     CollectorBlockedError,
@@ -27,6 +26,7 @@ from realdrop.collectors.http import (
     PoliteClient,
     RobotsDisallowedError,
 )
+from realdrop.collectors.sitemap import sitemap_locs
 
 SITEMAP_INDEX = f"{BASE_URL}/sharedxml/tr-tr/sitemapindex.xml"
 MAX_PAGES_WITHOUT_DATA = 20

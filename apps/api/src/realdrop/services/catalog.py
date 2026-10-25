@@ -35,11 +35,6 @@ from realdrop.schemas.catalog import (
     VariantOut,
 )
 
-# Until the extractor fills product_attributes.gender (Phase 5), the audience comes from the top
-# level of the shop's category path. DeFacto: "Erkek > Giyim > Mont" is men; "Erkek Çocuk - Genç
-# Erkek > ..." (boys) and "Erkek Bebek > ..." (baby) are not: the segment must match exactly.
-AUDIENCE_CATEGORY_ROOT: dict[Audience, str] = {"men": "Erkek", "women": "Kadın"}
-
 
 def _latest_per_variant() -> Select[*tuple[Any, ...]]:
     obs = PriceObservation
@@ -183,8 +178,8 @@ async def list_products(
     if brand:
         query = query.where(Brand.slug == brand)
     if audience:
-        root = _escape_like(AUDIENCE_CATEGORY_ROOT[audience])
-        query = query.where(Product.category_raw.like(f"{root} > %", escape="\\"))
+        # Set by each collector from what the shop says (collectors/base.py RawProduct.audience).
+        query = query.where(Product.audience == audience)
     columns = query.selected_columns
     claimed = case(
         (

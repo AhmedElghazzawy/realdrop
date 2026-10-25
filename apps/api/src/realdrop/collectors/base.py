@@ -11,7 +11,7 @@ import zlib
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
 from dataclasses import dataclass
-from typing import Annotated, ClassVar
+from typing import Annotated, ClassVar, Literal
 
 from pydantic import (
     AfterValidator,
@@ -36,6 +36,9 @@ def _non_empty(text: str) -> str:
 
 
 Text = Annotated[str, AfterValidator(normalize)]
+# Who the product is for, when the shop says so plainly (category root or title). Kids, babies and
+# unclear products are None. The extractor (Phase 5) will fill a richer gender attribute.
+Audience = Literal["men", "women"]
 NonEmptyText = Annotated[str, AfterValidator(normalize), AfterValidator(_non_empty)]
 
 
@@ -62,6 +65,7 @@ class RawProduct(BaseModel):
     title: NonEmptyText
     description: Text | None = None
     category_raw: Text | None = None
+    audience: Audience | None = None
     image_urls: list[HttpUrl] = Field(default_factory=list)
     currency: str = Field(pattern=r"^[A-Z]{3}$")
     variants: list[RawVariant] = Field(min_length=1)

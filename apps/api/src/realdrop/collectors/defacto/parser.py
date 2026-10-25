@@ -14,44 +14,24 @@ are decoded as Decimal and converted with money.decimal_to_minor, never through 
 
 import json
 import re
-import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any
 
-from realdrop.collectors.base import RawProduct, RawVariant
+from realdrop.collectors.base import Audience, RawProduct, RawVariant
 from realdrop.collectors.money import decimal_to_minor
+from realdrop.collectors.sitemap import sitemap_locs
 
 BASE_URL = "https://www.defacto.com.tr"
 # Turkey has used UTC+3 all year since 2016; campaign dates on the site are local, without offset.
 TURKEY = timezone(timedelta(hours=3))
 
-_SITEMAP_NS = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
-_ROOT_ENDS = ("</urlset>", "</sitemapindex>")
 _PRODUCT_SITEMAP = re.compile(r"/sharedxml/tr-tr/product(-\d+)?\.xml$")
 _PRODUCT_ID = re.compile(r"-(\d{6,})/?$")
 _WAIST_LENGTH = re.compile(r"^Beden (.+?) - Boy (.+)$")
 _JSON_LD = re.compile(r"<script[^>]*application/ld\+json[^>]*>(.*?)</script>", re.S)
 _DECODER = json.JSONDecoder(parse_float=Decimal)
-
-
-def sitemap_locs(xml_text: str) -> list[str]:
-    """Every <loc> in a sitemap or sitemap index, in document order.
-
-    DeFacto's product-5.xml (Oct 2026) has stale text after `</urlset>`, as if a shorter file was
-    written over a longer one. Everything up to the first closing root tag is a complete document,
-    so the tail is cut off; any other XML error still raises.
-    """
-    try:
-        root = ET.fromstring(xml_text)
-    except ET.ParseError:
-        end = min(
-            (i + len(tag) for tag in _ROOT_ENDS if (i := xml_text.find(tag)) >= 0), default=-1
-        )
-        if end < 0:
-            raise
-        root = ET.fromstring(xml_text[:end])
-    return [loc.text.strip() for loc in root.iter(f"{_SITEMAP_NS}loc") if loc.text]
+_AUDIENCE_ROOTS: dict[str, Audience] = {"Erkek": "men", "Kadın": "women"}
 
 
 def product_sitemaps(index_xml: str) -> list[str]:
@@ -95,11 +75,13 @@ def parse_product(html: str, url: str, now: datetime) -> RawProduct:
         )
         for size in data["Sizes"]
     ]
+    category = _category_path(data)
     return RawProduct(
         external_id=product_id(url),
         url=url,
         title=data.get("ProductVariantName") or data["Name"],
-        category_raw=_category_path(data),
+        category_raw=category,
+        audience=_audience(category),
         image_urls=_images(html),
         currency="TRY",
         variants=variants,
@@ -140,6 +122,13 @@ def _category_path(data: dict[str, Any]) -> str | None:
         if (level := data.get(key)) and level.get("CategoryName")
     ]
     return " > ".join(names) or None
+
+
+def _audience(category: str | None) -> Audience | None:
+    """'Erkek > Giyim > Mont' is men. Boys ('Erkek Çocuk - Genç Erkek > ...') and babies ('Erkek
+    Bebek > ...') are not: the root segment must match exactly."""
+    root = category.split(" > ")[0] if category else None
+    return _AUDIENCE_ROOTS.get(root) if root else None
 
 
 def _images(html: str) -> list[str]:
