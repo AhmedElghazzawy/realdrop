@@ -1,4 +1,5 @@
-"""Storing collector output: catalog upserts, glitch-filter statuses, pending expiry, run rows."""
+"""Storing collector output: catalog upserts, change-only observations, glitch-filter statuses,
+pending expiry, run rows."""
 
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -94,10 +95,9 @@ async def test_glitch_is_held_then_confirmed_by_the_next_run(db_session: AsyncSe
         await store.store_product(
             db_session, brand_id=brand_id, run_id=run_id, raw=coat(price), observed_at=when
         )
-    # A real 99% drop is believed once a second run sees it too.
+    # A real 99% drop is believed once a second run sees it too; the repeat adds no row.
     assert await statuses(db_session) == [
         (100_000, PriceStatus.CONFIRMED),
-        (1_000, PriceStatus.CONFIRMED),
         (1_000, PriceStatus.CONFIRMED),
     ]
 
@@ -170,3 +170,69 @@ async def test_batch_of_new_and_known_products(db_session: AsyncSession) -> None
     assert counts == {PriceStatus.PENDING: 2, PriceStatus.CONFIRMED: 1}
     titles = await db_session.scalars(select(Product.title_raw).order_by(Product.external_id))
     assert list(titles) == ["Siyah Kaban", "Ceket"]
+
+
+async def stretches(session: AsyncSession) -> list[tuple[int, bool, datetime, datetime]]:
+    rows = await session.execute(
+        select(
+            PriceObservation.price_minor,
+            PriceObservation.in_stock,
+            PriceObservation.observed_at,
+            PriceObservation.last_seen_at,
+        )
+        .join(Variant)
+        .where(Variant.external_sku == "1001-S")
+        .order_by(PriceObservation.observed_at)
+    )
+    return [tuple(row) for row in rows]  # type: ignore[misc]
+
+
+async def test_unchanged_price_only_moves_last_seen(db_session: AsyncSession) -> None:
+    brand_id, run_id = await setup(db_session)
+    for day in range(3):
+        counts = await store.store_product(
+            db_session, brand_id=brand_id, run_id=run_id, raw=coat(), observed_at=T0 + day * DAY
+        )
+        assert counts == {PriceStatus.CONFIRMED: 2}
+    assert await stretches(db_session) == [(100_000, True, T0, T0 + 2 * DAY)]
+
+
+async def test_any_change_starts_a_new_stretch(db_session: AsyncSession) -> None:
+    brand_id, run_id = await setup(db_session)
+    sold_out = coat().model_copy(
+        update={"variants": [v.model_copy(update={"in_stock": False}) for v in coat().variants]}
+    )
+    for when, raw in [(T0, coat()), (T0 + DAY, sold_out), (T0 + 2 * DAY, coat(90_000))]:
+        await store.store_product(
+            db_session, brand_id=brand_id, run_id=run_id, raw=raw, observed_at=when
+        )
+    assert await stretches(db_session) == [
+        (100_000, True, T0, T0),
+        (100_000, False, T0 + DAY, T0 + DAY),
+        (90_000, True, T0 + 2 * DAY, T0 + 2 * DAY),
+    ]
+
+
+async def test_pending_seen_again_too_soon_stays_pending(db_session: AsyncSession) -> None:
+    brand_id, run_id = await setup(db_session)
+    soon = T0 + DAY + timedelta(minutes=10)
+    for when, price in [(T0, 100_000), (T0 + DAY, 1_000), (soon, 1_000)]:
+        await store.store_product(
+            db_session, brand_id=brand_id, run_id=run_id, raw=coat(price), observed_at=when
+        )
+    assert await statuses(db_session) == [
+        (100_000, PriceStatus.CONFIRMED),
+        (1_000, PriceStatus.PENDING),
+    ]
+
+
+async def test_rejected_state_is_judged_again_not_extended(db_session: AsyncSession) -> None:
+    brand_id, run_id = await setup(db_session)
+    for when in [T0, T0 + DAY]:
+        await store.store_product(
+            db_session, brand_id=brand_id, run_id=run_id, raw=coat(price=100), observed_at=when
+        )
+    assert await statuses(db_session) == [
+        (100, PriceStatus.REJECTED),
+        (100, PriceStatus.REJECTED),
+    ]

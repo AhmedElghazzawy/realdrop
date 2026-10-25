@@ -65,21 +65,27 @@ class CollectionRun(Base):
 
 
 class PriceObservation(Base):
-    """Append-only: one row per variant per run. Only the glitch-filter status is ever updated."""
+    """One row per stretch of unchanged state (price, claimed original, stock, currency, status).
+
+    A run that sees the same state again only moves `last_seen_at` forward; any change starts a new
+    row. Besides that, only the glitch-filter status is ever updated (pipeline/store.py).
+    """
 
     __tablename__ = "price_observations"
     __table_args__ = (
         Index("ix_price_observations_variant_id_observed_at", "variant_id", "observed_at"),
+        CheckConstraint("last_seen_at >= observed_at", name="seen_order"),
     )
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
     variant_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("variants.id", ondelete="RESTRICT")
     )
-    run_id: Mapped[uuid.UUID] = mapped_column(
+    run_id: Mapped[uuid.UUID] = mapped_column(  # the run that first saw this state
         UUID(as_uuid=True), ForeignKey("collection_runs.id", ondelete="RESTRICT")
     )
-    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))  # first seen
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     # No CHECK on price here: impossible prices are stored as `rejected` with a reason, so the
     # glitch filter's decisions stay auditable.
     price_minor: Mapped[int] = mapped_column(BigInteger)

@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from realdrop.models import PriceStatus
-from realdrop.pipeline.validate import Held, classify, confirming
+from realdrop.pipeline.validate import classify, confirms
 
 CONFIRMED, PENDING, REJECTED = PriceStatus.CONFIRMED, PriceStatus.PENDING, PriceStatus.REJECTED
 
@@ -55,10 +55,8 @@ def test_claimed_original_above_price_is_fine() -> None:
 T0 = datetime(2026, 10, 25, 9, 0, tzinfo=UTC)
 
 
-def test_same_price_seen_again_later_confirms_held_ones() -> None:
-    held = [Held(1, T0, 1_000), Held(2, T0, 2_000)]
-    assert confirming(1_000, T0 + timedelta(minutes=29), held) == []  # too soon
-    assert confirming(1_000, T0 + timedelta(minutes=30), held) == [held[0]]
-    assert confirming(1_000, T0 + timedelta(hours=24), held) == [held[0]]
-    assert confirming(1_500, T0 + timedelta(hours=24), held) == []  # different price
-    assert confirming(1_000, T0 + timedelta(hours=48), held) == []  # expired
+def test_seen_again_later_confirms() -> None:
+    assert not confirms(T0, T0 + timedelta(minutes=29))  # too soon
+    assert confirms(T0, T0 + timedelta(minutes=30))
+    assert confirms(T0, T0 + timedelta(hours=24))
+    assert not confirms(T0, T0 + timedelta(hours=48))  # expired

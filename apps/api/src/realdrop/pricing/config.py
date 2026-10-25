@@ -13,6 +13,7 @@ MEDIAN_FLOOR_PCT: Final = 20  # a price below 20% of the 30-day median is held
 MEDIAN_WINDOW: Final = timedelta(days=30)
 CONFIRM_AFTER: Final = timedelta(minutes=30)  # a repeat this much later confirms a held price
 PENDING_EXPIRY: Final = timedelta(hours=48)  # held prices not confirmed by then are rejected
+ROLLUP_LOOKBACK: Final = timedelta(days=7)  # price_daily days rebuilt after each run
 
 # Real-drop rule (pricing/real_drop.py)
 MIN_HISTORY_DAYS: Final = 14  # fewer tracked days than this: no real-discount claim at all

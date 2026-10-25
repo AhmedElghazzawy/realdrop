@@ -1,15 +1,20 @@
-"""Write collector output to the database: catalog upserts plus one validated price observation per
-variant per run. The caller owns the transaction (one per product, so a crash loses at most one).
+"""Write collector output to the database: catalog upserts plus validated price observations.
+The caller owns the transaction (one per batch, so a crash loses at most one batch).
 
-Observations are append-only. The only updates are glitch-filter status changes on pending rows:
-confirmed by a later identical price, or rejected when they expire (pipeline/validate.py).
+Observations are change-only (docs/DATA_MODEL.md): a variant whose state (price, claimed original,
+stock, currency) is the same as its latest row only moves that row's `last_seen_at`; a change adds
+a new row. Seeing a pending row again confirms it (pipeline/validate.py); pending rows nobody
+confirms in time are rejected by expire_pending. A rejected latest row is never extended: the next
+sighting is judged afresh.
 """
 
 import hashlib
 import json
 import uuid
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import distinct_on
@@ -25,7 +30,7 @@ from realdrop.models import (
     RunStatus,
     Variant,
 )
-from realdrop.pipeline.validate import Held, classify, confirming
+from realdrop.pipeline.validate import classify, confirms
 from realdrop.pricing import config
 
 
@@ -78,6 +83,14 @@ async def finish_run(
     return status
 
 
+@dataclass(frozen=True)
+class _Latest:
+    id: int
+    state: tuple[int, int | None, bool, str]
+    status: PriceStatus
+    observed_at: datetime
+
+
 def content_hash(raw: RawProduct) -> str:
     """Changes when the text or images change, so the extractor knows what to re-run."""
     payload = [raw.title, raw.description, raw.category_raw, [str(u) for u in raw.image_urls]]
@@ -105,11 +118,12 @@ async def store_products(
     run_id: uuid.UUID,
     batch: list[tuple[RawProduct, datetime]],
 ) -> Counter[PriceStatus]:
-    """Upsert a batch of products and their variants, then add one observation per variant.
-    Returns how many observations got each status.
+    """Upsert a batch of products and their variants, then record each variant's state: extend its
+    latest row if nothing changed, else add a row. Returns how many variants ended in each status.
 
-    Set-based on purpose: about ten database round trips per batch instead of per product. Against
-    a remote database (~0.1 s per round trip) that is the difference between a 7 h and a 3 h run.
+    Set-based on purpose: a handful of database round trips per batch instead of per product.
+    Against a remote database (~0.1 s per round trip) that is the difference between a 7 h and a
+    3 h run.
     """
     if not batch:
         return Counter()
@@ -119,16 +133,39 @@ async def store_products(
 
     # One history window for the whole batch: its items were observed seconds apart.
     earliest = min(observed_at for _, observed_at in batch)
+    latest = await _latest(session, ids)
     last_confirmed = await _last_confirmed(session, ids)
     recent = await _confirmed_since(session, ids, earliest - config.MEDIAN_WINDOW)
-    held = await _held_since(session, ids, earliest - config.PENDING_EXPIRY)
 
     counts: Counter[PriceStatus] = Counter()
+    seen_again: list[dict[str, Any]] = []
     now_confirmed: list[int] = []
     observations: list[PriceObservation] = []
     for raw, observed_at in batch:
         for raw_variant in raw.variants:
             variant = variants[(raw.external_id, raw_variant.external_sku)]
+            state = (
+                raw_variant.price_minor,
+                raw_variant.original_price_minor,
+                raw_variant.in_stock,
+                raw.currency,
+            )
+            previous = latest.get(variant.id)
+            if (
+                previous is not None
+                and previous.state == state
+                and previous.status is not PriceStatus.REJECTED
+            ):
+                seen_again.append({"id": previous.id, "last_seen_at": observed_at})
+                if previous.status is PriceStatus.PENDING and confirms(
+                    previous.observed_at, observed_at
+                ):
+                    now_confirmed.append(previous.id)
+                    counts[PriceStatus.CONFIRMED] += 1
+                else:
+                    counts[previous.status] += 1
+                continue
+
             verdict = classify(
                 raw_variant.price_minor,
                 raw_variant.original_price_minor,
@@ -136,16 +173,12 @@ async def store_products(
                 recent[variant.id],
             )
             status, reason = verdict.status, verdict.reason
-            if status is PriceStatus.PENDING:
-                confirmed = confirming(raw_variant.price_minor, observed_at, held[variant.id])
-                if confirmed:
-                    now_confirmed += [h.observation_id for h in confirmed]
-                    status, reason = PriceStatus.CONFIRMED, None
             observations.append(
                 PriceObservation(
                     variant_id=variant.id,
                     run_id=run_id,
                     observed_at=observed_at,
+                    last_seen_at=observed_at,
                     price_minor=raw_variant.price_minor,
                     original_price_minor=raw_variant.original_price_minor,
                     currency=raw.currency,
@@ -156,6 +189,9 @@ async def store_products(
                 )
             )
             counts[status] += 1
+    if seen_again:
+        # ORM bulk UPDATE by primary key: one executemany for the whole batch.
+        await session.execute(update(PriceObservation), seen_again)
     if now_confirmed:
         await session.execute(
             update(PriceObservation)
@@ -244,6 +280,29 @@ async def _upsert_variants(
     return existing
 
 
+async def _latest(session: AsyncSession, ids: list[uuid.UUID]) -> dict[uuid.UUID, _Latest]:
+    obs = PriceObservation
+    rows = await session.execute(
+        select(
+            obs.variant_id,
+            obs.id,
+            obs.price_minor,
+            obs.original_price_minor,
+            obs.in_stock,
+            obs.currency,
+            obs.status,
+            obs.observed_at,
+        )
+        .where(obs.variant_id.in_(ids))
+        .order_by(obs.variant_id, obs.observed_at.desc(), obs.id.desc())
+        .ext(distinct_on(obs.variant_id))
+    )
+    return {
+        variant_id: _Latest(id, (price, original, in_stock, currency), status, observed_at)
+        for variant_id, id, price, original, in_stock, currency, status, observed_at in rows
+    }
+
+
 async def _last_confirmed(session: AsyncSession, ids: list[uuid.UUID]) -> dict[uuid.UUID, int]:
     rows = await session.execute(
         select(PriceObservation.variant_id, PriceObservation.price_minor)
@@ -264,31 +323,10 @@ async def _confirmed_since(
         select(PriceObservation.variant_id, PriceObservation.price_minor).where(
             PriceObservation.variant_id.in_(ids),
             PriceObservation.status == PriceStatus.CONFIRMED,
-            PriceObservation.observed_at >= since,
+            PriceObservation.last_seen_at >= since,
         )
     )
     prices: defaultdict[uuid.UUID, list[int]] = defaultdict(list)
     for variant_id, price in rows:
         prices[variant_id].append(price)
     return prices
-
-
-async def _held_since(
-    session: AsyncSession, ids: list[uuid.UUID], since: datetime
-) -> defaultdict[uuid.UUID, list[Held]]:
-    rows = await session.execute(
-        select(
-            PriceObservation.variant_id,
-            PriceObservation.id,
-            PriceObservation.observed_at,
-            PriceObservation.price_minor,
-        ).where(
-            PriceObservation.variant_id.in_(ids),
-            PriceObservation.status == PriceStatus.PENDING,
-            PriceObservation.observed_at > since,
-        )
-    )
-    held: defaultdict[uuid.UUID, list[Held]] = defaultdict(list)
-    for variant_id, observation_id, held_at, price in rows:
-        held[variant_id].append(Held(observation_id, held_at, price))
-    return held

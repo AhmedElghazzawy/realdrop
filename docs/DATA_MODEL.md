@@ -28,14 +28,22 @@ Alembic migrations in `apps/api/alembic/versions/`; this file must always match 
 - **collection_runs**: `id`, `brand_id`, `started_at`, `finished_at`,
   `status` enum(`running`,`succeeded`,`partial`,`failed`), `items_seen`, `items_failed`, `notes`.
   `partial` = finished with some items failed; `failed` = stopped early (403, robots.txt, gave up).
-- **price_observations** (append-only): `id` bigserial, `variant_id` FK, `run_id` FK, `observed_at`,
+- **price_observations** (change-only stretches): `id` bigserial, `variant_id` FK, `run_id` FK (the
+  run that first saw it), `observed_at` (first seen), `last_seen_at` (latest run that saw it),
   `price_minor`, `original_price_minor` (nullable, what the retailer claims as the old price),
   `currency`, `in_stock`, `status` enum(`confirmed`,`pending`,`rejected`), `reject_reason`.
-  Index `(variant_id, observed_at)`. No CHECK on the price: impossible prices are stored as
-  `rejected` with a reason so the glitch filter stays auditable.
-- **price_daily** (derived): `variant_id`, `snapshot_date`, `close_price_minor` (last confirmed of the
-  day), `low_price_minor`, `high_price_minor`, `claimed_original_minor`, `currency`,
-  `in_stock_close`. PK `(variant_id, snapshot_date)`. CHECK `low > 0` and `low <= close <= high`.
+  Index `(variant_id, observed_at)`; CHECK `last_seen_at >= observed_at`. No CHECK on the price:
+  impossible prices are stored as `rejected` with a reason so the glitch filter stays auditable.
+  **One row per unchanged state**, not per run (owner decision, 25 Oct 2026, to fit 3-6 brands in
+  Neon's free 0.5 GB): a run that sees the same price, claimed original, stock and currency as the
+  variant's latest row only moves `last_seen_at`; any change adds a row. A `rejected` latest row is
+  never extended; the next sighting is judged afresh. Merging the per-run rows of 24-25 Oct turned
+  6,672 rows into 6,130.
+- **price_daily** (derived, `pipeline/rollup.py`): `variant_id`, `snapshot_date`, `close_price_minor`
+  (last confirmed of the day), `low_price_minor`, `high_price_minor`, `claimed_original_minor`,
+  `currency`, `in_stock_close`. PK `(variant_id, snapshot_date)`. CHECK `low > 0` and
+  `low <= close <= high`. A confirmed stretch covers every Istanbul day from `observed_at` to
+  `last_seen_at`. Every run rebuilds the last 7 days (`ROLLUP_LOOKBACK`) for the variants it saw.
 - **current_prices** (materialized view or table): `variant_id` PK, `price_minor`,
   `claimed_original_minor`, `in_stock`, `as_of`, plus the computed `status`, `real_discount_pct`,
   `claim_inflated`, `all_time_low` from `pricing/real_drop.py`.
@@ -80,8 +88,8 @@ Applies to each new observation. Defaults live in `pricing/config.py` and are co
 1. **Reject** if `price_minor <= 0` or `price_minor < MIN_PRICE_MINOR` (default 500, i.e. 5 TRY).
 2. **Hold as `pending`** if the price differs from the last confirmed price by `>= 70%`, or is below
    `20%` of the 30-day median, or `original_price_minor < price_minor` (impossible claim).
-3. A pending observation becomes **`confirmed`** when a second observation with the same price
-   arrives at least 30 minutes later (any run).
+3. A pending observation becomes **`confirmed`** when a later run sees the same state again at least
+   30 minutes after it was first seen (its stretch is extended, see `price_observations`).
 4. A pending observation not confirmed within **48 hours** becomes `rejected` (reason logged).
 5. Only `confirmed` observations feed `price_daily`, the real-drop rule and alerts.
 

@@ -42,6 +42,7 @@ async def test_catalog_and_price_round_trip(db_session: AsyncSession) -> None:
             variant_id=variant.id,
             run_id=run.id,
             observed_at=datetime(2026, 10, 25, 9, 0, tzinfo=UTC),
+            last_seen_at=datetime(2026, 10, 25, 9, 0, tzinfo=UTC),
             price_minor=249990,
             original_price_minor=329990,
             currency="TRY",

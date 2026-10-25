@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from realdrop.collectors.base import RawProduct, RawVariant
 from realdrop.db.session import get_session
 from realdrop.main import create_app
-from realdrop.pipeline import store
+from realdrop.pipeline import rollup, store
 
 T0 = datetime(2026, 10, 25, 0, 30, tzinfo=UTC)  # 03:30 in Istanbul
 DAY = timedelta(days=1)
@@ -60,6 +60,7 @@ async def seed(session: AsyncSession) -> None:
     ]
     for batch in (day1, day2):
         await store.store_products(session, brand_id=brand.id, run_id=run.id, batch=batch)
+    await rollup.refresh_daily(session, T0 - DAY)
 
 
 async def get(session: AsyncSession, path: str) -> httpx.Response:

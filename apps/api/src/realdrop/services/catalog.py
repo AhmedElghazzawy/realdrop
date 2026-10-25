@@ -1,8 +1,9 @@
 """Queries behind the read-only catalog endpoints.
 
-"Current" means each variant's latest *confirmed* observation; pending and rejected prices are
-never shown. This scans observations per request, which is fine for one brand; Phase 4 adds the
-`current_prices` table that replaces these subqueries.
+"Current" means each variant's latest *confirmed* stretch (observations are change-only, see
+pipeline/store.py); pending and rejected prices are never shown. Price history comes from
+`price_daily` (pipeline/rollup.py). This scans observations per request, which is fine for a few
+brands; a `current_prices` table can replace these subqueries when it gets slow.
 """
 
 import uuid
@@ -12,7 +13,15 @@ from sqlalchemy import Select, case, func, select
 from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from realdrop.models import Brand, CollectionRun, PriceObservation, PriceStatus, Product, Variant
+from realdrop.models import (
+    Brand,
+    CollectionRun,
+    PriceDaily,
+    PriceObservation,
+    PriceStatus,
+    Product,
+    Variant,
+)
 from realdrop.schemas.catalog import (
     Audience,
     BrandStats,
@@ -25,8 +34,6 @@ from realdrop.schemas.catalog import (
     StatsOut,
     VariantOut,
 )
-
-ISTANBUL = "Europe/Istanbul"
 
 # Until the extractor fills product_attributes.gender (Phase 5), the audience comes from the top
 # level of the shop's category path. DeFacto: "Erkek > Giyim > Mont" is men; "Erkek Çocuk - Genç
@@ -43,7 +50,7 @@ def _latest_per_variant() -> Select[*tuple[Any, ...]]:
             obs.original_price_minor,
             obs.currency,
             obs.in_stock,
-            obs.observed_at,
+            obs.last_seen_at.label("observed_at"),  # when we last checked, for "last checked"
         )
         .where(obs.status == PriceStatus.CONFIRMED)
         .order_by(obs.variant_id, obs.observed_at.desc())
@@ -228,19 +235,17 @@ async def product_detail(session: AsyncSession, product_id: uuid.UUID) -> Produc
         .order_by(first_seen.c.first_id)
     )
 
+    # Per day, the cheapest any size could be bought for, next to the highest claimed original.
     history_rows = await session.execute(
         select(
-            func.date(func.timezone(ISTANBUL, PriceObservation.observed_at)).label("day"),
-            func.min(PriceObservation.price_minor),
-            func.max(PriceObservation.original_price_minor),
+            PriceDaily.snapshot_date,
+            func.min(PriceDaily.low_price_minor),
+            func.max(PriceDaily.claimed_original_minor),
         )
-        .join(Variant, Variant.id == PriceObservation.variant_id)
-        .where(
-            Variant.product_id == product_id,
-            PriceObservation.status == PriceStatus.CONFIRMED,
-        )
-        .group_by("day")
-        .order_by("day")
+        .join(Variant, Variant.id == PriceDaily.variant_id)
+        .where(Variant.product_id == product_id)
+        .group_by(PriceDaily.snapshot_date)
+        .order_by(PriceDaily.snapshot_date)
     )
     return ProductDetail.model_validate(
         {

@@ -5,8 +5,8 @@ Pure functions, no database: pipeline/store.py loads the history and applies the
 - Reject: price <= 0 or below MIN_PRICE_MINOR.
 - Hold as pending: >= BIG_CHANGE_PCT away from the last confirmed price, below MEDIAN_FLOOR_PCT of
   the 30-day median, or a claimed original price below the price (an impossible claim).
-- A pending price is confirmed when the same price is seen again at least CONFIRM_AFTER later,
-  and rejected if that does not happen within PENDING_EXPIRY.
+- A pending price is confirmed when a later run sees the same state again at least CONFIRM_AFTER
+  after it was first seen, and rejected if that does not happen within PENDING_EXPIRY.
 
 A one-off glitch ("1,00 TL" for a coat) therefore never reaches price history, alerts or the
 real-drop rule; a real, large price change is only delayed until the next run sees it again.
@@ -24,15 +24,6 @@ from realdrop.pricing import config
 class Verdict:
     status: PriceStatus
     reason: str | None = None
-
-
-@dataclass(frozen=True)
-class Held:
-    """A pending observation of the same variant, as far as confirmation cares."""
-
-    observation_id: int
-    observed_at: datetime
-    price_minor: int
 
 
 def classify(
@@ -57,11 +48,6 @@ def classify(
     return Verdict(PriceStatus.CONFIRMED)
 
 
-def confirming(price_minor: int, observed_at: datetime, held: list[Held]) -> list[Held]:
-    """The held observations a new one confirms: same price, seen long enough ago, not expired."""
-    return [
-        h
-        for h in held
-        if h.price_minor == price_minor
-        and config.CONFIRM_AFTER <= observed_at - h.observed_at < config.PENDING_EXPIRY
-    ]
+def confirms(first_seen: datetime, seen_again: datetime) -> bool:
+    """Does seeing a pending state again at `seen_again` confirm it? Not too soon, not expired."""
+    return config.CONFIRM_AFTER <= seen_again - first_seen < config.PENDING_EXPIRY

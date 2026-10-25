@@ -21,7 +21,8 @@ from realdrop.collectors.http import CollectorError
 from realdrop.collectors.registry import get_collector_class
 from realdrop.db.session import get_sessionmaker
 from realdrop.models import PriceStatus
-from realdrop.pipeline import store
+from realdrop.pipeline import rollup, store
+from realdrop.pricing import config
 
 MAX_FAILURES_IN_NOTES = 20
 BATCH_SIZE = 20  # products per transaction; see store.store_products
@@ -91,6 +92,7 @@ async def stored_run(slug: str, limit: int | None, shard: Shard) -> int:
     failure_notes: list[str] = []
     stopped_by: str | None = None
     started = time.monotonic()
+    started_at = datetime.now(UTC)
     pending: list[tuple[RawProduct, datetime]] = []
 
     async def flush() -> Counter[PriceStatus]:
@@ -132,10 +134,11 @@ async def stored_run(slug: str, limit: int | None, shard: Shard) -> int:
     finally:
         async with sessionmaker() as session, session.begin():
             expired = await store.expire_pending(session, datetime.now(UTC))
+            daily = await rollup.refresh_daily(session, started_at - config.ROLLUP_LOOKBACK)
             summary = (
                 f"shard {shard.index}/{shard.count}; "
                 f"prices: {dict((s.value, n) for s, n in statuses.items())}; "
-                f"expired pending: {expired}"
+                f"expired pending: {expired}; daily rows: {daily}"
             )
             notes = "\n".join(filter(None, [stopped_by, summary, *failure_notes]))
             status = await store.finish_run(
