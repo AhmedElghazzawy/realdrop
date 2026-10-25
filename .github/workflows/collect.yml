@@ -3,8 +3,9 @@
 name: collect
 
 on:
-  # The DeFacto catalog (~14.6k pages) takes ~5 h at 1 request/s, so it is collected in two halves,
-  # each well inside GitHub's 6 h job limit. Every product is still seen once a day.
+  # Every brand's catalog is collected in two halves, so the largest (DeFacto, ~14.6k pages, ~5 h at
+  # 1 request/s) stays well inside GitHub's 6 h job limit. Every product is still seen once a day.
+  # Brands run in parallel (different sites, each at its own polite rate).
   # GitHub may start scheduled runs some minutes late.
   schedule:
     - cron: "0 0 * * *" # 03:00 Turkey time: shard 0/2
@@ -25,14 +26,39 @@ on:
         required: true
 
 jobs:
+  # Once, before any brand starts, so parallel brand jobs never race on a schema change.
+  migrate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: migrate
+      cancel-in-progress: false
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+      - name: Install
+        run: uv sync --frozen --no-dev
+      - name: Check the secret is set
+        run: test -n "$DATABASE_URL" || { echo "::error::Repository secret DATABASE_URL is missing"; exit 1; }
+      - name: Migrate
+        run: uv run alembic upgrade head
+
   collect:
+    needs: migrate
     strategy:
       fail-fast: false
       matrix:
         # Scheduled runs collect every brand; a manual run only the one asked for.
-        brand: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', inputs.brand)) || fromJSON('["defacto"]') }}
+        brand: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', inputs.brand)) || fromJSON('["defacto", "colins"]') }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 330 # GitHub's hard limit is 6 h; a full DeFacto pass is ~2.5-3 h
+    timeout-minutes: 330 # GitHub's hard limit is 6 h; half of DeFacto is ~2.5-3 h, of Colin's ~1 h
     concurrency:
       group: collect-${{ matrix.brand }}
       cancel-in-progress: false # never two runs of the same brand at once
@@ -50,10 +76,6 @@ jobs:
           version: "0.12.23"
       - name: Install
         run: uv sync --frozen --no-dev
-      - name: Check the secret is set
-        run: test -n "$DATABASE_URL" || { echo "::error::Repository secret DATABASE_URL is missing"; exit 1; }
-      - name: Migrate
-        run: uv run alembic upgrade head
       - name: Collect
         env: # inputs go through env, never straight into the script (no shell injection)
           BRAND: ${{ matrix.brand }}

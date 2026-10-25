@@ -27,14 +27,18 @@ The first workflow run creates the tables and extensions (`alembic upgrade head`
 ## 2. Collection on GitHub Actions
 
 - Scheduled twice a day: 00:00 UTC (03:00 Turkey) collects shard `0/2`, 12:00 UTC (15:00 Turkey)
-  shard `1/2`. DeFacto has ~14.6k product pages, ~5 h at 1 request/s, so each half (~2.5-3 h) stays
-  inside the job limit and every product is still seen once a day. Up to 3 pages download at once;
+  shard `1/2`, for every brand in parallel (DeFacto, Colin's). DeFacto has ~14.6k product pages, ~5 h
+  at 1 request/s, so each half (~2.5-3 h) stays inside the job limit; Colin's (~5.75k pages) takes
+  ~1 h per half. Every product is still seen once a day. Up to 3 pages download at once;
   request starts stay at 1 per second. GitHub can start scheduled runs late under load, and disables
   schedules after 60 days without repo activity (not a risk while we build daily).
 - Manual run (test or catch-up): Actions -> collect -> **Run workflow** (brand, optional limit), or
   `gh workflow run collect -f brand=defacto -f limit=20 -f shard=0/2`.
-- Each job: install, migrate, collect one brand. Two runs of the same brand never overlap. A job
-  is killed after 330 min (GitHub's limit is 6 h; a full DeFacto pass is ~2.5-3 h).
+- A `migrate` job runs `alembic upgrade head` once; then one `collect` job per brand (install,
+  collect, roll up `price_daily`). Two runs of the same brand never overlap. A job is killed after
+  330 min (GitHub's limit is 6 h; half of DeFacto is ~2.5-3 h).
+- A page that keeps answering 5xx is skipped as a failure; 3 such pages in a row, 20 non-product
+  pages in a row, a 403, or exhausted 429s stop the run.
 - Every run, including failed and blocked ones, is a row in `collection_runs`; the job log shows the
   same summary.
 

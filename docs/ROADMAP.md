@@ -44,8 +44,14 @@ Latest finish: 27 Oct.
 Latest finish: 31 Oct.
 
 - [ ] Brands 2 and 3. `price_daily` roll-up, `current_prices`.
+  - [x] Brand 2: Colin's (25 Oct). Change-only observations + `price_daily` roll-up (25 Oct, owner
+        decision for storage). `current_prices` deferred: catalog queries are fast enough so far.
+  - [ ] Brand 3.
 - [ ] Brands 4-6 (as many as are feasible; 4 is fine). Collection health report (success rate per brand).
 - [x] `pricing/real_drop.py` with the full test suite (pure functions).
+
+Later (owner, 25 Oct): the UI style needs a design pass, and a men/women choice; not before the
+data work above is done.
 
 ## Phase 5: taxonomy and extractor
 

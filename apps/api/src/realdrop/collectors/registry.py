@@ -6,10 +6,12 @@ deliberately not registered.
 """
 
 from realdrop.collectors.base import BrandCollector
+from realdrop.collectors.colins.collector import ColinsCollector
 from realdrop.collectors.defacto.collector import DefactoCollector
 
 COLLECTORS: dict[str, type[BrandCollector]] = {
     DefactoCollector.slug: DefactoCollector,
+    ColinsCollector.slug: ColinsCollector,
 }
 
 
