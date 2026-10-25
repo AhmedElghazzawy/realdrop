@@ -11,7 +11,7 @@ import pytest
 from realdrop.collectors.base import ItemFailure, RawProduct, Shard
 from realdrop.collectors.defacto import parser
 from realdrop.collectors.defacto.collector import DefactoCollector
-from realdrop.collectors.http import CollectorBlockedError, PoliteClient
+from realdrop.collectors.http import CollectorBlockedError, CollectorServerError, PoliteClient
 
 FIXTURES = Path(__file__).resolve().parents[2] / "src/realdrop/collectors/defacto/fixtures"
 NOW = datetime(2026, 10, 24, 12, 0, tzinfo=UTC)
@@ -140,6 +140,32 @@ async def test_collector_walks_sitemaps_dedupes_and_skips_missing_products() -> 
     # sitemaps but are fetched once.
     assert sorted(p.external_id for p in products) == ["3272557", "3455834", "3518142"]
     assert failures == [ItemFailure(source=GONE, reason="HTTP 404")]
+
+
+def _broken(paths: set[str]) -> httpx.MockTransport:
+    """The normal fake site, except that these paths always answer 502."""
+    site = _site()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path in paths:
+            return httpx.Response(502)
+        return site.handle_request(request)
+
+    return httpx.MockTransport(handler)
+
+
+async def test_one_broken_page_is_skipped_not_the_whole_run() -> None:
+    results = await collect(_broken({urlsplit(BRA).path}))
+    products = [r for r in results if isinstance(r, RawProduct)]
+    failures = [r for r in results if isinstance(r, ItemFailure)]
+    assert sorted(p.external_id for p in products) == ["3272557", "3455834"]
+    assert any(f.source == BRA and "HTTP 502" in f.reason for f in failures)
+
+
+async def test_broken_pages_in_a_row_stop_the_run() -> None:
+    every_product = {urlsplit(u).path for u in (TROUSERS, BRA, BABY_SET, GONE)}
+    with pytest.raises(CollectorServerError, match="HTTP 502"):
+        await collect(_broken(every_product))
 
 
 async def test_collector_skips_a_url_robots_disallows() -> None:

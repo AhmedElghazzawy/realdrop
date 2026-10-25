@@ -9,6 +9,7 @@ import pytest
 from realdrop.collectors.http import (
     CollectorBlockedError,
     CollectorGaveUpError,
+    CollectorServerError,
     PoliteClient,
 )
 
@@ -211,9 +212,23 @@ async def test_gives_up_after_max_retries() -> None:
         return httpx.Response(500)
 
     async with make_client(handler, fake, max_retries=2) as client:
-        with pytest.raises(CollectorGaveUpError, match="after 3 attempts"):
+        with pytest.raises(CollectorServerError, match="after 3 attempts"):
             await client.get(f"{SHOP}/a")
     assert calls == 3
+
+
+async def test_exhausted_429s_are_not_a_skippable_server_error() -> None:
+    fake = FakeTime()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        return httpx.Response(429)
+
+    async with make_client(handler, fake, max_retries=1) as client:
+        with pytest.raises(CollectorGaveUpError) as caught:
+            await client.get(f"{SHOP}/a")
+    assert not isinstance(caught.value, CollectorServerError)
 
 
 async def test_network_errors_are_retried() -> None:

@@ -41,6 +41,13 @@ class CollectorGaveUpError(CollectorError):
     """Retries exhausted, or the server asked us to wait longer than we are willing to."""
 
 
+class CollectorServerError(CollectorGaveUpError):
+    """Retries exhausted on 5xx or network errors for one URL. One broken page (DeFacto served a
+    steady 502 for a single product, 25 Oct 2026) should not end a run, so a collector may skip it
+    as an ItemFailure; many in a row still mean the site is down. Exhausted 429s are not this
+    error: being told to slow down always ends the run."""
+
+
 class PoliteClient:
     def __init__(
         self,
@@ -116,7 +123,10 @@ class PoliteClient:
                 retry_after = response.headers.get("Retry-After")
 
             if attempt == self._max_retries:
-                raise CollectorGaveUpError(f"{problem} from {url} after {attempt + 1} attempts")
+                message = f"{problem} from {url} after {attempt + 1} attempts"
+                if problem == "HTTP 429":
+                    raise CollectorGaveUpError(message)
+                raise CollectorServerError(message)
             await self._sleep(self._backoff_s(attempt, retry_after, url))
         raise AssertionError("unreachable")
 

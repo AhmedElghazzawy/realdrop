@@ -3,8 +3,9 @@
 About 14,600 product pages (Oct 2026). At 1 request/s a full pass takes about 5 hours, so the
 schedule collects it in two shards (`--shard 0/2`, `--shard 1/2`) of about 2.5 hours each.
 A product page that 404s, redirects away (discontinued) or is disallowed by robots.txt is skipped
-as an ItemFailure. Many pages in a row without product data means something is wrong (a challenge
-or maintenance page served with 200), so the run stops instead of hammering the site.
+as an ItemFailure, and so is a page that keeps failing with 5xx after all retries. Many pages in a
+row without product data (a challenge or maintenance page served with 200) or a few broken pages in
+a row mean something is wrong, so the run stops instead of hammering the site.
 """
 
 from collections.abc import AsyncIterator, Callable
@@ -20,10 +21,16 @@ from realdrop.collectors.defacto.parser import (
     product_sitemaps,
     sitemap_locs,
 )
-from realdrop.collectors.http import CollectorBlockedError, PoliteClient, RobotsDisallowedError
+from realdrop.collectors.http import (
+    CollectorBlockedError,
+    CollectorServerError,
+    PoliteClient,
+    RobotsDisallowedError,
+)
 
 SITEMAP_INDEX = f"{BASE_URL}/sharedxml/tr-tr/sitemapindex.xml"
 MAX_PAGES_WITHOUT_DATA = 20
+MAX_BROKEN_PAGES_IN_A_ROW = 3
 PAGES_IN_FLIGHT = 3  # pages downloading at once; request starts stay at rate_limit_rps
 
 
@@ -43,6 +50,7 @@ class DefactoCollector(BrandCollector):
         super().__init__(client, shard=shard)
         self._now = now
         self._pages_without_data = 0
+        self._broken_in_a_row = 0
 
     async def fetch_catalog(self) -> AsyncIterator[RawProduct | ItemFailure]:
         urls = await self._product_urls()
@@ -65,8 +73,14 @@ class DefactoCollector(BrandCollector):
             response = await self.client.get(url)
         except RobotsDisallowedError:
             return ItemFailure(source=url, reason="robots.txt disallows this URL")
+        except CollectorServerError as exc:
+            self._broken_in_a_row += 1
+            if self._broken_in_a_row >= MAX_BROKEN_PAGES_IN_A_ROW:
+                raise
+            return ItemFailure(source=url, reason=str(exc))
         except httpx.HTTPStatusError as exc:
             return ItemFailure(source=url, reason=f"HTTP {exc.response.status_code}")
+        self._broken_in_a_row = 0  # the site answered, so it is not down
 
         if str(response.url).rstrip("/") != url.rstrip("/"):
             return ItemFailure(source=url, reason=f"redirected to {response.url} (discontinued?)")
