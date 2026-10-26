@@ -94,11 +94,18 @@ class PoliteClient:
     async def aclose(self) -> None:
         await self._http.aclose()
 
-    async def get(self, url: str, *, params: dict[str, Any] | None = None) -> httpx.Response:
+    async def get(
+        self,
+        url: str,
+        *,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> httpx.Response:
         """GET a URL politely. Raises CollectorBlockedError, CollectorGaveUpError, or
-        httpx.HTTPStatusError for other 4xx (e.g. a 404 product, which the caller may skip)."""
+        httpx.HTTPStatusError for other 4xx (e.g. a 404 product, which the caller may skip).
+        `headers` adds to the client's (e.g. `Accept: application/json`); the User-Agent stays."""
         await self._check_robots(url)
-        response = await self._send(url, params)
+        response = await self._send(url, params, headers)
         if response.status_code in (401, 403):
             raise CollectorBlockedError(f"HTTP {response.status_code} from {url}")
         response.raise_for_status()
@@ -107,13 +114,15 @@ class PoliteClient:
     async def get_json(self, url: str, *, params: dict[str, Any] | None = None) -> Any:
         return (await self.get(url, params=params)).json()
 
-    async def _send(self, url: str, params: dict[str, Any] | None) -> httpx.Response:
+    async def _send(
+        self, url: str, params: dict[str, Any] | None, headers: dict[str, str] | None = None
+    ) -> httpx.Response:
         """Rate-limited GET with retries. Returns the first non-retryable response."""
         for attempt in range(self._max_retries + 1):
             await self._wait_for_turn()
             retry_after: str | None = None
             try:
-                response = await self._http.get(url, params=params)
+                response = await self._http.get(url, params=params, headers=headers)
             except httpx.TransportError as exc:
                 problem = f"{type(exc).__name__}: {exc}"
             else:

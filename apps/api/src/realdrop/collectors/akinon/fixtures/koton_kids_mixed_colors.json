@@ -1,0 +1,222 @@
+{
+ "product": {
+  "pk": 1640268,
+  "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+  "base_code": "7WKG40168AK",
+  "listing_code": "704",
+  "price": "899.99",
+  "retail_price": "899.99",
+  "in_stock": false,
+  "currency_type": "try",
+  "absolute_url": "/beli-lastikli-baskili-biyeli-esofman-alti-lacivert-4240999/",
+  "attributes": {
+   "morhipo_kategori": "Eşofman Altı",
+   "filterable_gender": "Kız Çocuk",
+   "filterable_category": "Eşofman Altı",
+   "filterable_cinsiyet": "Kız Çocuk",
+   "filterable_kategori": "Eşofman Altı",
+   "integration_size_id": "910",
+   "integration_color_desc": "704"
+  },
+  "productimage_set": [
+   {
+    "image": "https://ktnimg2.mncdn.com/products/2026/10/23/3330824/c72558b9-612e-4915-98fe-8eb2ca30da77.jpg"
+   },
+   {
+    "image": "https://ktnimg2.mncdn.com/products/2026/10/23/3330824/4c42de20-0fb7-4eaf-b0b0-4006997366f1.jpg"
+   },
+   {
+    "image": "https://ktnimg2.mncdn.com/products/2026/10/23/3330938/b81564d7-bb06-4b84-8151-750fa35f62ad.jpg"
+   }
+  ]
+ },
+ "variants": [
+  {
+   "attribute_key": "integration_color_desc",
+   "attribute_name": "Renk",
+   "options": [
+    {
+     "label": "EKRU",
+     "value": "010",
+     "in_stock": true,
+     "product": {
+      "pk": 1577479,
+      "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+      "base_code": "7WKG40168AK",
+      "listing_code": null,
+      "price": "799.99",
+      "retail_price": "799.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/beli-lastikli-baskili-biyeli-esofman-alti-ekru-4211050-1/",
+      "attributes": {
+       "morhipo_kategori": "Eşofman Altı",
+       "filterable_gender": "Kız Çocuk",
+       "filterable_category": "Eşofman Altı",
+       "filterable_cinsiyet": "Kız Çocuk",
+       "filterable_kategori": "Eşofman Altı",
+       "integration_size_id": "7-8",
+       "integration_color_desc": "010"
+      }
+     }
+    },
+    {
+     "label": "LACİVERT",
+     "value": "704",
+     "in_stock": false,
+     "product": {
+      "pk": 1640268,
+      "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+      "base_code": "7WKG40168AK",
+      "listing_code": null,
+      "price": "899.99",
+      "retail_price": "899.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/beli-lastikli-baskili-biyeli-esofman-alti-lacivert-4240999/",
+      "attributes": {
+       "morhipo_kategori": "Eşofman Altı",
+       "filterable_gender": "Kız Çocuk",
+       "filterable_category": "Eşofman Altı",
+       "filterable_cinsiyet": "Kız Çocuk",
+       "filterable_kategori": "Eşofman Altı",
+       "integration_size_id": "910",
+       "integration_color_desc": "704"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "integration_size_id",
+   "attribute_name": "Beden",
+   "options": [
+    {
+     "label": "6/7 Yaş",
+     "value": "6-7",
+     "in_stock": false,
+     "product": {
+      "pk": 1640272,
+      "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+      "base_code": "7WKG40168AK",
+      "listing_code": null,
+      "price": "899.99",
+      "retail_price": "899.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/1640272/",
+      "attributes": {
+       "morhipo_kategori": "Eşofman Altı",
+       "filterable_gender": "Kız Çocuk",
+       "filterable_category": "Eşofman Altı",
+       "filterable_cinsiyet": "Kız Çocuk",
+       "filterable_kategori": "Eşofman Altı",
+       "integration_size_id": "6-7",
+       "integration_color_desc": "704"
+      }
+     }
+    },
+    {
+     "label": "7/8 Yaş",
+     "value": "7-8",
+     "in_stock": true,
+     "product": {
+      "pk": 1577479,
+      "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+      "base_code": "7WKG40168AK",
+      "listing_code": null,
+      "price": "799.99",
+      "retail_price": "799.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/beli-lastikli-baskili-biyeli-esofman-alti-ekru-4211050-1/",
+      "attributes": {
+       "morhipo_kategori": "Eşofman Altı",
+       "filterable_gender": "Kız Çocuk",
+       "filterable_category": "Eşofman Altı",
+       "filterable_cinsiyet": "Kız Çocuk",
+       "filterable_kategori": "Eşofman Altı",
+       "integration_size_id": "7-8",
+       "integration_color_desc": "010"
+      }
+     }
+    },
+    {
+     "label": "9/10 Yaş",
+     "value": "910",
+     "in_stock": false,
+     "product": {
+      "pk": 1640268,
+      "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+      "base_code": "7WKG40168AK",
+      "listing_code": null,
+      "price": "899.99",
+      "retail_price": "899.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/beli-lastikli-baskili-biyeli-esofman-alti-lacivert-4240999/",
+      "attributes": {
+       "morhipo_kategori": "Eşofman Altı",
+       "filterable_gender": "Kız Çocuk",
+       "filterable_category": "Eşofman Altı",
+       "filterable_cinsiyet": "Kız Çocuk",
+       "filterable_kategori": "Eşofman Altı",
+       "integration_size_id": "910",
+       "integration_color_desc": "704"
+      }
+     }
+    },
+    {
+     "label": "11/12 Yaş",
+     "value": "112",
+     "in_stock": false,
+     "product": {
+      "pk": 1640271,
+      "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+      "base_code": "7WKG40168AK",
+      "listing_code": null,
+      "price": "899.99",
+      "retail_price": "899.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/1640271/",
+      "attributes": {
+       "morhipo_kategori": "Eşofman Altı",
+       "filterable_gender": "Kız Çocuk",
+       "filterable_category": "Eşofman Altı",
+       "filterable_cinsiyet": "Kız Çocuk",
+       "filterable_kategori": "Eşofman Altı",
+       "integration_size_id": "112",
+       "integration_color_desc": "704"
+      }
+     }
+    },
+    {
+     "label": "13/14 Yaş",
+     "value": "134",
+     "in_stock": false,
+     "product": {
+      "pk": 1640269,
+      "name": "Beli Lastikli Baskılı Biyeli Eşofman Altı",
+      "base_code": "7WKG40168AK",
+      "listing_code": null,
+      "price": "899.99",
+      "retail_price": "899.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/1640269/",
+      "attributes": {
+       "morhipo_kategori": "Eşofman Altı",
+       "filterable_gender": "Kız Çocuk",
+       "filterable_category": "Eşofman Altı",
+       "filterable_cinsiyet": "Kız Çocuk",
+       "filterable_kategori": "Eşofman Altı",
+       "integration_size_id": "134",
+       "integration_color_desc": "704"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

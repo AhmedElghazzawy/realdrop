@@ -1,0 +1,486 @@
+{
+ "product": {
+  "pk": 88940,
+  "name": "Tween Ekru Rayon Suni İpek Kazak",
+  "base_code": "9TC068600684M",
+  "listing_code": "E01",
+  "price": "2950",
+  "retail_price": "2950",
+  "currency_type": "try",
+  "in_stock": false,
+  "attributes": {
+   "integration_renk": "E01",
+   "integration_beden1": "XXL"
+  },
+  "productimage_set": [
+   {
+    "pk": 186899,
+    "status": "active",
+    "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2022/09/26/798099/902f92e5-9301-4faf-b154-5d8b4a95cd3a.jpg",
+    "order": 1,
+    "created_date": "2022-09-26T08:24:35.814971Z",
+    "specialimage_set": []
+   }
+  ]
+ },
+ "variants": [
+  {
+   "attribute_key": "integration_beden1",
+   "attribute_name": "Beden",
+   "options": [
+    {
+     "label": "S",
+     "value": "S",
+     "in_stock": false,
+     "product": {
+      "pk": 88946,
+      "name": "Tween Tarçın Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "TR5",
+       "integration_beden1": "S"
+      },
+      "productimage_set": [
+       {
+        "pk": 183414,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/398298/e3f777fa-6a5e-4977-95fb-bd46f89b76cd.jpg",
+        "order": 1,
+        "created_date": "2022-09-02T14:17:34.917592Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183522,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/398298/3aa68a99-31a3-4944-9943-1d0477590c6e.jpg",
+        "order": 2,
+        "created_date": "2022-09-02T14:18:02.880324Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183393,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397870/0497a075-5b52-4a9e-8f6f-09137fc72efb.jpg",
+        "order": 3,
+        "created_date": "2022-09-02T14:17:33.155464Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183282,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397868/c89230a1-4aca-40db-a795-5c305475eabb.jpg",
+        "order": 4,
+        "created_date": "2022-09-02T14:16:43.385501Z",
+        "specialimage_set": []
+       }
+      ]
+     }
+    },
+    {
+     "label": "M",
+     "value": "M",
+     "in_stock": false,
+     "product": {
+      "pk": 93000,
+      "name": "Tween Kiremit Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "250",
+       "integration_beden1": "M"
+      },
+      "productimage_set": []
+     }
+    },
+    {
+     "label": "L",
+     "value": "L",
+     "in_stock": false,
+     "product": {
+      "pk": 92992,
+      "name": "Tween Petrol Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "R01",
+       "integration_beden1": "L"
+      },
+      "productimage_set": []
+     }
+    },
+    {
+     "label": "XL",
+     "value": "XL",
+     "in_stock": false,
+     "product": {
+      "pk": 92994,
+      "name": "Tween Petrol Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "R01",
+       "integration_beden1": "XL"
+      },
+      "productimage_set": []
+     }
+    },
+    {
+     "label": "XXL",
+     "value": "XXL",
+     "in_stock": false,
+     "product": {
+      "pk": 88945,
+      "name": "Tween Haki Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "H01",
+       "integration_beden1": "XXL"
+      },
+      "productimage_set": [
+       {
+        "pk": 183386,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397865/2f612e60-6d76-45b9-a174-e8a892ca701d.jpg",
+        "order": 1,
+        "created_date": "2022-09-02T14:17:32.388318Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183280,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397866/6d829658-1a3d-4d16-9aaf-f78601f82daa.jpg",
+        "order": 2,
+        "created_date": "2022-09-02T14:16:43.034996Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183496,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397863/ec08e380-2628-4c9d-979b-441665866059.jpg",
+        "order": 3,
+        "created_date": "2022-09-02T14:18:01.515219Z",
+        "specialimage_set": []
+       }
+      ]
+     }
+    },
+    {
+     "label": "3XL",
+     "value": "3XL",
+     "in_stock": false,
+     "product": {
+      "pk": 92982,
+      "name": "Tween Siyah Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "001",
+       "integration_beden1": "3XL"
+      },
+      "productimage_set": [
+       {
+        "pk": 183447,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397852/425f38cc-b679-404c-854d-9936052739e3.jpg",
+        "order": 1,
+        "created_date": "2022-09-02T14:17:37.543236Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183448,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397852/cda96638-25be-49e4-915d-40bd9ed725a1.jpg",
+        "order": 2,
+        "created_date": "2022-09-02T14:17:37.608252Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183206,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397852/1d354cb8-f9aa-4c5f-8a40-ea564e481972.jpg",
+        "order": 3,
+        "created_date": "2022-09-02T14:16:33.635237Z",
+        "specialimage_set": []
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "integration_renk",
+   "attribute_name": "Renk",
+   "options": [
+    {
+     "label": "Tarçın",
+     "value": "TR5",
+     "in_stock": false,
+     "product": {
+      "pk": 88946,
+      "name": "Tween Tarçın Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "TR5",
+       "integration_beden1": "S"
+      },
+      "productimage_set": [
+       {
+        "pk": 183414,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/398298/e3f777fa-6a5e-4977-95fb-bd46f89b76cd.jpg",
+        "order": 1,
+        "created_date": "2022-09-02T14:17:34.917592Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183522,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/398298/3aa68a99-31a3-4944-9943-1d0477590c6e.jpg",
+        "order": 2,
+        "created_date": "2022-09-02T14:18:02.880324Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183393,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397870/0497a075-5b52-4a9e-8f6f-09137fc72efb.jpg",
+        "order": 3,
+        "created_date": "2022-09-02T14:17:33.155464Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183282,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397868/c89230a1-4aca-40db-a795-5c305475eabb.jpg",
+        "order": 4,
+        "created_date": "2022-09-02T14:16:43.385501Z",
+        "specialimage_set": []
+       }
+      ]
+     }
+    },
+    {
+     "label": "Haki",
+     "value": "H01",
+     "in_stock": false,
+     "product": {
+      "pk": 88945,
+      "name": "Tween Haki Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "H01",
+       "integration_beden1": "XXL"
+      },
+      "productimage_set": [
+       {
+        "pk": 183386,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397865/2f612e60-6d76-45b9-a174-e8a892ca701d.jpg",
+        "order": 1,
+        "created_date": "2022-09-02T14:17:32.388318Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183280,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397866/6d829658-1a3d-4d16-9aaf-f78601f82daa.jpg",
+        "order": 2,
+        "created_date": "2022-09-02T14:16:43.034996Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183496,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397863/ec08e380-2628-4c9d-979b-441665866059.jpg",
+        "order": 3,
+        "created_date": "2022-09-02T14:18:01.515219Z",
+        "specialimage_set": []
+       }
+      ]
+     }
+    },
+    {
+     "label": "Ekru",
+     "value": "E01",
+     "in_stock": false,
+     "product": {
+      "pk": 88940,
+      "name": "Tween Ekru Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "XXL"
+      },
+      "productimage_set": [
+       {
+        "pk": 186899,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2022/09/26/798099/902f92e5-9301-4faf-b154-5d8b4a95cd3a.jpg",
+        "order": 1,
+        "created_date": "2022-09-26T08:24:35.814971Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 186919,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2022/09/26/798099/bb76cb6a-42a5-4ce3-a397-c2ab7096e3fd.jpg",
+        "order": 2,
+        "created_date": "2022-09-26T08:24:37.225075Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 186918,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2022/09/26/798103/26670d20-ce15-4692-804f-25a202d3a1ce.jpg",
+        "order": 3,
+        "created_date": "2022-09-26T08:24:37.184019Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 186926,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2022/09/26/798099/92ea5c8a-5634-4a32-8cd5-e079a263f0e5.jpg",
+        "order": 4,
+        "created_date": "2022-09-26T08:24:37.677000Z",
+        "specialimage_set": []
+       }
+      ]
+     }
+    },
+    {
+     "label": "Petrol",
+     "value": "R01",
+     "in_stock": false,
+     "product": {
+      "pk": 93001,
+      "name": "Tween Petrol Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "R01",
+       "integration_beden1": "3XL"
+      },
+      "productimage_set": []
+     }
+    },
+    {
+     "label": "Siyah",
+     "value": "001",
+     "in_stock": false,
+     "product": {
+      "pk": 92982,
+      "name": "Tween Siyah Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "001",
+       "integration_beden1": "3XL"
+      },
+      "productimage_set": [
+       {
+        "pk": 183447,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397852/425f38cc-b679-404c-854d-9936052739e3.jpg",
+        "order": 1,
+        "created_date": "2022-09-02T14:17:37.543236Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183448,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397852/cda96638-25be-49e4-915d-40bd9ed725a1.jpg",
+        "order": 2,
+        "created_date": "2022-09-02T14:17:37.608252Z",
+        "specialimage_set": []
+       },
+       {
+        "pk": 183206,
+        "status": "active",
+        "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2021/08/31/397852/1d354cb8-f9aa-4c5f-8a40-ea564e481972.jpg",
+        "order": 3,
+        "created_date": "2022-09-02T14:16:33.635237Z",
+        "specialimage_set": []
+       }
+      ]
+     }
+    },
+    {
+     "label": "Lacivert",
+     "value": "101",
+     "in_stock": false,
+     "product": {
+      "pk": 92996,
+      "name": "Tween Lacivert Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "101",
+       "integration_beden1": "S"
+      },
+      "productimage_set": []
+     }
+    },
+    {
+     "label": "Kiremit",
+     "value": "250",
+     "in_stock": false,
+     "product": {
+      "pk": 93000,
+      "name": "Tween Kiremit Rayon Suni İpek Kazak",
+      "base_code": "9TC068600684M",
+      "price": "2950",
+      "retail_price": "2950",
+      "currency_type": "try",
+      "in_stock": false,
+      "attributes": {
+       "integration_renk": "250",
+       "integration_beden1": "M"
+      },
+      "productimage_set": []
+     }
+    }
+   ]
+  }
+ ]
+}

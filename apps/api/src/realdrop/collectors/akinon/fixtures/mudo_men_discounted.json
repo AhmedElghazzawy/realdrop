@@ -1,0 +1,191 @@
+{
+ "product": {
+  "pk": 332100,
+  "name": "Erkek Antrasit Kapüşonlu Sweatshirt",
+  "base_code": "1263779",
+  "listing_code": "ANTRASİT",
+  "price": "1199",
+  "retail_price": "2199",
+  "in_stock": true,
+  "currency_type": "try",
+  "absolute_url": "/erkek-antrasit-kapusonlu-sweatshirt-gri/",
+  "attributes": {
+   "beden": "M",
+   "cinsiyet": "Erkek",
+   "variant_renk": "ANTRASİT",
+   "integration_MalSinifAdi": "SWEATSHIRT"
+  },
+  "productimage_set": [
+   {
+    "image": "https://ce1999-mudo.akinoncloudcdn.com/products/2025/11/03/586238/e4691fd4-fb91-48fc-a34d-ca0ce00cd6cf.jpg"
+   },
+   {
+    "image": "https://ce1999-mudo.akinoncloudcdn.com/products/2025/11/03/584546/11ad4bfa-11a1-4de1-a0f3-6bd476b25fe7.jpg"
+   },
+   {
+    "image": "https://ce1999-mudo.akinoncloudcdn.com/products/2025/11/03/586238/b9ad37d2-a682-4a9b-9e5e-3b63446715c8.jpg"
+   }
+  ]
+ },
+ "variants": [
+  {
+   "attribute_key": "beden",
+   "attribute_name": "Beden",
+   "options": [
+    {
+     "label": "S",
+     "value": "S",
+     "in_stock": false,
+     "product": {
+      "pk": 332101,
+      "name": "Erkek Antrasit Kapüşonlu Sweatshirt",
+      "base_code": "1263779",
+      "listing_code": null,
+      "price": "1199",
+      "retail_price": "2199",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/332101/",
+      "attributes": {
+       "beden": "S",
+       "cinsiyet": "Erkek",
+       "variant_renk": "ANTRASİT"
+      }
+     }
+    },
+    {
+     "label": "M",
+     "value": "M",
+     "in_stock": true,
+     "product": {
+      "pk": 332100,
+      "name": "Erkek Antrasit Kapüşonlu Sweatshirt",
+      "base_code": "1263779",
+      "listing_code": null,
+      "price": "1199",
+      "retail_price": "2199",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/erkek-antrasit-kapusonlu-sweatshirt-gri/",
+      "attributes": {
+       "beden": "M",
+       "cinsiyet": "Erkek",
+       "variant_renk": "ANTRASİT"
+      }
+     }
+    },
+    {
+     "label": "L",
+     "value": "L",
+     "in_stock": false,
+     "product": {
+      "pk": 332104,
+      "name": "Erkek Antrasit Kapüşonlu Sweatshirt",
+      "base_code": "1263779",
+      "listing_code": null,
+      "price": "1199",
+      "retail_price": "2199",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/kapusonlu-sweatshirt-gri-122/",
+      "attributes": {
+       "beden": "L",
+       "cinsiyet": "Erkek",
+       "variant_renk": "ANTRASİT"
+      }
+     }
+    },
+    {
+     "label": "XL",
+     "value": "XL",
+     "in_stock": false,
+     "product": {
+      "pk": 332102,
+      "name": "Erkek Antrasit Kapüşonlu Sweatshirt",
+      "base_code": "1263779",
+      "listing_code": null,
+      "price": "1199",
+      "retail_price": "2199",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/erkek-lacivert-kapusonlu-sweatshirt-gri/",
+      "attributes": {
+       "beden": "XL",
+       "cinsiyet": "Erkek",
+       "variant_renk": "ANTRASİT"
+      }
+     }
+    },
+    {
+     "label": "XXL",
+     "value": "XXL",
+     "in_stock": true,
+     "product": {
+      "pk": 332103,
+      "name": "Erkek Antrasit Kapüşonlu Sweatshirt",
+      "base_code": "1263779",
+      "listing_code": null,
+      "price": "1199",
+      "retail_price": "2199",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/332103/",
+      "attributes": {
+       "beden": "XXL",
+       "cinsiyet": "Erkek",
+       "variant_renk": "ANTRASİT"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "variant_renk",
+   "attribute_name": "Renk",
+   "options": [
+    {
+     "label": "LACİVERT",
+     "value": "LACİVERT",
+     "in_stock": true,
+     "product": {
+      "pk": 333555,
+      "name": "Erkek Lacivert Kapüşonlu Sweatshirt",
+      "base_code": "1263779",
+      "listing_code": null,
+      "price": "1199",
+      "retail_price": "2199",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/erkek-lacivert-kapusonlu-sweatshirt-lacivert/",
+      "attributes": {
+       "beden": "L",
+       "cinsiyet": "Erkek",
+       "variant_renk": "LACİVERT"
+      }
+     }
+    },
+    {
+     "label": "ANTRASİT",
+     "value": "ANTRASİT",
+     "in_stock": true,
+     "product": {
+      "pk": 332100,
+      "name": "Erkek Antrasit Kapüşonlu Sweatshirt",
+      "base_code": "1263779",
+      "listing_code": null,
+      "price": "1199",
+      "retail_price": "2199",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/erkek-antrasit-kapusonlu-sweatshirt-gri/",
+      "attributes": {
+       "beden": "M",
+       "cinsiyet": "Erkek",
+       "variant_renk": "ANTRASİT"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

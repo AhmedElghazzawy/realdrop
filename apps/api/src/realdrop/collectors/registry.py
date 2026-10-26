@@ -5,6 +5,13 @@ discovery, so it is always obvious what the scheduler will run. `_example` is a 
 deliberately not registered.
 """
 
+from realdrop.collectors.akinon.brands import (
+    DamatTweenCollector,
+    GapCollector,
+    KotonCollector,
+    MarksAndSpencerCollector,
+    MudoCollector,
+)
 from realdrop.collectors.base import BrandCollector
 from realdrop.collectors.colins.collector import ColinsCollector
 from realdrop.collectors.defacto.collector import DefactoCollector
@@ -12,6 +19,11 @@ from realdrop.collectors.defacto.collector import DefactoCollector
 COLLECTORS: dict[str, type[BrandCollector]] = {
     DefactoCollector.slug: DefactoCollector,
     ColinsCollector.slug: ColinsCollector,
+    KotonCollector.slug: KotonCollector,
+    MudoCollector.slug: MudoCollector,
+    GapCollector.slug: GapCollector,
+    MarksAndSpencerCollector.slug: MarksAndSpencerCollector,
+    DamatTweenCollector.slug: DamatTweenCollector,
 }
 
 

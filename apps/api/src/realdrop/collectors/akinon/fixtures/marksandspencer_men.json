@@ -1,0 +1,176 @@
+{
+ "product": {
+  "pk": 667120,
+  "name": "Pamuklu Desenli Pijama Üstü",
+  "base_code": "T07001315A",
+  "listing_code": "GREEN MIX",
+  "price": "1199.99",
+  "retail_price": "1299.99",
+  "in_stock": false,
+  "currency_type": "try",
+  "absolute_url": "/erkek-yesil-pamuklu-desenli-pijama-ustu-10000000861811/",
+  "attributes": {
+   "gender": "erkek",
+   "integration_size": "M",
+   "integration_color": "GREEN MIX",
+   "filterable_category": "Pijama & Sabahlık"
+  },
+  "productimage_set": [
+   {
+    "image": "https://a53e12-mns.akinoncloudcdn.com/products/2025/07/21/786125/ede9d340-743c-4a49-8262-9794c6c31304.jpg"
+   },
+   {
+    "image": "https://a53e12-mns.akinoncloudcdn.com/products/2025/07/21/786125/5a2839b2-0de2-45a6-a3e0-a8e9d9f73ee1.jpg"
+   },
+   {
+    "image": "https://a53e12-mns.akinoncloudcdn.com/products/2025/07/21/786125/adbbace0-f7cc-4455-b1bb-7d542e6a7ba9.jpg"
+   }
+  ]
+ },
+ "variants": [
+  {
+   "attribute_key": "integration_color",
+   "attribute_name": "Renk",
+   "options": [
+    {
+     "label": "GREEN MIX",
+     "value": "GREEN MIX",
+     "in_stock": false,
+     "product": {
+      "pk": 667120,
+      "name": "Pamuklu Desenli Pijama Üstü",
+      "base_code": "T07001315A",
+      "listing_code": null,
+      "price": "1199.99",
+      "retail_price": "1299.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/erkek-yesil-pamuklu-desenli-pijama-ustu-10000000861811/",
+      "attributes": {
+       "gender": "erkek",
+       "integration_size": "M",
+       "integration_color": "GREEN MIX",
+       "filterable_category": "Pijama & Sabahlık"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "integration_size",
+   "attribute_name": "Beden",
+   "options": [
+    {
+     "label": "S",
+     "value": "S",
+     "in_stock": false,
+     "product": {
+      "pk": 666964,
+      "name": "Pamuklu Desenli Pijama Üstü",
+      "base_code": "T07001315A",
+      "listing_code": null,
+      "price": "1199.99",
+      "retail_price": "1299.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/erkek-yesil-pamuklu-desenli-pijama-ustu-10000000861810/",
+      "attributes": {
+       "gender": "erkek",
+       "integration_size": "S",
+       "integration_color": "GREEN MIX",
+       "filterable_category": "Pijama & Sabahlık"
+      }
+     }
+    },
+    {
+     "label": "M",
+     "value": "M",
+     "in_stock": false,
+     "product": {
+      "pk": 667120,
+      "name": "Pamuklu Desenli Pijama Üstü",
+      "base_code": "T07001315A",
+      "listing_code": null,
+      "price": "1199.99",
+      "retail_price": "1299.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/erkek-yesil-pamuklu-desenli-pijama-ustu-10000000861811/",
+      "attributes": {
+       "gender": "erkek",
+       "integration_size": "M",
+       "integration_color": "GREEN MIX",
+       "filterable_category": "Pijama & Sabahlık"
+      }
+     }
+    },
+    {
+     "label": "L",
+     "value": "L",
+     "in_stock": false,
+     "product": {
+      "pk": 667050,
+      "name": "Pamuklu Desenli Pijama Üstü",
+      "base_code": "T07001315A",
+      "listing_code": null,
+      "price": "1199.99",
+      "retail_price": "1299.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/erkek-yesil-pamuklu-desenli-pijama-ustu-10000000861812/",
+      "attributes": {
+       "gender": "erkek",
+       "integration_size": "L",
+       "integration_color": "GREEN MIX",
+       "filterable_category": "Pijama & Sabahlık"
+      }
+     }
+    },
+    {
+     "label": "XL",
+     "value": "XL",
+     "in_stock": false,
+     "product": {
+      "pk": 667051,
+      "name": "Pamuklu Desenli Pijama Üstü",
+      "base_code": "T07001315A",
+      "listing_code": null,
+      "price": "1199.99",
+      "retail_price": "1299.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/erkek-yesil-pamuklu-desenli-pijama-ustu-10000000861813/",
+      "attributes": {
+       "gender": "erkek",
+       "integration_size": "XL",
+       "integration_color": "GREEN MIX",
+       "filterable_category": "Pijama & Sabahlık"
+      }
+     }
+    },
+    {
+     "label": "XXL",
+     "value": "XXL",
+     "in_stock": false,
+     "product": {
+      "pk": 667049,
+      "name": "Pamuklu Desenli Pijama Üstü",
+      "base_code": "T07001315A",
+      "listing_code": null,
+      "price": "1199.99",
+      "retail_price": "1299.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/erkek-yesil-pamuklu-desenli-pijama-ustu-10000000861814/",
+      "attributes": {
+       "gender": "erkek",
+       "integration_size": "XXL",
+       "integration_color": "GREEN MIX",
+       "filterable_category": "Pijama & Sabahlık"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

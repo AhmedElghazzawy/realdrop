@@ -1,0 +1,366 @@
+{
+ "product": {
+  "pk": 1604246,
+  "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+  "base_code": "7WAM40256ND",
+  "listing_code": "741",
+  "price": "1399.99",
+  "retail_price": "1399.99",
+  "in_stock": true,
+  "currency_type": "try",
+  "absolute_url": "/product/1604246/",
+  "attributes": {
+   "morhipo_kategori": "Pantolon",
+   "filterable_gender": "Erkek",
+   "filterable_category": "Kot Pantolon",
+   "filterable_cinsiyet": "Erkek",
+   "filterable_kategori": "Kot Pantolon",
+   "integration_size_id": "31",
+   "integration_color_desc": "741",
+   "integration_secondary_size_id": "34"
+  },
+  "productimage_set": [
+   {
+    "image": "https://ktnimg2.mncdn.com/products/2026/08/13/3297693/3a0ce04c-8f54-430d-8b23-bab19ec648f6.jpg"
+   },
+   {
+    "image": "https://ktnimg2.mncdn.com/products/2026/08/13/3297693/3dc271a3-3254-49dd-80d3-1ab45ecc9caf.jpg"
+   },
+   {
+    "image": "https://ktnimg2.mncdn.com/products/2026/08/13/3297693/d4041af8-fdc0-4659-8024-150f74d5a58a.jpg"
+   }
+  ]
+ },
+ "variants": [
+  {
+   "attribute_key": "integration_secondary_size_id",
+   "attribute_name": "Boy",
+   "options": [
+    {
+     "label": "30",
+     "value": "30",
+     "in_stock": true,
+     "product": {
+      "pk": 1604242,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/1604242/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "29",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "30"
+      }
+     }
+    },
+    {
+     "label": "32",
+     "value": "32",
+     "in_stock": false,
+     "product": {
+      "pk": 1604092,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/pamuklu-cepli-normal-bel-vintage-straight-fit-jean-pantolon-indigo-4211975-2/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "29",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "32"
+      }
+     }
+    },
+    {
+     "label": "34",
+     "value": "34",
+     "in_stock": true,
+     "product": {
+      "pk": 1604246,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/1604246/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "31",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "34"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "integration_size_id",
+   "attribute_name": "Beden",
+   "options": [
+    {
+     "label": "29",
+     "value": "29",
+     "in_stock": false,
+     "product": {
+      "pk": 1604092,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/pamuklu-cepli-normal-bel-vintage-straight-fit-jean-pantolon-indigo-4211975-2/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "29",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "32"
+      }
+     }
+    },
+    {
+     "label": "30",
+     "value": "30",
+     "in_stock": true,
+     "product": {
+      "pk": 1604095,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/1604095/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "30",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "32"
+      }
+     }
+    },
+    {
+     "label": "31",
+     "value": "31",
+     "in_stock": true,
+     "product": {
+      "pk": 1604246,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/1604246/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "31",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "34"
+      }
+     }
+    },
+    {
+     "label": "32",
+     "value": "32",
+     "in_stock": false,
+     "product": {
+      "pk": 1604245,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/1604245/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "32",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "34"
+      }
+     }
+    },
+    {
+     "label": "33",
+     "value": "33",
+     "in_stock": true,
+     "product": {
+      "pk": 1604243,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/1604243/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "33",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "34"
+      }
+     }
+    },
+    {
+     "label": "34",
+     "value": "34",
+     "in_stock": true,
+     "product": {
+      "pk": 1604091,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/1604091/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "34",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "30"
+      }
+     }
+    },
+    {
+     "label": "36",
+     "value": "36",
+     "in_stock": false,
+     "product": {
+      "pk": 1604097,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/1604097/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "36",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "30"
+      }
+     }
+    },
+    {
+     "label": "38",
+     "value": "38",
+     "in_stock": false,
+     "product": {
+      "pk": 1604244,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/1604244/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "38",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "34"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "integration_color_desc",
+   "attribute_name": "Renk",
+   "options": [
+    {
+     "label": "KOYU İNDİGO",
+     "value": "741",
+     "in_stock": false,
+     "product": {
+      "pk": 1604092,
+      "name": "Pamuklu Cepli Normal Bel Vintage Straight Fit Jean Pantolon",
+      "base_code": "7WAM40256ND",
+      "listing_code": null,
+      "price": "1399.99",
+      "retail_price": "1399.99",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/pamuklu-cepli-normal-bel-vintage-straight-fit-jean-pantolon-indigo-4211975-2/",
+      "attributes": {
+       "morhipo_kategori": "Pantolon",
+       "filterable_gender": "Erkek",
+       "filterable_category": "Kot Pantolon",
+       "filterable_cinsiyet": "Erkek",
+       "filterable_kategori": "Kot Pantolon",
+       "integration_size_id": "29",
+       "integration_color_desc": "741",
+       "integration_secondary_size_id": "32"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

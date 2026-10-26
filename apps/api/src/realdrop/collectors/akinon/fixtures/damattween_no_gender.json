@@ -1,0 +1,184 @@
+{
+ "product": {
+  "pk": 164922,
+  "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+  "base_code": "4TC220147001M",
+  "listing_code": "E01",
+  "price": "7950",
+  "retail_price": "7950",
+  "in_stock": true,
+  "currency_type": "try",
+  "absolute_url": "/tween-ekru-pickleball-koleksiyon-esofman-ust-8684478376946/",
+  "attributes": {
+   "integration_renk": "E01",
+   "integration_beden1": "L",
+   "filterable_kategori": "ESOFMAN ÜST (159)"
+  },
+  "productimage_set": [
+   {
+    "image": "https://d5e14a-damat.akinoncloudcdn.com/products/2025/05/12/1327138/80835efb-fbd2-4d5c-bfa7-175cfc498a0e.jpg"
+   }
+  ]
+ },
+ "variants": [
+  {
+   "attribute_key": "integration_beden1",
+   "attribute_name": "Beden",
+   "options": [
+    {
+     "label": "XS",
+     "value": "XS",
+     "in_stock": false,
+     "product": {
+      "pk": 165019,
+      "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+      "base_code": "4TC220147001M",
+      "listing_code": null,
+      "price": "7950",
+      "retail_price": "7950",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/tween-ekru-esofman-ust-8684478477926/",
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "XS",
+       "filterable_kategori": "ESOFMAN ÜST (159)"
+      }
+     }
+    },
+    {
+     "label": "S",
+     "value": "S",
+     "in_stock": true,
+     "product": {
+      "pk": 164917,
+      "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+      "base_code": "4TC220147001M",
+      "listing_code": null,
+      "price": "7950",
+      "retail_price": "7950",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/tween-ekru-esofman-ust-8684478376960/",
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "S",
+       "filterable_kategori": "ESOFMAN ÜST (159)"
+      }
+     }
+    },
+    {
+     "label": "M",
+     "value": "M",
+     "in_stock": true,
+     "product": {
+      "pk": 164918,
+      "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+      "base_code": "4TC220147001M",
+      "listing_code": null,
+      "price": "7950",
+      "retail_price": "7950",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/164918/",
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "M",
+       "filterable_kategori": "ESOFMAN ÜST (159)"
+      }
+     }
+    },
+    {
+     "label": "L",
+     "value": "L",
+     "in_stock": true,
+     "product": {
+      "pk": 164922,
+      "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+      "base_code": "4TC220147001M",
+      "listing_code": null,
+      "price": "7950",
+      "retail_price": "7950",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/tween-ekru-pickleball-koleksiyon-esofman-ust-8684478376946/",
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "L",
+       "filterable_kategori": "ESOFMAN ÜST (159)"
+      }
+     }
+    },
+    {
+     "label": "XL",
+     "value": "XL",
+     "in_stock": true,
+     "product": {
+      "pk": 164923,
+      "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+      "base_code": "4TC220147001M",
+      "listing_code": null,
+      "price": "7950",
+      "retail_price": "7950",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/tween-ekru-esofman-ust-8684478376977/",
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "XL",
+       "filterable_kategori": "ESOFMAN ÜST (159)"
+      }
+     }
+    },
+    {
+     "label": "XXL",
+     "value": "XXL",
+     "in_stock": false,
+     "product": {
+      "pk": 164919,
+      "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+      "base_code": "4TC220147001M",
+      "listing_code": null,
+      "price": "7950",
+      "retail_price": "7950",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/164919/",
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "XXL",
+       "filterable_kategori": "ESOFMAN ÜST (159)"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "integration_renk",
+   "attribute_name": "Renk",
+   "options": [
+    {
+     "label": "Ekru",
+     "value": "E01",
+     "in_stock": true,
+     "product": {
+      "pk": 164922,
+      "name": "Tween Ekru Pickleball Koleksiyon Eşofman Üst",
+      "base_code": "4TC220147001M",
+      "listing_code": null,
+      "price": "7950",
+      "retail_price": "7950",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/tween-ekru-pickleball-koleksiyon-esofman-ust-8684478376946/",
+      "attributes": {
+       "integration_renk": "E01",
+       "integration_beden1": "L",
+       "filterable_kategori": "ESOFMAN ÜST (159)"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

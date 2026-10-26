@@ -1,0 +1,272 @@
+{
+ "product": {
+  "pk": 293650,
+  "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+  "base_code": "743507",
+  "listing_code": "001",
+  "price": "1499.95",
+  "retail_price": "1499.95",
+  "in_stock": true,
+  "currency_type": "try",
+  "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-gri-3/",
+  "attributes": {
+   "gender": "kiz_bebek",
+   "integration_size": "3YRS",
+   "integration_color_id": "001",
+   "productType": "Eşofman Alt"
+  },
+  "productimage_set": [
+   {
+    "image": "https://8f7eaa-gap.akinoncloudcdn.com/products/2026/02/09/710540/d0b31934-f528-473a-9e67-14e1d45d6bb9.jpg"
+   },
+   {
+    "image": "https://8f7eaa-gap.akinoncloudcdn.com/products/2026/02/09/710540/f3dc85de-9dbd-4274-abce-233208680e88.jpg"
+   }
+  ]
+ },
+ "variants": [
+  {
+   "attribute_key": "integration_color_id",
+   "attribute_name": "Renk Kodu",
+   "options": [
+    {
+     "label": "002",
+     "value": "002",
+     "in_stock": true,
+     "product": {
+      "pk": 295234,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-pembe/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "4YRS",
+       "integration_color_id": "002"
+      }
+     }
+    },
+    {
+     "label": "000",
+     "value": "000",
+     "in_stock": true,
+     "product": {
+      "pk": 293676,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-lacivert-5/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "5YRS",
+       "integration_color_id": "000"
+      }
+     }
+    },
+    {
+     "label": "001",
+     "value": "001",
+     "in_stock": true,
+     "product": {
+      "pk": 293650,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-gri-3/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "3YRS",
+       "integration_color_id": "001"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "attribute_key": "integration_size",
+   "attribute_name": "Beden",
+   "options": [
+    {
+     "label": "6-12M",
+     "value": "6-12M",
+     "in_stock": true,
+     "product": {
+      "pk": 293631,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-gri-1/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "6-12M",
+       "integration_color_id": "001"
+      }
+     }
+    },
+    {
+     "label": "12-18M",
+     "value": "12-18M",
+     "in_stock": true,
+     "product": {
+      "pk": 293628,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-gri/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "12-18M",
+       "integration_color_id": "001"
+      }
+     }
+    },
+    {
+     "label": "18-24M",
+     "value": "18-24M",
+     "in_stock": true,
+     "product": {
+      "pk": 293665,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/293665/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "18-24M",
+       "integration_color_id": "001"
+      }
+     }
+    },
+    {
+     "label": "2YRS",
+     "value": "2YRS",
+     "in_stock": true,
+     "product": {
+      "pk": 293660,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/293660/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "2YRS",
+       "integration_color_id": "001"
+      }
+     }
+    },
+    {
+     "label": "3YRS",
+     "value": "3YRS",
+     "in_stock": true,
+     "product": {
+      "pk": 293650,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-gri-3/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "3YRS",
+       "integration_color_id": "001"
+      }
+     }
+    },
+    {
+     "label": "4YRS",
+     "value": "4YRS",
+     "in_stock": true,
+     "product": {
+      "pk": 293688,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/gap-logo-pull-on-jogger-esofman-alti-743507-gri-2/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "4YRS",
+       "integration_color_id": "001"
+      }
+     }
+    },
+    {
+     "label": "5YRS",
+     "value": "5YRS",
+     "in_stock": true,
+     "product": {
+      "pk": 293683,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": true,
+      "currency_type": "try",
+      "absolute_url": "/product/293683/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "5YRS",
+       "integration_color_id": "001"
+      }
+     }
+    },
+    {
+     "label": "6YRS",
+     "value": "6YRS",
+     "in_stock": false,
+     "product": {
+      "pk": 384835,
+      "name": "Gap Logo Pull-On Jogger Eşofman Altı",
+      "base_code": "743507",
+      "listing_code": null,
+      "price": "1499.95",
+      "retail_price": "1499.95",
+      "in_stock": false,
+      "currency_type": "try",
+      "absolute_url": "/product/384835/",
+      "attributes": {
+       "gender": "kiz_bebek",
+       "integration_size": "6YRS",
+       "integration_color_id": "001"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
