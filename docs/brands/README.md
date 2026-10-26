@@ -10,7 +10,11 @@ Checked 24 Oct 2026 with our own User-Agent (`RealDropBot/0.1`), a handful of re
 |---|---|---|---|---|---|
 | [DeFacto](defacto.md) | Product pages allowed | No public terms page found | JSON-LD + embedded JSON | Yes, in page | **Go: brand 1** (owner: go, 24 Oct) |
 | [Colin's](colins.md) | Product pages allowed (`*price*` URLs disallowed) | No anti-bot clause found | JSON-LD + HTML | Yes, per size in page | **Go: brand 2** (owner: go, 25 Oct) |
-| [Koton](koton.md) | Product pages allowed | Not verified yet | **Akinon JSON** (see below) | Yes, per size in the JSON | Go candidate: Akinon group |
+| [Koton](koton.md) | Product pages and `/erkek/` listing allowed | No anti-bot clause found (26 Oct) | **Akinon JSON** (see below) | Yes, per size in the JSON | **Go: Akinon group** (27 Oct) |
+| Mudo | Product pages and `/erkek-giyim/` allowed | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
+| GAP | Product pages and `/erkek-giyim/` allowed | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
+| Marks & Spencer | Product pages allowed; men's URLs from the sitemap (`/erkek-...`) | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
+| Damat Tween | Product pages allowed; sitemap (menswear only) | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
 | [LC Waikiki](lc-waikiki.md) | Allows everything | **Forbids robots, crawling, data mining** | JSON-LD | Not in page | No-go |
 | [Mavi](mavi.md) | Product pages allowed | Not checked | Not reached | Not reached | No-go (Cloudflare challenge) |
 | [H&M Turkey](hm-turkey.md) | **403 on robots.txt** | Not checked | Not reached | Not reached | No-go (blocked) |
@@ -51,7 +55,13 @@ Notes:
 - Koton's basket offer on the sampled page was a coupon ("KTN20 KODU İLE %20 İNDİRİM"): not what
   everyone pays, so it is ignored, like any conditional offer (DeFacto rule).
 - Akinon: one product page = one colour; size options can point at other colours' products, so only
-  options whose product has the page's colour count as its sizes.
+  options whose product has the page's colour count as its sizes. When the page's colour is sold
+  out, every size option may point elsewhere; the page itself is then its only (sold-out) size.
+- Akinon collector (`collectors/akinon/`, 27 Oct): one parser and one collector for the classic
+  storefront; each brand is a small subclass in `akinon/brands.py` (listing path or sitemap, default
+  audience). Men's products only (owner, 26 Oct). Lacoste is Akinon too but its terms forbid robots
+  and spiders: no-go. U.S. Polo Assn. and Pierre Cardin run the newer Akinon front end (no JSON
+  answer): a separate parser, later.
 - Not found yet: Ata Studio, Sabotage, Spasso (no shop site found; owner to send links). "Flaws" is
   probably Flaw Wear (flaw.com.tr exists but has no sitemap; to check).
 - Not usable: levi.com.tr (a company WordPress site, not the Levi's shop), nike.com (global), Buratti

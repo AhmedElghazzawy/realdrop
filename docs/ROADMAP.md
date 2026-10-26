@@ -46,8 +46,12 @@ Latest finish: 31 Oct.
 - [ ] Brands 2 and 3. `price_daily` roll-up, `current_prices`.
   - [x] Brand 2: Colin's (25 Oct). Change-only observations + `price_daily` roll-up (25 Oct, owner
         decision for storage). `current_prices` deferred: catalog queries are fast enough so far.
-  - [ ] Brand 3.
-- [ ] Brands 4-6 (as many as are feasible; 4 is fine). Collection health report (success rate per brand).
+  - [x] Brands 3-7: Koton, Mudo, GAP, Marks & Spencer, Damat Tween through one Akinon collector
+        (27 Oct; men's products only, owner 26 Oct). Wide brand scan: docs/brands/README.md.
+- [ ] More platform groups (owner, 26 Oct: "all the big brands"): T-Soft (Lufian, Sarar,
+      Hatemoğlu, TommyLife), Ticimax (AVVA, Süvari, Bad Bear), Shopify (Les Benjamins, Giesto,
+      Ramsey), Loft, newer Akinon (U.S. Polo Assn., Pierre Cardin). Terms checked per brand first.
+- [ ] Collection health report (success rate per brand).
 - [x] `pricing/real_drop.py` with the full test suite (pure functions).
 
 Later (owner, 25 Oct): the UI style needs a design pass, and a men/women choice; not before the

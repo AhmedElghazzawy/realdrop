@@ -1,6 +1,8 @@
 # Koton (`koton`)
 
-**Recommendation: maybe, brand 3 (needs a DevTools look first).** Owner decision: _pending_
+**Built 27 Oct 2026 as part of the Akinon collector (`collectors/akinon/`), men's products only.**
+Owner decision: go for every feasible brand (26 Oct). The terms were re-checked 26 Oct: no anti-bot
+clause. The notes below are from the first check on 24 Oct.
 
 - Base URL: `https://www.koton.com`
 - Checked: 24 Oct 2026
