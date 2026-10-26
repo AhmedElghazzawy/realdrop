@@ -30,6 +30,7 @@ from realdrop.models import (
     RunStatus,
     Variant,
 )
+from realdrop.pipeline.categorize import categorize
 from realdrop.pipeline.validate import classify, confirms
 from realdrop.pricing import config
 
@@ -247,6 +248,7 @@ async def _upsert_products(
         product.description_raw = raw.description
         product.category_raw = raw.category_raw
         product.audience = raw.audience
+        product.category = categorize(raw.category_raw, raw.title)
         product.image_urls = [str(u) for u in raw.image_urls]
         product.content_hash = content_hash(raw)
         product.last_seen_at = observed_at

@@ -89,6 +89,22 @@ async def test_second_run_updates_catalog_and_keeps_first_seen(db_session: Async
     assert sorted(skus) == ["1001-L", "1001-M", "1001-S"]
 
 
+async def test_category_follows_the_latest_text(db_session: AsyncSession) -> None:
+    brand_id, run_id = await setup(db_session)
+    await store.store_product(
+        db_session, brand_id=brand_id, run_id=run_id, raw=coat(), observed_at=T0
+    )
+    product = await db_session.scalar(select(Product).where(Product.external_id == "1001"))
+    assert product is not None and product.category == "jackets"  # "Siyah Kaban"
+
+    renamed = coat(title="Siyah Yün Blazer")
+    await store.store_product(
+        db_session, brand_id=brand_id, run_id=run_id, raw=renamed, observed_at=T0 + DAY
+    )
+    await db_session.refresh(product)
+    assert product.category == "suits"
+
+
 async def test_glitch_is_held_then_confirmed_by_the_next_run(db_session: AsyncSession) -> None:
     brand_id, run_id = await setup(db_session)
     for when, price in [(T0, 100_000), (T0 + DAY, 1_000), (T0 + 2 * DAY, 1_000)]:

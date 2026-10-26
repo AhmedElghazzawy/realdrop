@@ -65,6 +65,9 @@ class Product(Base):
     category_raw: Mapped[str | None] = mapped_column(Text)
     # 'men' | 'women' when the shop says so plainly (collectors/base.py); kids and unclear: NULL.
     audience: Mapped[str | None] = mapped_column(String(8), index=True)
+    # Our category (pipeline/categorize.py CATEGORIES), from category_raw and the title; NULL when
+    # no rule matches.
+    category: Mapped[str | None] = mapped_column(String(16), index=True)
     content_hash: Mapped[str] = mapped_column(String(64))
     first_seen_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

@@ -15,7 +15,10 @@ Alembic migrations in `apps/api/alembic/versions/`; this file must always match 
 - **brands**: `id`, `slug` (unique), `name`, `country` (default `TR`), `currency` (default `TRY`),
   `base_url`, `is_active`, `collector_config` (jsonb)
 - **products**: `id`, `brand_id` FK, `external_id`, `url`, `title_raw`, `description_raw`,
-  `image_urls` (text[]), `category_raw`, `content_hash`, `first_seen_at`, `last_seen_at`, `is_active`.
+  `image_urls` (text[]), `category_raw`, `audience` ('men' | 'women' | NULL, as the shop says),
+  `category` (ours, one of `pipeline/categorize.py` CATEGORIES, from `category_raw` and the title
+  by fixed keyword rules, set on every sighting; NULL when no rule matches), `content_hash`,
+  `first_seen_at`, `last_seen_at`, `is_active`.
   Unique `(brand_id, external_id)`.
 - **product_attributes**: `product_id` PK/FK, `category`, `subcategory`, `gender`, `colors` (text[]),
   `fit`, `material` (text[]), `season` (text[]), `occasion` (text[]), `formality`, `pattern`,

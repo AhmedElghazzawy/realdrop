@@ -135,3 +135,62 @@ async def test_audience_men_excludes_boys(db_session: AsyncSession) -> None:
     assert [p["title"] for p in body["items"]] == ["Erkek Mont"]
     assert (await get(db_session, "/products")).json()["total"] == 4
     assert (await get(db_session, "/products?audience=kids")).status_code == 422
+
+
+async def seed_second_brand(session: AsyncSession) -> None:
+    brand = await store.get_or_create_brand(
+        session, slug="other", name="Other", base_url="https://other.example.com"
+    )
+    run = await store.start_run(session, brand.id)
+    jeans = product(
+        "9", "Slim Fit Jean Pantolon", 120_000, 150_000, category="Erkek > Giyim > Jean"
+    )
+    await store.store_products(session, brand_id=brand.id, run_id=run.id, batch=[(jeans, T0)])
+
+
+async def titles(session: AsyncSession, query: str) -> list[str]:
+    body = (await get(session, f"/products?sort=price_asc&{query}")).json()
+    return [p["title"] for p in body["items"]]
+
+
+async def test_filters(db_session: AsyncSession) -> None:
+    await seed(db_session)
+    await seed_second_brand(db_session)
+    assert await titles(db_session, "category=shirts") == ["Beyaz Gömlek"]
+    assert await titles(db_session, "category=jackets&audience=men") == ["Erkek Mont"]
+    assert await titles(db_session, "brand=other") == ["Slim Fit Jean Pantolon"]
+    assert len(await titles(db_session, "brand=other&brand=shop")) == 5
+    assert await titles(db_session, "on_sale=true") == ["Slim Fit Jean Pantolon", "Siyah Kaban"]
+    assert await titles(db_session, "min_price=100000&max_price=200000") == [
+        "Slim Fit Jean Pantolon",
+        "Siyah Kaban",
+    ]
+    assert len(await titles(db_session, "in_stock=true")) == 5  # size L is the sold-out one
+    assert (await get(db_session, "/products?min_price=-1")).status_code == 422
+
+
+async def test_card_has_our_category_and_the_shops(db_session: AsyncSession) -> None:
+    await seed(db_session)
+    (card,) = (await get(db_session, "/products?audience=men")).json()["items"]
+    assert (card["category"], card["category_raw"]) == ("jackets", "Erkek > Giyim > Mont")
+
+
+async def test_facets_count_each_list_without_its_own_filter(db_session: AsyncSession) -> None:
+    await seed(db_session)
+    await seed_second_brand(db_session)
+    body = (await get(db_session, "/products/facets?category=jackets&brand=shop")).json()
+    assert body["total"] == 3
+    categories = {c["key"]: c["count"] for c in body["categories"]}
+    assert categories == {"jackets": 3, "shirts": 1}  # the brand filter still applies
+    assert {b["slug"]: b["count"] for b in body["brands"]} == {"shop": 3}  # jackets only
+    assert (body["min_price_minor"], body["max_price_minor"]) == (90_000, 300_000)
+    jackets = next(c for c in body["categories"] if c["key"] == "jackets")
+    assert jackets["image_url"].startswith("https://img.example.com/")
+
+
+async def test_facets_without_filters_list_every_brand(db_session: AsyncSession) -> None:
+    await seed(db_session)
+    await seed_second_brand(db_session)
+    body = (await get(db_session, "/products/facets?audience=men")).json()
+    assert {b["slug"]: b["count"] for b in body["brands"]} == {"other": 1, "shop": 1}
+    assert {c["key"] for c in body["categories"]} == {"jackets", "jeans"}

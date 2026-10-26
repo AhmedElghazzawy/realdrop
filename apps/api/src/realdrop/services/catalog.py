@@ -7,7 +7,8 @@ brands; a `current_prices` table can replace these subqueries when it gets slow.
 """
 
 import uuid
-from typing import Any
+from dataclasses import dataclass, field, replace
+from typing import Any, Literal
 
 from sqlalchemy import Select, case, func, select
 from sqlalchemy.dialects.postgresql import distinct_on
@@ -24,7 +25,10 @@ from realdrop.models import (
 )
 from realdrop.schemas.catalog import (
     Audience,
+    BrandCount,
     BrandStats,
+    CategoryCount,
+    Facets,
     PricePoint,
     ProductCard,
     ProductDetail,
@@ -145,7 +149,8 @@ def _card(product: Product, slug: str, name: str, row: Any) -> dict[str, Any]:
         "title": product.title_raw,
         "url": product.url,
         "image_url": product.image_urls[0] if product.image_urls else None,
-        "category": product.category_raw,
+        "category": product.category,
+        "category_raw": product.category_raw,
         "price_minor": row["price_minor"],
         "original_price_minor": row["original_price_minor"],
         "currency": row["currency"],
@@ -160,26 +165,59 @@ def _escape_like(text: str) -> str:
     return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
+@dataclass(frozen=True)
+class Filters:
+    """What the shopper narrowed the catalog to. Prices are kurus; None means "any"."""
+
+    q: str | None = None
+    brands: tuple[str, ...] = ()
+    category: str | None = None
+    audience: Audience | None = None
+    min_price: int | None = None
+    max_price: int | None = None
+    on_sale: bool = False  # the shop shows an old price above today's (a claim, not a verdict)
+    in_stock: bool = False
+    # Facet counting leaves out the facet's own filter (Facets docstring).
+    skip: frozenset[Literal["brands", "category"]] = field(default_factory=frozenset)
+
+
+NO_FILTERS = Filters()
+
+
+def _filtered(filters: Filters) -> Select[*tuple[Any, ...]]:
+    query = _cards_query()
+    columns = query.selected_columns
+    if filters.q:
+        # Plain substring match until hybrid search lands (Phase 6). ILIKE is not Turkish-aware
+        # for İ/ı; good enough to browse.
+        query = query.where(Product.title_raw.ilike(f"%{_escape_like(filters.q)}%", escape="\\"))
+    if filters.brands and "brands" not in filters.skip:
+        query = query.where(Brand.slug.in_(filters.brands))
+    if filters.category and "category" not in filters.skip:
+        query = query.where(Product.category == filters.category)
+    if filters.audience:
+        # Set by each collector from what the shop says (collectors/base.py RawProduct.audience).
+        query = query.where(Product.audience == filters.audience)
+    if filters.min_price is not None:
+        query = query.where(columns.price_minor >= filters.min_price)
+    if filters.max_price is not None:
+        query = query.where(columns.price_minor <= filters.max_price)
+    if filters.on_sale:
+        query = query.where(columns.original_price_minor > columns.price_minor)
+    if filters.in_stock:
+        query = query.where(columns.sizes_in_stock > 0)
+    return query
+
+
 async def list_products(
     session: AsyncSession,
+    filters: Filters = NO_FILTERS,
     *,
-    q: str | None = None,
-    brand: str | None = None,
-    audience: Audience | None = None,
     sort: SortOrder = "recent",
     limit: int = 48,
     offset: int = 0,
 ) -> ProductList:
-    query = _cards_query()
-    if q:
-        # Plain substring match until hybrid search lands (Phase 6). ILIKE is not Turkish-aware
-        # for İ/ı; good enough to browse.
-        query = query.where(Product.title_raw.ilike(f"%{_escape_like(q)}%", escape="\\"))
-    if brand:
-        query = query.where(Brand.slug == brand)
-    if audience:
-        # Set by each collector from what the shop says (collectors/base.py RawProduct.audience).
-        query = query.where(Product.audience == audience)
+    query = _filtered(filters)
     columns = query.selected_columns
     claimed = case(
         (
@@ -202,6 +240,52 @@ async def list_products(
         ProductCard.model_validate(_card(row[0], row[1], row[2], row._mapping)) for row in rows
     ]
     return ProductList(items=items, total=total)
+
+
+async def facets(session: AsyncSession, filters: Filters = NO_FILTERS) -> Facets:
+    everything = _filtered(filters).subquery()
+    total = await session.scalar(select(func.count()).select_from(everything)) or 0
+    low, high = (
+        await session.execute(
+            select(func.min(everything.c.price_minor), func.max(everything.c.price_minor))
+        )
+    ).one()
+
+    by_category = _filtered(replace(filters, skip=frozenset({"category"}))).subquery()
+    category_rows = await session.execute(
+        select(by_category.c.category, func.count())
+        .where(by_category.c.category.is_not(None))
+        .group_by(by_category.c.category)
+    )
+    # One photo per category: the most recently checked product that is in stock and has one.
+    image_rows = await session.execute(
+        select(by_category.c.category, by_category.c.image_urls[1])
+        .where(
+            by_category.c.category.is_not(None),
+            by_category.c.sizes_in_stock > 0,
+            func.cardinality(by_category.c.image_urls) > 0,
+        )
+        .order_by(by_category.c.category, by_category.c.observed_at.desc(), by_category.c.id)
+        .ext(distinct_on(by_category.c.category))
+    )
+    images: dict[str, str] = {key: url for key, url in image_rows}
+
+    by_brand = _filtered(replace(filters, skip=frozenset({"brands"}))).subquery()
+    brand_rows = await session.execute(
+        select(by_brand.c.slug, by_brand.c.name, func.count())
+        .group_by(by_brand.c.slug, by_brand.c.name)
+        .order_by(by_brand.c.name)
+    )
+    return Facets(
+        total=total,
+        categories=[
+            CategoryCount(key=key, count=count, image_url=images.get(key))
+            for key, count in category_rows
+        ],
+        brands=[BrandCount(slug=slug, name=name, count=count) for slug, name, count in brand_rows],
+        min_price_minor=low,
+        max_price_minor=high,
+    )
 
 
 async def product_detail(session: AsyncSession, product_id: uuid.UUID) -> ProductDetail | None:

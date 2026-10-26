@@ -48,7 +48,8 @@ class ProductCard(BaseModel):
     title: str
     url: str
     image_url: str | None
-    category: str | None
+    category: str | None  # ours (pipeline/categorize.py), for menus and filters
+    category_raw: str | None  # the shop's own wording, e.g. "Erkek > Giyim > Tişört"
     # Lowest confirmed price among the product's sizes right now, and the claim shown next to it.
     price_minor: int
     original_price_minor: int | None
@@ -75,6 +76,29 @@ class PricePoint(BaseModel):
     day: date  # Europe/Istanbul calendar day (CLAUDE.md rule 7)
     price_minor: int  # lowest confirmed price that day across sizes
     original_price_minor: int | None
+
+
+class CategoryCount(BaseModel):
+    key: str
+    count: int
+    image_url: str | None  # a recent in-stock product's photo, for category tiles
+
+
+class BrandCount(BaseModel):
+    slug: str
+    name: str
+    count: int
+
+
+class Facets(BaseModel):
+    """What the filters would show. Each list ignores its own filter (selecting one category still
+    lists the others, with counts under the other filters); `total` uses every filter."""
+
+    total: int
+    categories: list[CategoryCount]
+    brands: list[BrandCount]
+    min_price_minor: int | None
+    max_price_minor: int | None
 
 
 class ProductDetail(ProductCard):

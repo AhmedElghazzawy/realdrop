@@ -34,3 +34,14 @@ def tr_lower(text: str) -> str:
 def tr_upper(text: str) -> str:
     """Uppercase with Turkish rules: "i" -> "İ", "ı" -> "I". Input is NFC-normalized first."""
     return unicodedata.normalize("NFC", text).translate(_TR_UPPER).upper()
+
+
+_TR_FOLD = str.maketrans("ıiğüşöçâîû", "iigusocaiu")
+
+
+def fold(text: str) -> str:
+    """Lowercase (Turkish rules) and drop Turkish letters' marks, for keyword matching only.
+
+    "TAKIM ELBISE", "Takım Elbise" and "takim elbise" all become "takim elbise". Never display it.
+    """
+    return normalize(tr_lower(text)).translate(_TR_FOLD)
