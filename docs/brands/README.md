@@ -16,6 +16,9 @@ Checked 24 Oct 2026 with our own User-Agent (`RealDropBot/0.1`), a handful of re
 | Marks & Spencer | Product pages allowed; men's URLs from the sitemap (`/erkek-...`) | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
 | Damat Tween | Product pages allowed; sitemap (menswear only) | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
 | Les Benjamins | `/products.json` allowed | No anti-bot clause found (26 Oct) | Shopify catalog JSON | Yes (`available` per variant) | **Go: Shopify group** (27 Oct) |
+| Lufian, TommyLife, Hatemoğlu | Product pages and `/xml/sitemap/product.xml` allowed | No anti-bot clause in the membership agreement (27 Oct) | T-Soft page: variant buttons (`data-price` without VAT, `data-vat`, `data-instock`) | Yes | **Go: T-Soft group** (27 Oct) |
+| Süvari | Allowed | **Membership agreement bans "multiple queries with automated programs"** | Ticimax | - | No-go |
+| Sarar, AVVA, Bad Bear, Loft | Allowed | Terms page not found (JS footer; standard paths 404) | - | - | **Owner to read the terms in a browser** |
 | Ramsey, Giesto | `/products.json` allowed | Ramsey (Gürmen group): no anti-bot clause | Shopify catalog JSON | Yes | **Wait:** 429 `local_rate_limited` after 1-3 identified requests; retry later, never work around |
 | [LC Waikiki](lc-waikiki.md) | Allows everything | **Forbids robots, crawling, data mining** | JSON-LD | Not in page | No-go |
 | [Mavi](mavi.md) | Product pages allowed | Not checked | Not reached | Not reached | No-go (Cloudflare challenge) |
@@ -68,6 +71,10 @@ Notes:
   products per request (Les Benjamins: 1,626 men's products in ~10 requests, 20 s). The JSON has no
   currency and Shopify can convert prices for visitors abroad (our runners are in the US), so each
   run first checks `Shopify.currency.active` on the home page and stops unless it is TRY.
+- T-Soft collector (`collectors/tsoft/`, 27 Oct): product sitemap, then each page. Prices come from
+  the variant buttons (price without VAT * (1 + VAT), checked on every page against the page's own
+  VAT-included figure), never from JSON-LD: Hatemoğlu's JSON-LD price includes a "Sepette EKSTRA"
+  basket offer (conditional, ignored).
 - Shopify keeps `/policies/` out of robots.txt; read terms pages through a search engine or a
   browser, not with the collector's User-Agent.
 - Not found yet: Ata Studio, Sabotage, Spasso (no shop site found; owner to send links). "Flaws" is

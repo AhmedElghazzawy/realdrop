@@ -16,6 +16,11 @@ from realdrop.collectors.base import BrandCollector
 from realdrop.collectors.colins.collector import ColinsCollector
 from realdrop.collectors.defacto.collector import DefactoCollector
 from realdrop.collectors.shopify.brands import LesBenjaminsCollector
+from realdrop.collectors.tsoft.brands import (
+    HatemogluCollector,
+    LufianCollector,
+    TommyLifeCollector,
+)
 
 COLLECTORS: dict[str, type[BrandCollector]] = {
     DefactoCollector.slug: DefactoCollector,
@@ -26,6 +31,9 @@ COLLECTORS: dict[str, type[BrandCollector]] = {
     MarksAndSpencerCollector.slug: MarksAndSpencerCollector,
     DamatTweenCollector.slug: DamatTweenCollector,
     LesBenjaminsCollector.slug: LesBenjaminsCollector,
+    LufianCollector.slug: LufianCollector,
+    TommyLifeCollector.slug: TommyLifeCollector,
+    HatemogluCollector.slug: HatemogluCollector,
 }
 
 
