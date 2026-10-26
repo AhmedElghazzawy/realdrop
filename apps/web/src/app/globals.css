@@ -1,17 +1,64 @@
 @import "tailwindcss";
 
-/* Tokens from docs/DESIGN_SYSTEM.md. Dark by design ("terminal x editorial"). */
+/* Tokens from docs/DESIGN_SYSTEM.md. Light editorial by default; dark follows the device setting
+   unless the reader picked one with the theme switch (data-theme on <html>, set before paint by the
+   script in layout.tsx). */
 :root {
-  --bg: #0a0a0b;
-  --surface: #111113;
-  --surface-2: #17171a;
-  --line: #26262b;
-  --text: #ecece8;
-  --muted: #9a9aa1; /* a touch lighter than the spec's #8b8b92: AA for small text on --surface */
-  --signal: #c6ff3d; /* REAL drop only */
-  --warn: #ff5a36; /* inflated claim */
-  --info: #7aa7ff;
-  --radius: 10px;
+  --bg: #ffffff;
+  --surface: #f4f4f2; /* image wells, inputs */
+  --surface-2: #ebebe8; /* hover */
+  --line: #e3e3df;
+  --line-strong: #c9c9c4;
+  --text: #111111;
+  --muted: #5f5f5c; /* 6.4:1 on --bg, 5.8:1 on --surface: AA for small text */
+  --sale: #c8102e; /* the shop's sale price: a claim, shown the way shops show it */
+  --signal: #0f7a3d; /* REAL drop only (verified by our price history) */
+  --warn: #c2410c; /* inflated claim */
+  --info: #1d4ed8; /* focus ring, links in prose */
+  --on-text: #ffffff; /* text on a --text filled button */
+  /* Chart series (dataviz reference palette slots 1-2, validated light + dark). */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --radius: 2px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c0c0d;
+    --surface: #161618;
+    --surface-2: #1f1f22;
+    --line: #2a2a2e;
+    --line-strong: #3d3d42;
+    --text: #f2f2ee;
+    --muted: #a1a1a6;
+    --sale: #ff6b6b;
+    --signal: #c6ff3d;
+    --warn: #ff7a4d;
+    --info: #8ab4ff;
+    --on-text: #0c0c0d;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0c0c0d;
+  --surface: #161618;
+  --surface-2: #1f1f22;
+  --line: #2a2a2e;
+  --line-strong: #3d3d42;
+  --text: #f2f2ee;
+  --muted: #a1a1a6;
+  --sale: #ff6b6b;
+  --signal: #c6ff3d;
+  --warn: #ff7a4d;
+  --info: #8ab4ff;
+  --on-text: #0c0c0d;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -19,19 +66,20 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-text: var(--text);
   --color-muted: var(--muted);
+  --color-sale: var(--sale);
   --color-signal: var(--signal);
   --color-warn: var(--warn);
   --color-info: var(--info);
+  --color-on-text: var(--on-text);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
   --radius-card: var(--radius);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-instrument-serif);
-}
-
-html {
-  color-scheme: dark;
 }
 
 body {
@@ -45,6 +93,28 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Small uppercase labels: brand names, section kickers, filter headings. */
+.eyebrow {
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Horizontal product rails scroll without a visible bar; arrows are not needed on touch. */
+.rail {
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  /* Snap to the page gutter, not the screen edge (rails bleed with -mx-4 px-4). */
+  scroll-padding-inline: 1rem;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+.rail > * {
+  scroll-snap-align: start;
+}
+
 :focus-visible {
   outline: 2px solid var(--info);
   outline-offset: 2px;
@@ -54,5 +124,6 @@ body {
   * {
     transition: none !important;
     animation: none !important;
+    scroll-behavior: auto !important;
   }
 }

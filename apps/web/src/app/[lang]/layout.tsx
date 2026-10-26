@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import Link from "next/link";
-import { Suspense } from "react";
-import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 import { getDictionary, getLocale } from "@/i18n";
 import { LOCALES } from "@/i18n/config";
 import "../globals.css";
@@ -16,46 +15,35 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
 });
 
+// Runs before first paint: a theme picked with the switch (ThemeToggle) wins over the device's.
+const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
 }
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDictionary();
-  return { title: "RealDrop", description: t.meta.description };
+  return { title: { default: "RealDrop", template: "%s · RealDrop" }, description: t.meta.description };
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
-  const [locale, t] = [await getLocale(), await getDictionary()];
+  const locale = await getLocale();
   return (
     <html
       lang={locale}
+      // The theme script sets data-theme before React hydrates.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <header className="border-b border-line">
-          <nav className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
-            <Link href={`/${locale}`} className="font-serif text-2xl tracking-tight">
-              Real<span className="text-signal">Drop</span>
-            </Link>
-            <div className="ml-auto flex items-center gap-5 text-sm text-muted">
-              <Link href={`/${locale}`} className="hover:text-text">
-                {t.nav.products}
-              </Link>
-              <Link href={`/${locale}/status`} className="hover:text-text">
-                {t.nav.status}
-              </Link>
-              {/* useSearchParams in the switch needs a Suspense boundary under Cache Components. */}
-              <Suspense fallback={null}>
-                <LanguageSwitch current={locale} label={t.nav.language} />
-              </Suspense>
-            </div>
-          </nav>
-        </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
-        <footer className="border-t border-line px-4 py-4 text-center text-xs text-muted">
-          {t.footer}
-        </footer>
+      <head>
+        {/* An inline script is the only way to apply a saved theme before the first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className="flex min-h-full flex-col">
+        <SiteHeader />
+        <main className="w-full flex-1">{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );

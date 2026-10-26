@@ -38,7 +38,8 @@ export interface ProductCard {
   title: string;
   url: string;
   image_url: string | null;
-  category: string | null;
+  category: string | null; // ours: lib/categories.ts
+  category_raw: string | null; // the shop's own wording
   price_minor: number;
   original_price_minor: number | null;
   currency: string;
@@ -85,20 +86,51 @@ export function getStats(): Promise<Stats> {
 
 export type Audience = "men" | "women";
 
-export function getProducts(params: {
+export interface Filters {
   q?: string;
+  brands?: string[];
+  category?: string;
   audience?: Audience;
-  sort?: SortOrder;
-  limit?: number;
-  offset?: number;
-}): Promise<ProductList> {
+  minPrice?: number; // kurus
+  maxPrice?: number; // kurus
+  onSale?: boolean;
+  inStock?: boolean;
+}
+
+export interface Facets {
+  total: number;
+  categories: { key: string; count: number; image_url: string | null }[];
+  brands: { slug: string; name: string; count: number }[];
+  min_price_minor: number | null;
+  max_price_minor: number | null;
+}
+
+function filterParams(filters: Filters): URLSearchParams {
   const search = new URLSearchParams();
-  if (params.q) search.set("q", params.q);
-  if (params.audience) search.set("audience", params.audience);
-  if (params.sort) search.set("sort", params.sort);
-  search.set("limit", String(params.limit ?? 48));
-  search.set("offset", String(params.offset ?? 0));
+  if (filters.q) search.set("q", filters.q);
+  for (const brand of filters.brands ?? []) search.append("brand", brand);
+  if (filters.category) search.set("category", filters.category);
+  if (filters.audience) search.set("audience", filters.audience);
+  if (filters.minPrice !== undefined) search.set("min_price", String(filters.minPrice));
+  if (filters.maxPrice !== undefined) search.set("max_price", String(filters.maxPrice));
+  if (filters.onSale) search.set("on_sale", "true");
+  if (filters.inStock) search.set("in_stock", "true");
+  return search;
+}
+
+export function getProducts(
+  filters: Filters,
+  page: { sort?: SortOrder; limit?: number; offset?: number } = {},
+): Promise<ProductList> {
+  const search = filterParams(filters);
+  if (page.sort) search.set("sort", page.sort);
+  search.set("limit", String(page.limit ?? 48));
+  search.set("offset", String(page.offset ?? 0));
   return get(`/products?${search}`);
+}
+
+export function getFacets(filters: Filters): Promise<Facets> {
+  return get(`/products/facets?${filterParams(filters)}`);
 }
 
 export function getProduct(id: string): Promise<ProductDetail> {

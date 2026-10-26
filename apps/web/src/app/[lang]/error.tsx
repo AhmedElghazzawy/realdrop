@@ -9,10 +9,10 @@ export default function ErrorPage({ retry }: { error: unknown; retry: () => void
   const { lang } = useParams<{ lang: string }>();
   const t = { en, tr }[hasLocale(lang) ? lang : DEFAULT_LOCALE].error;
   return (
-    <div className="rounded-card border border-warn/40 p-8 text-center">
-      <p className="mb-1 font-serif text-2xl">{t.title}</p>
-      <p className="mb-4 text-sm text-muted">{t.body}</p>
-      <button onClick={() => retry()} className="rounded-card bg-text px-4 py-2 text-sm text-bg">
+    <div className="mx-auto flex max-w-xl flex-col items-center gap-3 px-4 py-24 text-center">
+      <p className="font-serif text-4xl leading-tight tracking-tight">{t.title}</p>
+      <p className="text-sm text-muted">{t.body}</p>
+      <button onClick={() => retry()} className="mt-3 h-11 bg-text px-6 text-sm font-medium text-on-text">
         {t.retry}
       </button>
     </div>
