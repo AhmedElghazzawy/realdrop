@@ -15,6 +15,8 @@ Checked 24 Oct 2026 with our own User-Agent (`RealDropBot/0.1`), a handful of re
 | GAP | Product pages and `/erkek-giyim/` allowed | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
 | Marks & Spencer | Product pages allowed; men's URLs from the sitemap (`/erkek-...`) | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
 | Damat Tween | Product pages allowed; sitemap (menswear only) | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |
+| Les Benjamins | `/products.json` allowed | No anti-bot clause found (26 Oct) | Shopify catalog JSON | Yes (`available` per variant) | **Go: Shopify group** (27 Oct) |
+| Ramsey, Giesto | `/products.json` allowed | Ramsey (Gürmen group): no anti-bot clause | Shopify catalog JSON | Yes | **Wait:** 429 `local_rate_limited` after 1-3 identified requests; retry later, never work around |
 | [LC Waikiki](lc-waikiki.md) | Allows everything | **Forbids robots, crawling, data mining** | JSON-LD | Not in page | No-go |
 | [Mavi](mavi.md) | Product pages allowed | Not checked | Not reached | Not reached | No-go (Cloudflare challenge) |
 | [H&M Turkey](hm-turkey.md) | **403 on robots.txt** | Not checked | Not reached | Not reached | No-go (blocked) |
@@ -62,6 +64,12 @@ Notes:
   audience). Men's products only (owner, 26 Oct). Lacoste is Akinon too but its terms forbid robots
   and spiders: no-go. U.S. Polo Assn. and Pierre Cardin run the newer Akinon front end (no JSON
   answer): a separate parser, later.
+- Shopify collector (`collectors/shopify/`, 27 Oct): the whole catalog from `/products.json`, 250
+  products per request (Les Benjamins: 1,626 men's products in ~10 requests, 20 s). The JSON has no
+  currency and Shopify can convert prices for visitors abroad (our runners are in the US), so each
+  run first checks `Shopify.currency.active` on the home page and stops unless it is TRY.
+- Shopify keeps `/policies/` out of robots.txt; read terms pages through a search engine or a
+  browser, not with the collector's User-Agent.
 - Not found yet: Ata Studio, Sabotage, Spasso (no shop site found; owner to send links). "Flaws" is
   probably Flaw Wear (flaw.com.tr exists but has no sitemap; to check).
 - Not usable: levi.com.tr (a company WordPress site, not the Levi's shop), nike.com (global), Buratti

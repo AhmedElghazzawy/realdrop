@@ -15,6 +15,7 @@ from realdrop.collectors.akinon.brands import (
 from realdrop.collectors.base import BrandCollector
 from realdrop.collectors.colins.collector import ColinsCollector
 from realdrop.collectors.defacto.collector import DefactoCollector
+from realdrop.collectors.shopify.brands import LesBenjaminsCollector
 
 COLLECTORS: dict[str, type[BrandCollector]] = {
     DefactoCollector.slug: DefactoCollector,
@@ -24,6 +25,7 @@ COLLECTORS: dict[str, type[BrandCollector]] = {
     GapCollector.slug: GapCollector,
     MarksAndSpencerCollector.slug: MarksAndSpencerCollector,
     DamatTweenCollector.slug: DamatTweenCollector,
+    LesBenjaminsCollector.slug: LesBenjaminsCollector,
 }
 
 

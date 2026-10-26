@@ -1,0 +1,322 @@
+{
+ "products": [
+  {
+   "id": 9014965665871,
+   "title": "ZIP UP LEATHER JACKET",
+   "handle": "zip-up-leather-jacket-lb26fwclamulj-001",
+   "vendor": "LES BENJAMINS CLASSICS",
+   "product_type": "Leather Jackets",
+   "tags": [
+    "apparel",
+    "men",
+    "x-men"
+   ],
+   "variants": [
+    {
+     "id": 46434130952271,
+     "title": "Black / XXS",
+     "option1": "Black",
+     "option2": "XXS",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / XXS",
+     "available": false,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434130985039,
+     "title": "Black / XS",
+     "option1": "Black",
+     "option2": "XS",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / XS",
+     "available": false,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434131017807,
+     "title": "Black / S",
+     "option1": "Black",
+     "option2": "S",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / S",
+     "available": true,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434131050575,
+     "title": "Black / M",
+     "option1": "Black",
+     "option2": "M",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / M",
+     "available": true,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434131083343,
+     "title": "Black / L",
+     "option1": "Black",
+     "option2": "L",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / L",
+     "available": true,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434131116111,
+     "title": "Black / XL",
+     "option1": "Black",
+     "option2": "XL",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / XL",
+     "available": false,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434131148879,
+     "title": "Black / XXL",
+     "option1": "Black",
+     "option2": "XXL",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / XXL",
+     "available": false,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434131181647,
+     "title": "Black / 3XL",
+     "option1": "Black",
+     "option2": "3XL",
+     "option3": null,
+     "sku": "LB26FWCLAMULJ-001 / Black / 3XL",
+     "available": false,
+     "price": "19999.00",
+     "compare_at_price": "0.00"
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0114/9002/files/LB26FWCLAMULJ-001_5009_5.jpg?v=1791799752",
+     "variant_ids": []
+    },
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0114/9002/files/LB26FWCLAMULJ-001_5009_1.jpg?v=1791799741",
+     "variant_ids": []
+    }
+   ],
+   "options": [
+    {
+     "name": "Color",
+     "position": 1,
+     "values": [
+      "Black"
+     ]
+    },
+    {
+     "name": "Size",
+     "position": 2,
+     "values": [
+      "XXS",
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL",
+      "3XL"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 9014981427279,
+   "title": "LACE DETAILED ZIP UP",
+   "handle": "lace-detailed-zip-up-lb26fwmnswujc-007-5009",
+   "vendor": "LES BENJAMINS",
+   "product_type": "Jackets",
+   "tags": [
+    "apparel",
+    "women"
+   ],
+   "variants": [
+    {
+     "id": 46434248196175,
+     "title": "Black / XXS",
+     "option1": "Black",
+     "option2": "XXS",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / XXS",
+     "available": true,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434248228943,
+     "title": "Black / XS",
+     "option1": "Black",
+     "option2": "XS",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / XS",
+     "available": true,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434248261711,
+     "title": "Black / S",
+     "option1": "Black",
+     "option2": "S",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / S",
+     "available": true,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434248294479,
+     "title": "Black / M",
+     "option1": "Black",
+     "option2": "M",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / M",
+     "available": true,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434248327247,
+     "title": "Black / L",
+     "option1": "Black",
+     "option2": "L",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / L",
+     "available": true,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434248360015,
+     "title": "Black / XL",
+     "option1": "Black",
+     "option2": "XL",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / XL",
+     "available": false,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434248392783,
+     "title": "Black / XXL",
+     "option1": "Black",
+     "option2": "XXL",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / XXL",
+     "available": false,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    },
+    {
+     "id": 46434248425551,
+     "title": "Black / 3XL",
+     "option1": "Black",
+     "option2": "3XL",
+     "option3": null,
+     "sku": "LB26FWMNSWUJC-007-5009 / Black / 3XL",
+     "available": false,
+     "price": "7999.00",
+     "compare_at_price": "0.00"
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0114/9002/files/LB26FWMNSWUJC-007_5009_5.jpg?v=1792497035",
+     "variant_ids": []
+    },
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0114/9002/files/LB26FWMNSWUJC-007_5009_1.jpg?v=1792497024",
+     "variant_ids": []
+    }
+   ],
+   "options": [
+    {
+     "name": "Color",
+     "position": 1,
+     "values": [
+      "Black"
+     ]
+    },
+    {
+     "name": "Size",
+     "position": 2,
+     "values": [
+      "XXS",
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL",
+      "3XL"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 9015218536527,
+   "title": "PRINTED BASEBALL CAP",
+   "handle": "printed-baseball-cap-lb26fwmnsuucp-015-5016",
+   "vendor": "LES BENJAMINS",
+   "product_type": "Caps",
+   "tags": [
+    "unisex"
+   ],
+   "variants": [
+    {
+     "id": 46440108228687,
+     "title": "Dark Khaki / O/S",
+     "option1": "Dark Khaki",
+     "option2": "O/S",
+     "option3": null,
+     "sku": "LB26FWMNSUUCP-015-5016 / Dark Khaki / O/S",
+     "available": true,
+     "price": "2299.00",
+     "compare_at_price": "0.00"
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0114/9002/files/LB26FWMNSUUCP-015_5016_6.jpg?v=1792498286",
+     "variant_ids": []
+    },
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0114/9002/files/LB26FWMNSUUCP-015_5016_1.jpg?v=1792498271",
+     "variant_ids": []
+    }
+   ],
+   "options": [
+    {
+     "name": "Color",
+     "position": 1,
+     "values": [
+      "Dark Khaki"
+     ]
+    },
+    {
+     "name": "Size",
+     "position": 2,
+     "values": [
+      "O/S"
+     ]
+    }
+   ]
+  }
+ ]
+}

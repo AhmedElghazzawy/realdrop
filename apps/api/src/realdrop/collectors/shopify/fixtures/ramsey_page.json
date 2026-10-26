@@ -1,0 +1,283 @@
+{
+ "products": [
+  {
+   "id": 7308268568640,
+   "title": "Antrasit Düz Zeroweight Slim Fit %100 Yün Takım Elbise",
+   "handle": "antrasit-duz-zeroweight-slim-fit-100-yun-takim-elbise-10151588-110",
+   "vendor": "ramsey",
+   "product_type": "",
+   "tags": [
+    "10151588-110",
+    "186 cm",
+    "2024",
+    "2024-2"
+   ],
+   "variants": [
+    {
+     "id": 41443695493184,
+     "title": "Antrasit / 6 DROP / 46",
+     "option1": "Antrasit",
+     "option2": "6 DROP",
+     "option3": "46",
+     "sku": "10151588-110-6DROP-46",
+     "available": false,
+     "price": "9995.00",
+     "compare_at_price": "24995.00"
+    },
+    {
+     "id": 41443695525952,
+     "title": "Antrasit / 6 DROP / 48",
+     "option1": "Antrasit",
+     "option2": "6 DROP",
+     "option3": "48",
+     "sku": "10151588-110-6DROP-48",
+     "available": false,
+     "price": "9995.00",
+     "compare_at_price": "24995.00"
+    },
+    {
+     "id": 41443695558720,
+     "title": "Antrasit / 6 DROP / 50",
+     "option1": "Antrasit",
+     "option2": "6 DROP",
+     "option3": "50",
+     "sku": "10151588-110-6DROP-50",
+     "available": false,
+     "price": "9995.00",
+     "compare_at_price": "24995.00"
+    },
+    {
+     "id": 41443695591488,
+     "title": "Antrasit / 6 DROP / 52",
+     "option1": "Antrasit",
+     "option2": "6 DROP",
+     "option3": "52",
+     "sku": "10151588-110-6DROP-52",
+     "available": false,
+     "price": "9995.00",
+     "compare_at_price": "24995.00"
+    },
+    {
+     "id": 41443695624256,
+     "title": "Antrasit / 6 DROP / 54",
+     "option1": "Antrasit",
+     "option2": "6 DROP",
+     "option3": "54",
+     "sku": "10151588-110-6DROP-54",
+     "available": false,
+     "price": "9995.00",
+     "compare_at_price": "24995.00"
+    },
+    {
+     "id": 41443695657024,
+     "title": "Antrasit / 6 DROP / 56",
+     "option1": "Antrasit",
+     "option2": "6 DROP",
+     "option3": "56",
+     "sku": "10151588-110-6DROP-56",
+     "available": false,
+     "price": "9995.00",
+     "compare_at_price": "24995.00"
+    },
+    {
+     "id": 41443695689792,
+     "title": "Antrasit / 6 DROP / 58",
+     "option1": "Antrasit",
+     "option2": "6 DROP",
+     "option3": "58",
+     "sku": "10151588-110-6DROP-58",
+     "available": false,
+     "price": "9995.00",
+     "compare_at_price": "24995.00"
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0605/1957/9712/files/8684405079728_1.jpg?v=1792478017",
+     "variant_ids": []
+    },
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0605/1957/9712/files/8684405079728_2.jpg?v=1792478017",
+     "variant_ids": []
+    }
+   ],
+   "options": [
+    {
+     "name": "Renk",
+     "position": 1,
+     "values": [
+      "Antrasit"
+     ]
+    },
+    {
+     "name": "Kalıp",
+     "position": 2,
+     "values": [
+      "6 DROP"
+     ]
+    },
+    {
+     "name": "Beden",
+     "position": 3,
+     "values": [
+      "46",
+      "48",
+      "50",
+      "52",
+      "54",
+      "56",
+      "58"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 7294455513152,
+   "title": "Lacivert Çizgili Regular Fit Uzun Dokuma Casual %100 Pamuk Gömlek",
+   "handle": "lacivert-cizgili-regular-fit-uzun-dokuma-casual-100-pamuk-gomlek-10117373-200",
+   "vendor": "ramsey",
+   "product_type": "",
+   "tags": [
+    "10117373-200",
+    "2019",
+    "2019-2",
+    "Azure Blue"
+   ],
+   "variants": [
+    {
+     "id": 41386136174656,
+     "title": "Lacivert / 38",
+     "option1": "Lacivert",
+     "option2": "38",
+     "option3": null,
+     "sku": "10117373-200-38",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136207424,
+     "title": "Lacivert / 39",
+     "option1": "Lacivert",
+     "option2": "39",
+     "option3": null,
+     "sku": "10117373-200-39",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136240192,
+     "title": "Lacivert / 40",
+     "option1": "Lacivert",
+     "option2": "40",
+     "option3": null,
+     "sku": "10117373-200-40",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136272960,
+     "title": "Lacivert / 41",
+     "option1": "Lacivert",
+     "option2": "41",
+     "option3": null,
+     "sku": "10117373-200-41",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136305728,
+     "title": "Lacivert / 42",
+     "option1": "Lacivert",
+     "option2": "42",
+     "option3": null,
+     "sku": "10117373-200-42",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136338496,
+     "title": "Lacivert / 43",
+     "option1": "Lacivert",
+     "option2": "43",
+     "option3": null,
+     "sku": "10117373-200-43",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136371264,
+     "title": "Lacivert / 44",
+     "option1": "Lacivert",
+     "option2": "44",
+     "option3": null,
+     "sku": "10117373-200-44",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136404032,
+     "title": "Lacivert / 45",
+     "option1": "Lacivert",
+     "option2": "45",
+     "option3": null,
+     "sku": "10117373-200-45",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    },
+    {
+     "id": 41386136436800,
+     "title": "Lacivert / 46",
+     "option1": "Lacivert",
+     "option2": "46",
+     "option3": null,
+     "sku": "10117373-200-46",
+     "available": false,
+     "price": "279.20",
+     "compare_at_price": "349.00"
+    }
+   ],
+   "images": [
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0605/1957/9712/files/8681135822969_1.jpg?v=1790579078",
+     "variant_ids": []
+    },
+    {
+     "src": "https://cdn.shopify.com/s/files/1/0605/1957/9712/files/8681135822969_2.jpg?v=1790579078",
+     "variant_ids": []
+    }
+   ],
+   "options": [
+    {
+     "name": "Renk",
+     "position": 1,
+     "values": [
+      "Lacivert"
+     ]
+    },
+    {
+     "name": "Beden",
+     "position": 2,
+     "values": [
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "45",
+      "46"
+     ]
+    }
+   ]
+  }
+ ]
+}

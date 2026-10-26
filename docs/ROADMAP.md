@@ -48,9 +48,11 @@ Latest finish: 31 Oct.
         decision for storage). `current_prices` deferred: catalog queries are fast enough so far.
   - [x] Brands 3-7: Koton, Mudo, GAP, Marks & Spencer, Damat Tween through one Akinon collector
         (27 Oct; men's products only, owner 26 Oct). Wide brand scan: docs/brands/README.md.
+  - [x] Brand 8: Les Benjamins through a Shopify collector (27 Oct). Giesto and Ramsey answer
+        429 to our identified requests: retry later.
 - [ ] More platform groups (owner, 26 Oct: "all the big brands"): T-Soft (Lufian, Sarar,
-      Hatemoğlu, TommyLife), Ticimax (AVVA, Süvari, Bad Bear), Shopify (Les Benjamins, Giesto,
-      Ramsey), Loft, newer Akinon (U.S. Polo Assn., Pierre Cardin). Terms checked per brand first.
+      Hatemoğlu, TommyLife), Ticimax (AVVA, Süvari, Bad Bear), Loft, newer Akinon (U.S. Polo
+      Assn., Pierre Cardin). Terms checked per brand first.
 - [ ] Collection health report (success rate per brand).
 - [x] `pricing/real_drop.py` with the full test suite (pure functions).
 
