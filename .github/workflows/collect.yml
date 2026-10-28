@@ -58,7 +58,7 @@ jobs:
         # Scheduled runs collect every brand; a manual run only the one asked for.
         brand: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', inputs.brand)) || fromJSON('["defacto", "colins", "koton", "mudo", "gap", "marksandspencer", "damattween", "lesbenjamins", "lufian", "tommylife", "hatemoglu"]') }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 330 # GitHub's hard limit is 6 h; half of DeFacto is ~2.5-3 h, of Colin's ~1 h
+    timeout-minutes: 330 # GitHub's hard limit is 6 h; half of DeFacto is ~4 h, of Colin's ~1 h
     concurrency:
       group: collect-${{ matrix.brand }}
       cancel-in-progress: false # never two runs of the same brand at once

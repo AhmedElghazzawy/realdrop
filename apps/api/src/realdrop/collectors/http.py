@@ -45,7 +45,8 @@ class CollectorServerError(CollectorGaveUpError):
     """Retries exhausted on 5xx or network errors for one URL. One broken page (DeFacto served a
     steady 502 for a single product, 25 Oct 2026) should not end a run, so a collector may skip it
     as an ItemFailure; many in a row still mean the site is down. Exhausted 429s are not this
-    error: being told to slow down always ends the run."""
+    error: being told to slow down always ends the run. A redirect loop on one URL (M&S, 28 Oct
+    2026) is this error too, raised at once: a loop does not fix itself on a retry."""
 
 
 class PoliteClient:
@@ -82,6 +83,9 @@ class PoliteClient:
             headers={"User-Agent": user_agent, "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.5"},
             timeout=timeout_s,
             follow_redirects=True,
+            # httpx follows redirects outside our rate limit; real ones need 1-2 hops, and a loop
+            # should not cost the shop the default 20 requests.
+            max_redirects=5,
             transport=transport,
         )
 
@@ -123,6 +127,8 @@ class PoliteClient:
             retry_after: str | None = None
             try:
                 response = await self._http.get(url, params=params, headers=headers)
+            except httpx.TooManyRedirects as exc:
+                raise CollectorServerError(f"redirect loop at {url}: {exc}") from exc
             except httpx.TransportError as exc:
                 problem = f"{type(exc).__name__}: {exc}"
             else:

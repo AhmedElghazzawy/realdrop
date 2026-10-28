@@ -1,7 +1,9 @@
 """DeFacto collector: product URLs from the sitemaps, one polite GET per product page.
 
-About 14,600 product pages (Oct 2026). At 1 request/s a full pass takes about 5 hours, so the
-schedule collects it in two shards (`--shard 0/2`, `--shard 1/2`) of about 2.5 hours each.
+About 14,600 product pages (Oct 2026), collected in two shards (`--shard 0/2`, `--shard 1/2`).
+At 1 request/s with 3 pages in flight, DeFacto answered 502 after about 700 pages in every run
+(25-28 Oct 2026, different pages each time): a sign to slow down. At 0.5 request/s, one page at a
+time, a shard takes about 4 hours.
 A product page that 404s, redirects away (discontinued) or is disallowed by robots.txt is skipped
 as an ItemFailure, and so is a page that keeps failing with 5xx after all retries. Many pages in a
 row without product data (a challenge or maintenance page served with 200) or a few broken pages in
@@ -31,14 +33,14 @@ from realdrop.collectors.sitemap import sitemap_locs
 SITEMAP_INDEX = f"{BASE_URL}/sharedxml/tr-tr/sitemapindex.xml"
 MAX_PAGES_WITHOUT_DATA = 20
 MAX_BROKEN_PAGES_IN_A_ROW = 3
-PAGES_IN_FLIGHT = 3  # pages downloading at once; request starts stay at rate_limit_rps
+PAGES_IN_FLIGHT = 1  # one page at a time: a short 502 burst should not hit 3 pages at once
 
 
 class DefactoCollector(BrandCollector):
     slug = "defacto"
     name = "DeFacto"
     base_url = BASE_URL
-    rate_limit_rps = 1.0
+    rate_limit_rps = 0.5
 
     def __init__(
         self,

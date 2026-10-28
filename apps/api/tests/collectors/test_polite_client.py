@@ -254,3 +254,14 @@ async def test_404_raises_http_status_error_for_the_caller_to_skip() -> None:
     async with make_client(shop(), fake) as client:
         with pytest.raises(httpx.HTTPStatusError):
             await client.get(f"{SHOP}/gone")
+
+
+async def test_redirect_loop_is_a_skippable_server_error_without_retries() -> None:
+    fake = FakeTime()
+    loop = httpx.Response(301, headers={"Location": f"{SHOP}/a"})
+    handler = shop(a=loop)
+    async with make_client(handler, fake) as client:
+        with pytest.raises(CollectorServerError, match="redirect loop"):
+            await client.get(f"{SHOP}/a")
+    hits = [r for r in handler.seen if r.url.path == "/a"]  # type: ignore[attr-defined]
+    assert len(hits) == 6  # the first request and 5 redirects, then stop: no retries
