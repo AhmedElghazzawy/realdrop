@@ -3,8 +3,9 @@
 name: collect
 
 on:
-  # Every brand's catalog is collected in two halves, so the largest (DeFacto, ~14.6k pages, ~5 h at
-  # 1 request/s) stays well inside GitHub's 6 h job limit. Every product is still seen once a day.
+  # Every brand's catalog is collected in two halves, so per-product-page brands stay well inside
+  # GitHub's 6 h job limit. Every product is still seen once a day. Listing/catalog brands (DeFacto,
+  # Shopify) read every page in both runs and keep their half of the products.
   # Brands run in parallel (different sites, each at its own polite rate).
   # GitHub may start scheduled runs some minutes late.
   schedule:
