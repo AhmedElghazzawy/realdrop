@@ -1,13 +1,15 @@
-"""DeFacto collector: product URLs from the sitemaps, one polite GET per product page.
+"""DeFacto collector: the men's category listings, 24 products a page, one polite GET per page.
 
-About 14,600 product pages (Oct 2026), collected in two shards (`--shard 0/2`, `--shard 1/2`).
-At 1 request/s with 3 pages in flight, DeFacto answered 502 after about 700 pages in every run
-(25-28 Oct 2026, different pages each time): a sign to slow down. At 0.5 request/s, one page at a
-time, a shard takes about 4 hours.
-A product page that 404s, redirects away (discontinued) or is disallowed by robots.txt is skipped
-as an ItemFailure, and so is a page that keeps failing with 5xx after all retries. Many pages in a
-row without product data (a challenge or maintenance page served with 200) or a few broken pages in
-a row mean something is wrong, so the run stops instead of hammering the site.
+Until 30 Oct 2026 we fetched one product page per product (~20,000 pages). DeFacto answered 502
+after about 650 pages in every run (25-29 Oct, at 1 and at 0.5 request/s, different pages each
+time), so only the same ~650 products were ever refreshed. A listing card carries everything we
+store (prices, campaign, sizes in stock, images), so about 230 listing pages cover all ~5,500 men's
+products. Both shards read every listing page and keep their half of the products (by URL), like
+the Shopify collector.
+
+A listing page that keeps failing with 5xx after all retries is skipped (its products wait for the
+next run); a few broken pages in a row, or a page without listing data (a challenge or maintenance
+page), stop the run instead of hammering the site.
 """
 
 from collections.abc import AsyncIterator, Callable
@@ -15,25 +17,20 @@ from datetime import UTC, datetime
 
 import httpx
 
-from realdrop.collectors.base import BrandCollector, ItemFailure, RawProduct, Shard, in_flight
+from realdrop.collectors.base import BrandCollector, ItemFailure, RawProduct, Shard
 from realdrop.collectors.defacto.parser import (
     BASE_URL,
-    has_product_data,
-    parse_product,
-    product_sitemaps,
+    LISTINGS,
+    listing_cards,
+    listing_pages,
+    listing_total,
+    parse_card,
 )
-from realdrop.collectors.http import (
-    CollectorBlockedError,
-    CollectorServerError,
-    PoliteClient,
-    RobotsDisallowedError,
-)
-from realdrop.collectors.sitemap import sitemap_locs
+from realdrop.collectors.http import CollectorBlockedError, CollectorServerError, PoliteClient
 
-SITEMAP_INDEX = f"{BASE_URL}/sharedxml/tr-tr/sitemapindex.xml"
-MAX_PAGES_WITHOUT_DATA = 20
+CARDS_PER_PAGE = 24
 MAX_BROKEN_PAGES_IN_A_ROW = 3
-PAGES_IN_FLIGHT = 1  # one page at a time: a short 502 burst should not hit 3 pages at once
+EXTRA_PAGES = 3  # read past the stated page count while pages still bring new products
 
 
 class DefactoCollector(BrandCollector):
@@ -51,52 +48,86 @@ class DefactoCollector(BrandCollector):
     ) -> None:
         super().__init__(client, shard=shard)
         self._now = now
-        self._pages_without_data = 0
         self._broken_in_a_row = 0
+        self._seen: set[str] = set()  # product ids, across listings and shards
 
     async def fetch_catalog(self) -> AsyncIterator[RawProduct | ItemFailure]:
-        urls = await self._product_urls()
-        async for item in in_flight(urls, self._fetch_product, PAGES_IN_FLIGHT):
-            yield item
+        for path, category_root in LISTINGS:
+            async for item in self._listing(f"{BASE_URL}/{path}", category_root):
+                yield item
 
-    async def _product_urls(self) -> list[str]:
-        """Every product URL in this shard, deduplicated, in sitemap order (~15k for all shards)."""
-        index = await self.client.get(SITEMAP_INDEX)
-        urls: dict[str, None] = {}
-        for sitemap_url in product_sitemaps(index.text):
-            sitemap = await self.client.get(sitemap_url)
-            urls.update(
-                (url, None) for url in sitemap_locs(sitemap.text) if self.shard.contains(url)
-            )
-        return list(urls)
+    async def _listing(
+        self, url: str, category_root: str
+    ) -> AsyncIterator[RawProduct | ItemFailure]:
+        pages = 1
+        number = 1
+        while number <= pages + EXTRA_PAGES:
+            page = await self._page(url, number)
+            if isinstance(page, ItemFailure):
+                yield page
+                if number == 1:
+                    return  # without the first page we do not know the listing's size; next run
+                number += 1
+                continue
+            total = listing_total(page)
+            if total is None:
+                # Past the stated last page the site serves a page with no products and no total.
+                if number > pages:
+                    return
+                raise CollectorBlockedError(
+                    f"listing page without product data (challenge or maintenance page?): "
+                    f"{url}?page={number}"
+                )
+            if number == 1:
+                pages = listing_pages(total, CARDS_PER_PAGE)
+            cards, items = self._products(page, f"{url}?page={number}", category_root)
+            new = 0
+            for item in items:
+                if isinstance(item, RawProduct):
+                    new += 1
+                    if not self.shard.contains(str(item.url)):
+                        continue
+                yield item
+            # The last page is short (5,225 = 217 x 24 + 17 on 30 Oct 2026). A full last page means
+            # the listing grew during the run, so read on while pages bring new products.
+            if number >= pages and (cards < CARDS_PER_PAGE or new == 0):
+                return
+            number += 1
 
-    async def _fetch_product(self, url: str) -> RawProduct | ItemFailure:
+    async def _page(self, url: str, number: int) -> str | ItemFailure:
+        source = f"{url}?page={number}"
         try:
-            response = await self.client.get(url)
-        except RobotsDisallowedError:
-            return ItemFailure(source=url, reason="robots.txt disallows this URL")
+            response = await self.client.get(url, params={"page": number} if number > 1 else None)
         except CollectorServerError as exc:
             self._broken_in_a_row += 1
             if self._broken_in_a_row >= MAX_BROKEN_PAGES_IN_A_ROW:
                 raise
-            return ItemFailure(source=url, reason=str(exc))
+            return ItemFailure(source=source, reason=str(exc))
         except httpx.HTTPStatusError as exc:
-            return ItemFailure(source=url, reason=f"HTTP {exc.response.status_code}")
+            return ItemFailure(source=source, reason=f"HTTP {exc.response.status_code}")
         self._broken_in_a_row = 0  # the site answered, so it is not down
+        return response.text
 
-        if str(response.url).rstrip("/") != url.rstrip("/"):
-            return ItemFailure(source=url, reason=f"redirected to {response.url} (discontinued?)")
-        if not has_product_data(response.text):
-            self._pages_without_data += 1
-            if self._pages_without_data >= MAX_PAGES_WITHOUT_DATA:
-                raise CollectorBlockedError(
-                    f"{self._pages_without_data} product pages in a row without product data "
-                    f"(challenge or maintenance page?); last: {url}"
-                )
-            return ItemFailure(source=url, reason="no product data on page")
-        self._pages_without_data = 0
-
+    def _products(
+        self, page: str, source: str, category_root: str
+    ) -> tuple[int, list[RawProduct | ItemFailure]]:
+        """How many product cards the page has, and its new products (each product once per run)
+        plus failures for bad cards."""
         try:
-            return parse_product(response.text, url, self._now())
-        except (KeyError, TypeError, ValueError) as exc:
-            return ItemFailure(source=url, reason=f"{type(exc).__name__}: {exc}"[:500])
+            cards = listing_cards(page)
+        except ValueError as exc:
+            reason = f"cards do not decode: {exc}"[:500]
+            return CARDS_PER_PAGE, [ItemFailure(source=source, reason=reason)]
+        items: list[RawProduct | ItemFailure] = []
+        for index, card in enumerate(cards):
+            try:
+                raw = parse_card(card, category_root, self._now())
+            except (KeyError, TypeError, ValueError) as exc:
+                reason = f"{type(exc).__name__}: {exc}"[:500]
+                items.append(ItemFailure(source=f"{source}#{index}", reason=reason))
+                continue
+            if raw is None or raw.external_id in self._seen:
+                continue
+            self._seen.add(raw.external_id)
+            items.append(raw)
+        return len(cards), items

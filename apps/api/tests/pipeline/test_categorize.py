@@ -30,6 +30,9 @@ from realdrop.text import fold
         ("Pijama & Sabahlık", "Saf Pamuklu Pijama Takımı", "underwear"),
         ("Atkı & Eldiven", "Fitil Detaylı Örme Atkı", "accessories"),
         ("Erkek > Aksesuar > Çorap", "5'li Patik Çorap", "underwear"),
+        ("Erkek > Giyim > Set", "Regular Fit Ekose Desenli 2'li Polar Takım", "underwear"),
+        ("Erkek > Giyim > Set", "Boxy Fıt Kısa Kollu Şortlu 2'li Takım", "underwear"),
+        ("Erkek > Giyim > Ceket", "Slim Fit Takım Elbise Ceketi", "suits"),
         ("Erkek > Aksesuar > Çanta", "Erkek Suni Deri Çapraz Çanta", "bags"),
         ("Erkek > Ayakkabı > Terlik", "Erkek Terlik", "shoes"),
         (

@@ -8,7 +8,7 @@ Checked 24 Oct 2026 with our own User-Agent (`RealDropBot/0.1`), a handful of re
 
 | Brand | robots.txt | Terms | Data | Per-size stock | Recommendation |
 |---|---|---|---|---|---|
-| [DeFacto](defacto.md) | Product pages allowed | No public terms page found | JSON-LD + embedded JSON | Yes, in page | **Go: brand 1** (owner: go, 24 Oct) |
+| [DeFacto](defacto.md) | Listings and product pages allowed | No public terms page found | Card JSON in men's listing pages (since 30 Oct) | Sizes in stock only | **Go: brand 1** (owner: go, 24 Oct) |
 | [Colin's](colins.md) | Product pages allowed (`*price*` URLs disallowed) | No anti-bot clause found | JSON-LD + HTML | Yes, per size in page | **Go: brand 2** (owner: go, 25 Oct) |
 | [Koton](koton.md) | Product pages and `/erkek/` listing allowed | No anti-bot clause found (26 Oct) | **Akinon JSON** (see below) | Yes, per size in the JSON | **Go: Akinon group** (27 Oct) |
 | Mudo | Product pages and `/erkek-giyim/` allowed | No anti-bot clause found (26 Oct) | Akinon JSON | Yes | **Go: Akinon group** (27 Oct) |

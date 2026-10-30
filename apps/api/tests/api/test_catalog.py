@@ -194,3 +194,42 @@ async def test_facets_without_filters_list_every_brand(db_session: AsyncSession)
     body = (await get(db_session, "/products/facets?audience=men")).json()
     assert {b["slug"]: b["count"] for b in body["brands"]} == {"other": 1, "shop": 1}
     assert {c["key"] for c in body["categories"]} == {"jackets", "jeans"}
+
+
+async def test_a_size_the_shop_stopped_listing_no_longer_counts(db_session: AsyncSession) -> None:
+    """A listing shows only sizes in stock: when L sells out it just disappears. Its old row must
+    not count as in stock, nor (being cheaper) set the product's price."""
+    brand = await store.get_or_create_brand(
+        db_session, slug="shop", name="Shop", base_url="https://shop.example.com"
+    )
+    run = await store.start_run(db_session, brand.id)
+
+    def jacket(sizes: dict[str, int]) -> RawProduct:
+        return RawProduct(
+            external_id="9",
+            url="https://shop.example.com/p-9",
+            title="Erkek Ceket",
+            category_raw="Erkek > Giyim > Ceket",
+            audience="men",
+            currency="TRY",
+            variants=[
+                RawVariant(
+                    external_sku=f"9-{size}", size_label=size, price_minor=price, in_stock=True
+                )
+                for size, price in sizes.items()
+            ],
+        )
+
+    batches = [
+        [(jacket({"S": 100_000, "M": 100_000, "L": 90_000}), T0)],
+        [(jacket({"S": 100_000, "M": 100_000}), T0 + DAY)],
+    ]
+    for batch in batches:
+        await store.store_products(db_session, brand_id=brand.id, run_id=run.id, batch=batch)
+    await rollup.refresh_daily(db_session, T0 - DAY)
+
+    (card,) = (await get(db_session, "/products")).json()["items"]
+    assert (card["sizes_in_stock"], card["sizes_total"]) == (2, 2)
+    assert card["price_minor"] == 100_000
+    detail = (await get(db_session, f"/products/{card['id']}")).json()
+    assert [v["size_label"] for v in detail["variants"]] == ["S", "M"]

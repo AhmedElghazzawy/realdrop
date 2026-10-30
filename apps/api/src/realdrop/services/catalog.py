@@ -2,12 +2,14 @@
 
 "Current" means each variant's latest *confirmed* stretch (observations are change-only, see
 pipeline/store.py); pending and rejected prices are never shown. Price history comes from
-`price_daily` (pipeline/rollup.py). This scans observations per request, which is fine for a few
+`price_daily` (pipeline/rollup.py). Only sizes seen in the product's latest collection count (see
+`_current_variants`). This scans observations per request, which is fine for a few
 brands; a `current_prices` table can replace these subqueries when it gets slow.
 """
 
 import uuid
 from dataclasses import dataclass, field, replace
+from datetime import timedelta
 from typing import Any, Literal
 
 from sqlalchemy import Select, case, func, select
@@ -39,6 +41,37 @@ from realdrop.schemas.catalog import (
     VariantOut,
 )
 
+# Sizes of one product are collected together, seconds apart; the same product is collected at
+# most twice a day. Anything older than this, relative to the product's newest size, is a size the
+# shop no longer lists.
+SAME_COLLECTION = timedelta(hours=6)
+
+
+def _current_variants() -> Select[*tuple[Any, ...]]:
+    """Variants seen in their product's latest collection. A listing shows only the sizes in stock
+    (DeFacto since 30 Oct 2026), so a size that sells out just stops appearing; and a shop that
+    re-keys its sizes leaves the old ones behind. Either way the old row must not count as a
+    size that is in stock now, nor set the product's price. "Seen" counts pending and rejected
+    rows too, so a size whose new price is still waiting for confirmation stays."""
+    obs = PriceObservation
+    seen = (
+        select(obs.variant_id, func.max(obs.last_seen_at).label("seen_at"))
+        .group_by(obs.variant_id)
+        .subquery()
+    )
+    ranked = (
+        select(
+            seen.c.variant_id,
+            seen.c.seen_at,
+            func.max(seen.c.seen_at).over(partition_by=Variant.product_id).label("product_seen_at"),
+        )
+        .join(Variant, Variant.id == seen.c.variant_id)
+        .subquery()
+    )
+    return select(ranked.c.variant_id).where(
+        ranked.c.seen_at >= ranked.c.product_seen_at - SAME_COLLECTION
+    )
+
 
 def _latest_per_variant() -> Select[*tuple[Any, ...]]:
     obs = PriceObservation
@@ -51,7 +84,7 @@ def _latest_per_variant() -> Select[*tuple[Any, ...]]:
             obs.in_stock,
             obs.last_seen_at.label("observed_at"),  # when we last checked, for "last checked"
         )
-        .where(obs.status == PriceStatus.CONFIRMED)
+        .where(obs.status == PriceStatus.CONFIRMED, obs.variant_id.in_(_current_variants()))
         .order_by(obs.variant_id, obs.observed_at.desc())
         .ext(distinct_on(obs.variant_id))
     )

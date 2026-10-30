@@ -48,6 +48,9 @@ _RULES: Final[list[tuple[str, list[str]]]] = [
         "underwear",
         [
             "boxer*", "kulot*", "atlet*", "corap*", "sock*", "pijama*", "pijama takim*",
+            # DeFacto's men's "Set": two-piece lounge/pyjama sets ("2'li Polar Takım").
+            "2'li takim*", "2li takim*", "polar takim*", "flanel takim*", "viskon takim*",
+            "kumas takim*", "krinkil takim*",
             "ev giyim*", "sabahlik*", "underwear", "ic giyim", "brief*", "trunks", "loungewear",
             "pyjama*", "pajama*",
         ],
@@ -117,10 +120,10 @@ _COMPILED: Final = [
 
 
 # A broad shop category narrowed by a word anywhere in the category or title: DeFacto files
-# blazers under "Ceket" ("Slim Fit Astarlı Blazer Ceket"), and denim trousers are jeans wherever
-# the word sits ("Slim Fit Denim Pamuk Karışımlı Pantolon").
+# blazers and suit jackets under "Ceket" ("Slim Fit Astarlı Blazer Ceket"), and denim trousers
+# are jeans wherever the word sits ("Slim Fit Denim Pamuk Karışımlı Pantolon").
 _REFINE: Final = {
-    "jackets": ("suits", re.compile(r"\bblazer")),
+    "jackets": ("suits", re.compile(r"\b(blazer|takim\s+elbise)")),
     "trousers": ("jeans", re.compile(r"\b(denim|jean|jeans|kot)\b")),
 }
 

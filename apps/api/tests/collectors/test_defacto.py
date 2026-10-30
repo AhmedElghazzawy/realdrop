@@ -1,9 +1,9 @@
-"""DeFacto parser and collector against real pages saved on 24 Oct 2026 (fixtures/)."""
+"""DeFacto parser and collector against real pages saved from the site (fixtures/): product pages
+on 24 Oct 2026, men's listing pages on 30 Oct 2026."""
 
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
 from pathlib import Path
-from urllib.parse import urlsplit
 
 import httpx
 import pytest
@@ -103,20 +103,92 @@ def test_sitemaps() -> None:
         parser.product_id(f"{BASE}/kadin-giyim")
 
 
-def _site(robots: str = "User-agent: *\nDisallow: *--*\n") -> httpx.MockTransport:
-    pages = {
-        "/robots.txt": robots,
-        "/sharedxml/tr-tr/sitemapindex.xml": load("sitemap_index.xml"),
-        "/sharedxml/tr-tr/product.xml": load("sitemap_product.xml"),
-        "/sharedxml/tr-tr/product-3.xml": load("sitemap_product-3.xml"),
-        urlsplit(TROUSERS).path: load("product_campaign_waist_length.html"),
-        urlsplit(BRA).path: load("product_no_campaign.html"),
-        urlsplit(BABY_SET).path: load("product_mostly_sold_out.html"),
-    }
+LISTING_NOW = datetime(2026, 10, 30, 12, 0, tzinfo=UTC)
+CLOTHING = load("listing_men_clothing.html")  # page 1 of /erkek-giyim: 5,206 products
+ACCESSORIES = load("listing_men_accessories.html")  # page 1 of /erkek-aksesuar: 253, 1 promo tile
+
+
+def card(page: str, product_id: int) -> dict[str, object]:
+    return next(c for c in parser.listing_cards(page) if c["ProductVariantIndex"] == product_id)
+
+
+def test_listing_card_has_prices_sizes_images_and_category() -> None:
+    raw = parser.parse_card(card(CLOTHING, 3430455), "Erkek > Giyim", LISTING_NOW)
+    assert raw is not None
+    assert raw.external_id == "3430455"
+    assert str(raw.url) == f"{BASE}/sicak-tutan-su-itici-kapusonlu-mont-3430455"
+    assert raw.title == "Sıcak Tutan Su İtici Kapüşonlu Mont"
+    assert raw.category_raw == "Erkek > Giyim > Mont"
+    assert raw.audience == "men"
+    assert str(raw.image_urls[0]) == "https://dfcdn.defacto.com.tr/7/F1149AX_26WN_BK27_01_03.jpg"
+    assert len(raw.image_urls) == 4
+    # The card lists XL, S, L, M, XXL; a shop shows S to XXL. Only sizes in stock are listed.
+    assert [v.size_label for v in raw.variants] == ["S", "M", "L", "XL", "XXL"]
+    assert all(v.in_stock for v in raw.variants)
+    assert raw.variants[0].external_sku == "8684585182447"  # the barcode
+    assert {(v.price_minor, v.original_price_minor) for v in raw.variants} == {(349999, None)}
+
+
+def test_listing_card_campaign_price_is_what_you_pay() -> None:
+    raw = parser.parse_card(card(CLOTHING, 3430169), "Erkek > Giyim", LISTING_NOW)
+    assert raw is not None
+    assert (raw.variants[0].price_minor, raw.variants[0].original_price_minor) == (125999, 179999)
+    after = datetime(2026, 12, 1, tzinfo=UTC)  # the campaign ends 30 Nov 2026, 23:59 Turkey time
+    ended = parser.parse_card(card(CLOTHING, 3430169), "Erkek > Giyim", after)
+    assert ended is not None
+    assert (ended.variants[0].price_minor, ended.variants[0].original_price_minor) == (179999, None)
+
+
+def test_listing_skips_promo_tiles_and_sorts_numeric_sizes() -> None:
+    cards = parser.listing_cards(ACCESSORIES)
+    assert len(cards) == 23  # 24 tiles, one of them a promo
+    belt = parser.parse_card(card(ACCESSORIES, 3536706), "Erkek > Aksesuar", LISTING_NOW)
+    assert belt is not None
+    assert [v.size_label for v in belt.variants] == ["90", "100", "110"]
+    assert parser.listing_total(ACCESSORIES) == 253
+    assert parser.listing_total("<html>Bakım çalışması</html>") is None
+
+
+def test_card_that_is_not_men_or_has_no_size_in_stock_is_left_out() -> None:
+    women = {**card(CLOTHING, 3430455), "SubDivision": "Woman"}
+    sold_out = {**card(CLOTHING, 3430455), "Sizes": []}
+    assert parser.parse_card(women, "Erkek > Giyim", LISTING_NOW) is None
+    assert parser.parse_card(sold_out, "Erkek > Giyim", LISTING_NOW) is None
+
+
+END_OF_LISTING = "<html><div class=catalog-products id=product-fill></div></html>"
+
+
+def _clothing_page(number: int) -> str:
+    """A 2-page clothing listing: page 1 is the real page with its total set to 30, page 2 reuses
+    the accessories cards (23, a short last page), and past it there is no total and no cards, as
+    on the real site (seen 30 Oct 2026)."""
+    if number > 2:
+        return END_OF_LISTING
+    if number == 1:
+        return CLOTHING.replace(
+            "id=totalCount type=hidden value=5206", "id=totalCount type=hidden value=30"
+        )
+    return ACCESSORIES
+
+
+def _site(
+    broken: frozenset[str] = frozenset(), robots: str = "User-agent: *\nDisallow: *q=*\n"
+) -> httpx.MockTransport:
+    """Fake DeFacto. `broken` holds "path?page=N" keys that always answer 502."""
 
     def handler(request: httpx.Request) -> httpx.Response:
-        body = pages.get(request.url.path)
-        return httpx.Response(404) if body is None else httpx.Response(200, text=body)
+        path = request.url.path
+        number = int(request.url.params.get("page", "1"))
+        if path == "/robots.txt":
+            return httpx.Response(200, text=robots)
+        if f"{path}?page={number}" in broken:
+            return httpx.Response(502)
+        if path == "/erkek-giyim":
+            return httpx.Response(200, text=_clothing_page(number))
+        if path == "/erkek-aksesuar":  # the same products as clothing page 2: deduplicated
+            return httpx.Response(200, text=ACCESSORIES.replace("value=253", "value=20"))
+        return httpx.Response(404)  # /erkek-ayakkabi: missing this run
 
     return httpx.MockTransport(handler)
 
@@ -125,73 +197,56 @@ async def no_sleep(seconds: float) -> None:
     return None
 
 
-async def collect(transport: httpx.MockTransport) -> list[RawProduct | ItemFailure]:
+async def collect(
+    transport: httpx.MockTransport, shard: Shard | None = None
+) -> list[RawProduct | ItemFailure]:
     client = PoliteClient(user_agent="realdrop-bot/test", transport=transport, sleep=no_sleep)
     async with client:
-        return [item async for item in DefactoCollector(client, now=lambda: NOW).fetch_catalog()]
+        collector = DefactoCollector(client, shard=shard, now=lambda: LISTING_NOW)
+        return [item async for item in collector.fetch_catalog()]
 
 
-async def test_collector_walks_sitemaps_dedupes_and_skips_missing_products() -> None:
+def _ids(results: list[RawProduct | ItemFailure]) -> list[str]:
+    return [r.external_id for r in results if isinstance(r, RawProduct)]
+
+
+async def test_collector_reads_every_page_once_and_each_product_once() -> None:
     results = await collect(_site())
-
-    products = [r for r in results if isinstance(r, RawProduct)]
+    ids = _ids(results)
+    assert len(ids) == len(set(ids)) == 24 + 23  # clothing page 1 + page 2; aksesuar adds nothing
     failures = [r for r in results if isinstance(r, ItemFailure)]
-    # Pages download concurrently, so order is not guaranteed; the trousers appear in both
-    # sitemaps but are fetched once.
-    assert sorted(p.external_id for p in products) == ["3272557", "3455834", "3518142"]
-    assert failures == [ItemFailure(source=GONE, reason="HTTP 404")]
+    assert failures == [ItemFailure(source=f"{BASE}/erkek-ayakkabi?page=1", reason="HTTP 404")]
 
 
-def _broken(paths: set[str]) -> httpx.MockTransport:
-    """The normal fake site, except that these paths always answer 502."""
-    site = _site()
-
-    def handler(request: httpx.Request) -> httpx.Response:
-        if request.url.path in paths:
-            return httpx.Response(502)
-        return site.handle_request(request)
-
-    return httpx.MockTransport(handler)
-
-
-async def test_one_broken_page_is_skipped_not_the_whole_run() -> None:
-    results = await collect(_broken({urlsplit(BRA).path}))
-    products = [r for r in results if isinstance(r, RawProduct)]
+async def test_one_broken_listing_page_is_skipped_not_the_whole_run() -> None:
+    results = await collect(_site(broken=frozenset({"/erkek-giyim?page=2"})))
     failures = [r for r in results if isinstance(r, ItemFailure)]
-    assert sorted(p.external_id for p in products) == ["3272557", "3455834"]
-    assert any(f.source == BRA and "HTTP 502" in f.reason for f in failures)
+    assert any(
+        f.source == f"{BASE}/erkek-giyim?page=2" and "HTTP 502" in f.reason for f in failures
+    )
+    # The run goes on: the accessories listing (the same cards as page 2 here) still comes.
+    assert len(_ids(results)) == 24 + 23
 
 
 async def test_broken_pages_in_a_row_stop_the_run() -> None:
-    every_product = {urlsplit(u).path for u in (TROUSERS, BRA, BABY_SET, GONE)}
+    broken = frozenset({"/erkek-giyim?page=2", "/erkek-giyim?page=3", "/erkek-giyim?page=4"})
     with pytest.raises(CollectorServerError, match="HTTP 502"):
-        await collect(_broken(every_product))
+        await collect(_site(broken=broken))
 
 
-async def test_collector_skips_a_url_robots_disallows() -> None:
-    robots = "User-agent: *\nDisallow: /*sutyen*\n"
-    results = await collect(_site(robots))
-    failures = [r for r in results if isinstance(r, ItemFailure)]
-    assert ItemFailure(source=BRA, reason="robots.txt disallows this URL") in failures
-
-
-async def test_collector_stops_when_pages_stop_looking_like_products() -> None:
+async def test_page_without_listing_data_stops_the_run() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/robots.txt":
             return httpx.Response(404)
-        if request.url.path == "/sharedxml/tr-tr/sitemapindex.xml":
-            return httpx.Response(200, text=load("sitemap_index.xml"))
-        if request.url.path.endswith(".xml"):
-            urls = "".join(f"<url><loc>{BASE}/urun-{n:07d}</loc></url>" for n in range(50))
-            return httpx.Response(
-                200,
-                text=f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>',
-            )
-        return httpx.Response(200, text="<html>Lütfen bekleyin...</html>")  # challenge-like page
+        return httpx.Response(200, text="<html>Lütfen bekleyin...</html>")  # challenge-like
 
-    # With pages in flight, two can finish in the same tick, so the message may say 20 or 21.
-    with pytest.raises(CollectorBlockedError, match=r"2[01] product pages in a row"):
+    with pytest.raises(CollectorBlockedError, match="without product data"):
         await collect(httpx.MockTransport(handler))
+
+
+async def test_listing_robots_disallows_stops_the_run() -> None:
+    with pytest.raises(CollectorBlockedError):
+        await collect(_site(robots="User-agent: *\nDisallow: /erkek-giyim\n"))
 
 
 def test_dry_run_formats_prices_turkish_style() -> None:
@@ -203,17 +258,10 @@ def test_dry_run_formats_prices_turkish_style() -> None:
     assert "779,99 TL (claimed 1.299,99 TL)" in describe(product)
 
 
-async def test_collector_only_fetches_its_shard() -> None:
-    client = PoliteClient(user_agent="realdrop-bot/test", transport=_site(), sleep=no_sleep)
-    seen: list[str] = []
-    async with client:
-        for index in range(2):
-            collector = DefactoCollector(client, shard=Shard(index, 2), now=lambda: NOW)
-            seen += [
-                item.source if isinstance(item, ItemFailure) else str(item.url)
-                async for item in collector.fetch_catalog()
-            ]
-    assert sorted(seen) == sorted({TROUSERS, BRA, BABY_SET, GONE})  # each exactly once
+async def test_shards_split_the_products_and_each_lands_once() -> None:
+    halves = [_ids(await collect(_site(), shard=Shard(index, 2))) for index in range(2)]
+    assert halves[0] and halves[1]
+    assert sorted(halves[0] + halves[1]) == sorted(_ids(await collect(_site())))
 
 
 def test_sitemap_with_stale_tail_after_the_root_still_parses() -> None:
@@ -239,3 +287,17 @@ def test_sitemap_that_is_not_xml_still_raises() -> None:
 )
 def test_audience_from_category_root(category: str | None, audience: str | None) -> None:
     assert parser._audience(category) == audience
+
+
+async def test_a_listing_that_grew_during_the_run_is_read_to_its_new_end() -> None:
+    """Page 1 says 24 products (1 page) but is full, so the listing may have grown: page 2 is read
+    too, and the end-of-listing page after it finishes the listing without stopping the run."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        number = int(request.url.params.get("page", "1"))
+        if request.url.path != "/erkek-giyim":
+            return httpx.Response(404)
+        pages = {1: CLOTHING.replace("value=5206", "value=24"), 2: ACCESSORIES}
+        return httpx.Response(200, text=pages.get(number, END_OF_LISTING))
+
+    assert len(_ids(await collect(httpx.MockTransport(handler)))) == 24 + 23

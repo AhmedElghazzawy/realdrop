@@ -10,6 +10,8 @@
 `User-agent: *` disallows `/product/`, `/tr-tr/`, `/shopping`, login/customer pages and many query
 parameters (`*q=*`, `*name=*`, `*source=*`, `*sortorder*`, `*filtre=*`, ...). Product pages live at
 `/<seo-name>-<7-digit id>` with no query string, which is **allowed**. Sitemaps are listed in robots.txt.
+Category listings (`/erkek-giyim`, `?page=N`) are **allowed**; their AJAX variant (`*?ajx=*`) and
+anything containing `catalog` are not, so we read the plain HTML pages (checked 30 Oct 2026).
 
 ## Terms
 
@@ -47,24 +49,43 @@ This fits the existing columns; no data-model change. Several campaigns run from
 exists to check. The real-drop rule compares against the price people actually paid, so these
 permanent campaigns will not count as real drops.
 
-## Collector
+## Collector (since 30 Oct 2026: men's listing pages)
 
-- Sitemap index `sharedxml/tr-tr/sitemapindex.xml` -> every `product(-N).xml` -> product URLs
-  (deduplicated; the index currently lists `product`, `product-3`, `-4`, `-5`).
-- One GET per product page. Product id: the trailing number of the URL. Variant SKU: `MatrixId`.
-  Sizes: `SizeName` as shown, except "Beden 30 - Boy 32" becomes `30/32`.
-- Skipped as an item failure: 404, redirect away (discontinued), a URL robots.txt disallows.
-- 20 product pages in a row without product data stops the run (challenge or maintenance page).
-  The page includes a CAPTCHA script (probably for login); we never solve or work around one.
-- About 14,600 product pages (sitemaps `product`, `-3`, `-4`, `-5`); collected in two shards a day.
-- `product-5.xml` has stale text after `</urlset>`; the parser keeps the complete document before it.
-- Dry run 24 Oct 2026: 20 products, 0 failures, 28 s.
+**Why the change.** One GET per product page (~20,000 URLs in the sitemaps by Oct 2026) never
+finished: from 25 to 29 Oct every run got 502s after about 650 pages, on different pages each time,
+at 1 and at 0.5 request/s. That is the site saying "enough", so the same ~650 products were all we
+ever refreshed. A listing card carries everything we store, so we now read listings instead.
+
+- Listings (men only, owner decision 30 Oct 2026): `/erkek-giyim` (~5,225 products), `/erkek-ayakkabi`
+  (~18), `/erkek-aksesuar` (~250). 24 cards a page, `?page=N`; about **230 requests a run** at
+  0.5 request/s (~8 min).
+- Each card (`<div data-index=N class=product-card data-type="" ... data-documents='{...}'>`) has
+  the product page's `DataLayer` fields: `Name`, `SeoName`, `ProductVariantIndex` (the 7-digit id
+  in the product URL, so products keep their ids), `Price`, `DiscountedPrice`,
+  `CampaignDiscountedPrice`, `CampaignBadge` (with dates), `ColorName`, `CategoryName` (leaf only),
+  `SubDivision` (`Man`), and `Sizes`. `window.productImageN=[...]` lists the card's images; they are
+  served from `https://dfcdn.defacto.com.tr/7/<imagePath>`. `data-type=freeItem` is a promo tile.
+- **Sizes on a card are only the sizes in stock**, keyed by `Barcode` (cards have no `MatrixId`).
+  So a sold-out size just disappears; the catalog counts only sizes seen in the product's latest
+  collection (`services/catalog.py`, `_current_variants`). Per-size history restarted on 30 Oct
+  (new keys); the product-level chart, which combines sizes, did not.
+- `category_raw` = listing root + card leaf, e.g. `Erkek > Giyim > Mont` (same shape as before).
+- Paging: `id=totalCount` on page 1 gives the page count; the last page is short (5,225 = 217 × 24 +
+  17). Past the end the site serves a page with no total and no cards, which ends the listing. A
+  full last page means the listing grew during the run, so we read on while pages bring new products.
+- Both shards read every listing page and keep their half of the products (by URL), like Shopify.
+- A listing page that fails with 5xx after all retries is skipped; 3 in a row stop the run. A page
+  without listing data inside the listing stops the run (challenge or maintenance page). We never
+  solve or work around a CAPTCHA.
 - The site's firewall returns **403 for a User-Agent with the placeholder contact**
   (`you@example.com`) and 200 for ours with the repo URL. Keep a real contact in `COLLECTOR_USER_AGENT`.
-- First stored run 24 Oct 2026: 20 products, 95 variants, 95 confirmed prices.
+- `parse_product` (product pages) is still in `parser.py` with its fixtures, unused by the schedule.
+
+History: first stored run 24 Oct 2026 (20 products, product pages); product pages until 29 Oct.
 
 ## What could break it
 
-The data lives in inline scripts (`DataLayer:`, `CampaignBadge:`), not a documented API. A site
-redesign that renames or moves them makes every page an item failure; the fixture tests and the
-"pages without data" stop make that loud, not silent.
+The data lives in HTML attributes and inline scripts (`data-documents`, `window.productImageN`,
+`id=totalCount`), not a documented API. A redesign that renames them makes every card an item
+failure or every page "without product data", which stops the run: loud, not silent. A new rule in
+robots.txt for listings would stop the run too (`CollectorBlockedError`).
