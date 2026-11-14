@@ -1,8 +1,9 @@
 # RealDrop
 
-**Honest prices for Turkish fashion.** An AI shopping-intelligence web app that records real prices
-every day, tells you what a discount **really** is, alerts you when your size really drops, and lets
-you search in plain Turkish or English.
+**Your AI fashion advisor, with honest prices.** Pick your style (old money, streetwear, minimal,
+...), upload an outfit you saw on Instagram or Pinterest, and RealDrop finds each piece across Turkish
+fashion brands, builds outfits around your taste, and shows what every discount **really** is, based
+on prices recorded every day.
 
 ![Status](https://img.shields.io/badge/status-in%20development-orange)
 ![Launch](https://img.shields.io/badge/launch-Black%20Friday%2027%20Nov%202026-black)
@@ -21,16 +22,14 @@ you search in plain Turkish or English.
 |---|---|---|
 | 1 | Environment, free/open-source models | ✅ Done |
 | 2 | Backend foundation: database schema, `/health`, collector base | ✅ Done |
-| 3 | First brand collecting daily on a server | 🟡 Next |
-| 4 | More brands, price roll-ups, real-drop rule | ⚪ Planned |
-| 5 | Taxonomy and AI extractor | ⚪ Planned |
-| 6 | Hybrid search: embeddings, full-text, reranker | ⚪ Planned |
-| 7 | Query parser and search API | ⚪ Planned |
-| 8 | Web app: search UI, product pages | ⚪ Planned |
-| 9 | Users and Telegram alerts | ⚪ Planned |
-| 10 | Shopping assistant + grounding guard | ⚪ Planned |
-| 11 | Personalization | ⚪ Planned |
-| 12 | Black Friday page, KVKK, hardening, launch | ⚪ Planned |
+| 3 | First brand collecting daily on a server | ✅ Done |
+| 4 | More brands, price roll-ups, real-drop rule | 🟡 In progress (11 brands) |
+| 5 | Catalog understanding: style tags, attributes, semantic search | 🟡 Next |
+| 6 | Style profile onboarding and "For you" feed | ⚪ Planned |
+| 7 | Shop the look: photo to matching products across brands | ⚪ Planned |
+| 8 | Advisor redesign: outfit boards, modern mobile-first UI | ⚪ Planned |
+| 9 | AI stylist chat and "Complete the look" | ⚪ Planned |
+| 10 | Black Friday page, KVKK, hardening, launch | ⚪ Planned |
 
 ## Why
 

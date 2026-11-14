@@ -1,5 +1,13 @@
 # Product
 
+> **Pivot, 14 Nov 2026 (owner):** RealDrop is now an **AI fashion advisor**. The user picks their
+> style, uploads outfits they like, and gets real products across brands that make the look, with
+> honest prices. The 27 Nov launch stays (MVP: style profile, shop the look, outfit boards, redesign;
+> stylist chat if time allows). Price honesty stays as a feature on every recommendation. The style
+> profile lives on the device (no login at launch). Alerts and wardrobe move to after launch.
+> `docs/ROADMAP.md` has the phases. The sections below describe the original price-tracker idea and
+> are still true for the price features.
+
 ## One line
 
 Turkish shoppers see "70% off!" everywhere on Black Friday, and many of those discounts are inflated.
