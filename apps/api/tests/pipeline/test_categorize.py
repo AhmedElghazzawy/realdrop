@@ -19,6 +19,8 @@ from realdrop.text import fold
         ("Erkek > Giyim > Şort", "Ultra Yumuşak Relax Fıt Esnek Belli Jean Bermuda Şort", "shorts"),
         ("Erkek > Giyim > Yüzme Şortu", "Regular Fit Desenli Deniz Şortu", "swimwear"),
         ("Erkek > Giyim > Jean", "Slim Fit Jean Pantolon", "jeans"),
+        # Hatemoğlu suspenders: "Pantolon" is in the name, but they are an accessory.
+        ("Koleksiyon > Aksesuar >Pantolon Askısı", "Siyah Pantolon Askısı", "accessories"),
         ("Kot Pantolon", "Pamuklu Normal Bel Slim Fit Jean Pantolon - Brad Jean", "jeans"),
         ("Erkek > Giyim > Ceket", "Boxy Fit Fermuarlı Suni Deri Ceket", "jackets"),
         ("Erkek > Giyim > Ceket", "Slim Fit Astarlı Blazer Ceket", "suits"),

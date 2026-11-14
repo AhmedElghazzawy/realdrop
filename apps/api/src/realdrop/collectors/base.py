@@ -7,6 +7,7 @@ validated here, never interpreted.
 """
 
 import asyncio
+import re
 import zlib
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
@@ -26,7 +27,7 @@ from pydantic import (
 
 from realdrop.collectors.http import PoliteClient
 from realdrop.config import get_settings
-from realdrop.text import normalize
+from realdrop.text import normalize, tr_lower
 
 
 def _non_empty(text: str) -> str:
@@ -39,6 +40,11 @@ Text = Annotated[str, AfterValidator(normalize)]
 # Who the product is for, when the shop says so plainly (category root or title). Kids, babies and
 # unclear products are None. The extractor (Phase 5) will fill a richer gender attribute.
 Audience = Literal["men", "women"]
+# Shops mis-file women's items: Colin's lists "Kadın ... Şort" under "Erkek Giyim", and Hatemoğlu
+# files its women's line as "Koleksiyon > Saykı > Saykı Woman > ...", below a men default. A title
+# or category that names women wins over the shop's tree (whole words, Turkish-lowered).
+_WOMEN_WORD = re.compile(r"\b(?:kadın|kadin|woman|women|bayan)\b")
+_UNISEX_WORD = re.compile(r"\bunisex\b")
 NonEmptyText = Annotated[str, AfterValidator(normalize), AfterValidator(_non_empty)]
 
 
@@ -69,6 +75,13 @@ class RawProduct(BaseModel):
     image_urls: list[HttpUrl] = Field(default_factory=list)
     currency: str = Field(pattern=r"^[A-Z]{3}$")
     variants: list[RawVariant] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _women_named_in_text_are_women(self) -> "RawProduct":
+        text = tr_lower(f"{self.title} {self.category_raw or ''}")
+        if self.audience != "women" and _WOMEN_WORD.search(text) and not _UNISEX_WORD.search(text):
+            object.__setattr__(self, "audience", "women")  # frozen model, still validating
+        return self
 
     @model_validator(mode="after")
     def _skus_unique(self) -> "RawProduct":

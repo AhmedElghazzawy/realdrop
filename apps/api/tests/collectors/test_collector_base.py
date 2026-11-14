@@ -28,6 +28,26 @@ def test_text_is_nfc_normalized_and_whitespace_collapsed() -> None:
     assert product.title == "İSTANBUL Kaban"
 
 
+@pytest.mark.parametrize(
+    ("title", "category", "audience", "expected"),
+    [
+        ("Regular Fit Orta Bel Kadın Mavi Şort", "Erkek Giyim > Tişört", "men", "women"),  # Colin's
+        ("Saykı Woman Siyah Manto", "Koleksiyon > Saykı > Saykı Woman >Manto", None, "women"),
+        ("Yünlü Kaban", "Koleksiyon > Saykı > Saykı Woman >Manto", None, "women"),
+        ("KADIN GÖMLEK", None, None, "women"),
+        ("Damat Slim Fit Bej Kadin Elbise", "KADIN ELBİSE", "men", "women"),  # ASCII "i"
+        ("Unisex Kadın Erkek Bere", "Erkek > Aksesuar", "men", "men"),  # both: keep the shop's
+        ("Erkek Kaban", "Erkek > Mont", "men", "men"),
+        ("Kadınlar Günü Hediye Kutusu", "Erkek > Aksesuar", "men", "men"),  # whole words only
+    ],
+)
+def test_a_title_or_category_that_names_women_wins(
+    title: str, category: str | None, audience: str | None, expected: str
+) -> None:
+    raw = _product(title=title, category_raw=category, audience=audience)
+    assert RawProduct.model_validate(raw).audience == expected
+
+
 def test_float_price_is_rejected_not_truncated() -> None:
     with pytest.raises(ValidationError):
         RawVariant.model_validate(_variant(price_minor=1299.9))

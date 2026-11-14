@@ -102,6 +102,8 @@ _RULES: Final[list[tuple[str, list[str]]]] = [
             "parfum*", "havlu*", "mendil*", "fular*", "taki", "kol dugme*", "anahtarlik*",
             "semsiye*", "cap", "caps", "beanie*", "scarf*", "scarves", "belt*", "wallet*", "hat",
             "hats", "tie", "ties", "glove*", "sunglasses", "jewel*", "bracelet*", "perfume*",
+            # "Pantolon Askısı" ends after "pantolon", so the longer match wins over trousers.
+            "pantolon aski*", "suspender*",
         ],
     ),
 ]  # fmt: skip
