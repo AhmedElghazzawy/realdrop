@@ -5,6 +5,8 @@
 fashion brands, builds outfits around your taste, and shows what every discount **really** is, based
 on prices recorded every day.
 
+[![ci](https://github.com/AhmedElghazzawy/realdrop/actions/workflows/ci.yml/badge.svg)](https://github.com/AhmedElghazzawy/realdrop/actions/workflows/ci.yml)
+[![collect](https://github.com/AhmedElghazzawy/realdrop/actions/workflows/collect.yml/badge.svg)](https://github.com/AhmedElghazzawy/realdrop/actions/workflows/collect.yml)
 ![Status](https://img.shields.io/badge/status-in%20development-orange)
 ![Launch](https://img.shields.io/badge/launch-Black%20Friday%2027%20Nov%202026-black)
 ![Python](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
@@ -13,8 +15,22 @@ on prices recorded every day.
 ![PostgreSQL](https://img.shields.io/badge/Postgres%2016-pgvector-4169E1?logo=postgresql&logoColor=white)
 ![Open models](https://img.shields.io/badge/AI-open%20models%20(Ollama)-black?logo=ollama&logoColor=white)
 
-> **Built in public, in 5 weeks.** Started 24 Oct 2026, launching on Black Friday, 27 Nov 2026.
-> Follow the commits and the [roadmap](docs/ROADMAP.md) to watch it come together.
+
+> **Built in public.** Started 24 Oct 2026, launching on Black Friday, 27 Nov 2026.
+> Follow the commits and the [roadmap](docs/product/roadmap.md).
+
+## What it does
+
+| | Feature | Status |
+|---|---|---|
+| 📸 | **Shop the look:** upload a photo, get matching pieces from every brand, in your size and budget | Phase 7 |
+| 🧭 | **Style profile:** choose your styles, fits, colours and budget once; everything is ranked by it | Phase 6 |
+| 👔 | **Outfit boards:** complete looks built around a piece or an occasion, with a total price | Phase 8 |
+| 💬 | **Stylist chat:** "old money outfit for a wedding under 4,000 TL" | Phase 9 |
+| 📉 | **Honest prices:** daily price history, real-discount labels, inflated "original" prices flagged | Live (data since 24 Oct) |
+| 🏷️ | **11 brands collected twice a day:** DeFacto, Koton, Colin's, Mudo, GAP, M&S, Damat Tween, Les Benjamins, Lufian, TommyLife, Hatemoğlu | Live |
+
+Use cases and acceptance criteria: [`docs/product/use-cases.md`](docs/product/use-cases.md).
 
 ## Progress
 
@@ -31,90 +47,68 @@ on prices recorded every day.
 | 9 | AI stylist chat and "Complete the look" | ⚪ Planned |
 | 10 | Black Friday page, KVKK, hardening, launch | ⚪ Planned |
 
-## Why
+## Architecture
 
-On Black Friday Turkish shoppers see "70% off!" everywhere, and many of those discounts are inflated:
-the "original" price was raised just before the sale. Existing price trackers focus on electronics and
-ignore what matters in fashion: size, color and stock. RealDrop fixes that with data it collects
-itself.
-
-## Features (launch scope)
-
-| | Feature |
-|---|---|
-| Must | Daily (later every-few-hours) price collection from 5-6 Turkish brands, running on a server |
-| Must | Product pages: price chart, size/stock, **real-discount badge**, link out to the retailer |
-| Must | Search: Turkish/English query parser + hybrid retrieval (full-text + vectors) + rerank |
-| Must | Telegram alerts per size (target price or minimum real discount) |
-| Must | Black Friday page: real best deals and inflated-claim examples |
-| Must | KVKK basics: privacy notice, consent, delete-my-data |
-| Should | Shopping assistant with tools and a **number-grounding guard** |
-| Should | Taste profile and "for you" ordering |
-
-Full scope, users and non-goals: [`docs/PRODUCT.md`](docs/PRODUCT.md).
-
-## Core principles
-
-1. **The AI never invents prices.** Discounts are computed in code from stored history
-   (`pricing/`). LLMs only call tools and explain the numbers those tools return.
-2. **Every AI feature ships with evals.** No eval, not done ([`docs/EVALS.md`](docs/EVALS.md)).
-3. **Honest about limits.** Claims say "based on prices we observed since <date>"; a variant with
-   under 14 days of data gets no real-discount claim.
-4. **Polite collection.** Respect robots.txt and terms, identify ourselves, rate-limit, prefer feeds
-   and JSON endpoints, never scrape behind a login, collect no personal data.
-
-## Tech stack
-
-- **Backend:** Python 3.12, FastAPI, SQLAlchemy 2.0 (async), Pydantic v2, Alembic, Arq + Redis
-- **Data:** PostgreSQL 16 + pgvector (relational, full-text and vectors in one database)
-- **AI:** free and open-source models (Ollama locally, free API tiers in prod) with a hand-written tool loop (no agent frameworks), bge-m3 embeddings,
-  bge-reranker
-- **Frontend:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui; English default, Turkish second
-- **Ops:** no-card free tiers: Neon (Postgres), GitHub Actions (daily collection), Render + Vercel later, Sentry free
-
-```
-retailer feeds -> collectors -> validate (glitch filter) -> Postgres + pgvector -> FastAPI -> Next.js
-                                                   \-> extract -> embed -> alerts -> Telegram
+```mermaid
+flowchart LR
+  shops[(Retailer sites)] -->|polite collection, 2x/day| collect[Collectors<br/>GitHub Actions]
+  collect -->|validate, change-only history| db[(Postgres 16 + pgvector<br/>Neon)]
+  db --> api[FastAPI<br/>catalog · advisor · pricing]
+  api --> web[Next.js<br/>EN / TR]
+  api <-->|photo analysis, tool calls| llm[(Free vision / LLM<br/>OpenAI-compatible)]
 ```
 
-Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- **Backend:** Python 3.12, FastAPI, SQLAlchemy 2 (async), Pydantic v2, Alembic
+- **Data:** PostgreSQL 16 + pgvector: relational, full-text and vectors in one database
+- **AI:** free and open models only (Ollama locally, free API tiers in production), hand-written
+  tool loop, no agent frameworks; every AI feature gated by evals
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind 4; English and Turkish
+- **Ops:** GitHub Actions (CI + collection), Neon, Render, Vercel: all free, no card
+
+Details: [architecture overview](docs/architecture/overview.md) (C4 diagrams, layers, flows) and
+[decision records](docs/architecture/decisions/README.md).
+
+## Engineering principles
+
+1. **The AI never invents prices.** Discounts are computed in code from stored history; any AI
+   text with numbers passes a grounding guard ([ADR 0004](docs/architecture/decisions/0004-code-computes-prices.md)).
+2. **Every AI feature ships with evals.** No eval, not done.
+3. **Enforced architecture.** A layered dependency rule, checked by tests on every push.
+4. **Honest about limits.** No real-discount claim under 14 days of data; matches are "similar", not "the same".
+5. **Polite collection.** robots.txt and terms respected, identified User-Agent, rate limits, stop on 403.
+6. **Privacy by default.** No accounts at launch; the style profile stays on the device; photos are never stored.
+
+## Quick start
+
+Requires Docker, [uv](https://docs.astral.sh/uv/), Node 24 and pnpm.
+
+```bash
+cp .env.example .env
+make setup && make up && make migrate
+make api      # http://localhost:8010/docs
+make web      # http://localhost:3000
+make check    # lint, types, tests, build
+```
+
+Full guide: [`docs/engineering/setup.md`](docs/engineering/setup.md). How to contribute:
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Repository layout
 
 ```
-apps/api/      FastAPI backend (package: realdrop)
-apps/web/      Next.js frontend (English + Turkish)
-docs/          product, architecture, data model, AI design, evals, design system, setup, roadmap
-evals/         golden sets for the AI components
-infra/         database init scripts
-.claude/       Claude Code agents, skills, hooks and settings
-CLAUDE.md      project rules and memory for Claude Code
+apps/api/              FastAPI backend, collectors and batch jobs (Python package `realdrop`)
+  src/realdrop/        api/ services/ pricing/ pipeline/ collectors/ models/ schemas/ db/
+  tests/               mirrors src/, plus architecture rules
+  alembic/             database migrations
+apps/web/              Next.js frontend (English + Turkish)
+docs/                  product/ architecture/ engineering/ operations/ data-sources/
+evals/                 golden sets for the AI components
+infra/                 database init scripts
+.github/               CI, scheduled collection, Dependabot, PR and issue templates
+Makefile               one entry point for everyday tasks (`make help`)
 ```
 
-## Documentation
-
-| Doc | What's in it |
-|---|---|
-| [PRODUCT](docs/PRODUCT.md) | Problem, users, scope, non-goals, launch targets, legal notes |
-| [ROADMAP](docs/ROADMAP.md) | Phase-by-phase plan to 27 Nov, deadlines and cut lines |
-| [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, data flow, decision log (ADRs) |
-| [DATA_MODEL](docs/DATA_MODEL.md) | Tables, the real-drop rule, glitch filter, alert rule |
-| [AI_DESIGN](docs/AI_DESIGN.md) | Extractor, query parser, assistant loop, taste profile |
-| [EVALS](docs/EVALS.md) | Quality gates and golden sets |
-| [DESIGN_SYSTEM](docs/DESIGN_SYSTEM.md) | UI tokens and components |
-| [SETUP](docs/SETUP.md) | Local machine setup (macOS) |
-
-## Getting started (local dev)
-
-Requires Docker (OrbStack), `uv`, Node and `pnpm`. See [`docs/SETUP.md`](docs/SETUP.md).
-
-```bash
-cp .env.example .env            # then add your own keys; never commit .env
-docker compose up -d            # Postgres (pgvector) + Redis
-
-cd apps/api && uv sync && uv run uvicorn realdrop.main:app --reload   # http://localhost:8000/docs
-cd apps/web && pnpm install && pnpm dev                            # http://localhost:3000
-```
+Documentation index: [`docs/README.md`](docs/README.md).
 
 ## Built with Claude Code
 

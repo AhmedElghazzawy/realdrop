@@ -5,7 +5,7 @@ description: Checklist for changing the database schema safely with SQLAlchemy m
 
 # Add a migration
 
-**[ASK]** before any data-model change that is not already described in `docs/DATA_MODEL.md`.
+**[ASK]** before any data-model change that is not already described in `docs/architecture/data-model.md`.
 
 1. **Model first.** Edit or add the SQLAlchemy model in `src/realdrop/models/`. Money columns are
    `Integer`/`BigInteger` (kurus); timestamps are `DateTime(timezone=True)`; vectors use
@@ -21,7 +21,7 @@ description: Checklist for changing the database schema safely with SQLAlchemy m
 4. **Test upgrade and downgrade** on the local database:
    `uv run alembic upgrade head`, then `uv run alembic downgrade -1`, then `uv run alembic upgrade head`.
 5. **Test the model:** add or update a test that inserts and reads the new structure.
-6. **Update docs:** `docs/DATA_MODEL.md` must match the schema exactly.
+6. **Update docs:** `docs/architecture/data-model.md` must match the schema exactly.
 7. **Run:** `uv run pytest`, `uv run ruff check .`, `uv run mypy src`.
 8. **Commit:** `feat(db): <what and why>`. Migrations are never edited after they are merged; add a new one.
 9. Tell the owner in 2-4 sentences why the schema looks this way and what the migration does.

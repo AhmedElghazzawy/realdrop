@@ -9,7 +9,7 @@ shadcn/ui, Motion, TanStack Query, visx or Recharts).
 
 ## Start every task by
 
-Reading `CLAUDE.md` and `docs/DESIGN_SYSTEM.md`. Use the `build-ui-component` skill for every new
+Reading `CLAUDE.md` and `docs/engineering/design-system.md`. Use the `build-ui-component` skill for every new
 component.
 
 ## Rules

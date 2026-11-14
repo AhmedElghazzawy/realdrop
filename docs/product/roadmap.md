@@ -14,10 +14,10 @@ day is lost forever, and the real-drop rule needs 14+ days of history before it 
 
 Latest finish: 24 Oct.
 
-- [x] Environment from `docs/SETUP.md` (tools, apps scaffolded, Postgres + Redis, Ollama), kit committed,
+- [x] Environment from `docs/engineering/setup.md` (tools, apps scaffolded, Postgres, Ollama), kit committed,
       repo on GitHub.
 - [x] Switch to free and open-source models only (ADR 11).
-- [ ] Owner reads `docs/PRODUCT.md`, `docs/ROADMAP.md`, `docs/AI_DESIGN.md` once.
+- [ ] Owner reads `docs/product/vision.md`, `docs/product/use-cases.md`, `docs/architecture/overview.md` once.
 
 ## Phase 2: backend foundation ✅
 
@@ -31,11 +31,11 @@ Latest finish: 25 Oct. Done 24 Oct.
 
 Latest finish: 27 Oct.
 
-- [x] Feasibility check for the first 3 brands (`docs/brands/<slug>.md`: robots, terms, feed or JSON,
+- [x] Feasibility check for the first 3 brands (`docs/data-sources/<slug>.md`: robots, terms, feed or JSON,
       stability). Pick the easiest. (Six checked; DeFacto is brand 1.)
 - [x] Brand 1 collector against fixtures; dry run of 20 products.
 - [x] Brand 1 stored in DB with validation (glitch filter).
-- [x] Production database on Neon free + daily collection on GitHub Actions (`docs/DEPLOY.md`; no-card
+- [x] Production database on Neon free + daily collection on GitHub Actions (`docs/operations/deployment.md`; no-card
       free tiers only, ADR 12). **Collection is now running without the laptop.** (Test runs from
       GitHub to Neon green 25 Oct; first scheduled full runs 25 Oct 03:00 and 15:00 Turkey time.)
 
@@ -47,7 +47,7 @@ Latest finish: 31 Oct.
   - [x] Brand 2: Colin's (25 Oct). Change-only observations + `price_daily` roll-up (25 Oct, owner
         decision for storage). `current_prices` deferred: catalog queries are fast enough so far.
   - [x] Brands 3-7: Koton, Mudo, GAP, Marks & Spencer, Damat Tween through one Akinon collector
-        (27 Oct; men's products only, owner 26 Oct). Wide brand scan: docs/brands/README.md.
+        (27 Oct; men's products only, owner 26 Oct). Wide brand scan: docs/data-sources/README.md.
   - [x] Brand 8: Les Benjamins through a Shopify collector (27 Oct). Giesto and Ramsey answer
         429 to our identified requests: retry later.
   - [x] Brands 9-11: Lufian, TommyLife, Hatemoğlu through a T-Soft collector (27 Oct).

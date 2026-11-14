@@ -1,6 +1,6 @@
 """Pure parsing for Colin's: product-page HTML in, RawProduct out. No IO.
 
-What a product page carries (see docs/brands/colins.md):
+What a product page carries (see docs/data-sources/colins.md):
 - schema.org `Product` JSON-LD: name, price paid (`offers.price`), currency, images.
 - `.product-detail-old-price` ("1399,90 TL"), only when the site shows a strike-through price.
 - One size `<select>` whose `<option value="<variant id>" class="have-stock|no-stock">` lists every

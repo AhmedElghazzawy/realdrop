@@ -1,7 +1,8 @@
 """Read-only catalog views for the web app: collection status, product list, product detail.
 
-Prices are integer kurus with their currency; the web app formats them (DESIGN_SYSTEM.md).
-Only confirmed observations are shown (glitch filter, DATA_MODEL.md).
+Prices are integer kurus with their currency; the web app formats them
+(docs/engineering/design-system.md).
+Only confirmed observations are shown (glitch filter, docs/architecture/data-model.md).
 """
 
 import uuid

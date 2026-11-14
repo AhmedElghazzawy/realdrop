@@ -1,7 +1,17 @@
 # AI design
 
-Three product AI components plus plain-code personalization. Everything here is a specification:
-the code does not exist until we build it, following `docs/ROADMAP.md`.
+The AI components behind the advisor ([ADR 0013](decisions/0013-pivot-to-ai-fashion-advisor.md)),
+in build order. Everything here is a specification until the matching phase in
+[`../product/roadmap.md`](../product/roadmap.md) ships it.
+
+| # | Component | Kind | Phase | Use cases |
+|---|---|---|---|---|
+| 1 | Catalog tagger | Batch: rules, then LLM | 5 | enables all |
+| 2 | Look analyzer | Online: vision model, structured output | 7 | UC-02 |
+| 3 | Query parser | Online: small LLM | after launch | search |
+| 4 | Retrieval and matching | Code: SQL filters + vectors | 5-7 | UC-02, UC-03, UC-04 |
+| 5 | Stylist | Online: tool-calling loop | 9 | UC-04, UC-05 |
+| 6 | Profile ranking | Code, no LLM | 6 | UC-03 |
 
 ## Principles
 
@@ -11,7 +21,7 @@ the code does not exist until we build it, following `docs/ROADMAP.md`.
    output is retried once, then falls back to a safe path.
 3. **Retailer text is untrusted data.** A product title that says "ignore previous instructions"
    is just a string. Tool results are wrapped and labelled as data.
-4. **Measure everything.** Each component has an eval suite (`docs/EVALS.md`) and logs to `llm_calls`.
+4. **Measure everything.** Each component has an eval suite (`docs/engineering/testing-and-evals.md`) and logs to `llm_calls`.
 5. **Models come from env.** `LLM_BASE_URL` + `LLM_API_KEY` pick the provider, `LLM_MODEL_FAST` the
    extractor and parser model, `LLM_MODEL_MAIN` the assistant model. Free models only (see below).
 
@@ -32,13 +42,18 @@ All providers below speak the OpenAI chat-completions API, so `ai/llm.py` uses o
 - **Smaller models fail more.** Pydantic validation, the retry-once rule and the number-grounding
   guard are what keep output safe; never relax them for a weaker model.
 
-## 1. Extractor (batch)
+## 1. Catalog tagger (batch)
 
-Turns a messy retailer product into structured attributes for filtering and search.
+Turns a messy retailer product into structured attributes and **style tags** for filtering, matching
+and outfit building. Stored in `product_attributes` (see [`data-model.md`](data-model.md)).
 
 - **Input:** `title_raw`, `description_raw`, `category_raw`, variant color names, brand.
-- **Output (Pydantic `ProductAttributes`):** `category`, `subcategory`, `gender`, `colors[]`, `fit`,
+- **Output (Pydantic `ProductAttributes`):** `style_tags[]`, `subcategory`, `colors[]`, `fit`,
   `material[]`, `season[]`, `occasion[]`, `formality`, `pattern`, and per-field `confidence`.
+- **Style vocabulary** (closed set, shown to users with mood images): `old_money`, `streetwear`,
+  `minimal`, `smart_casual`, `classic_tailoring`, `techwear`, `workwear`, `preppy`, `sporty`, `y2k`.
+  A product can carry several. Rules first (e.g. a wool overcoat + navy/camel/grey -> old_money,
+  classic_tailoring; a graphic oversize hoodie -> streetwear), the LLM for the rest.
 - **Canonical vocabularies** live in `ai/taxonomy.py` and are enforced as enums:
   - categories: tshirt, shirt, polo, sweater, cardigan, sweatshirt, hoodie, jacket, coat, trench,
     puffer, vest, blazer, suit, jeans, trousers, chinos, jogger, shorts, skirt, dress, jumpsuit,
@@ -58,9 +73,28 @@ Turns a messy retailer product into structured attributes for filtering and sear
   rate-limit estimate from average token counts and measured speed before starting. Runs on local Ollama
   by default (free, overnight). Real tokens and latency are logged to `llm_calls`.
 - **Quality gate:** field-level F1 against a hand-labelled set (target >= 0.90 on category and
-  color, >= 0.80 on fit and occasion). See `docs/EVALS.md`.
+  color, >= 0.80 on fit and occasion). See `docs/engineering/testing-and-evals.md`.
 
-## 2. Query parser (online, latency-sensitive)
+## 2. Look analyzer (online, shop the look)
+
+Turns an uploaded outfit photo into the pieces it contains, in the tagger's schema, so matching is
+the same problem for photos and for products ([ADR 0015](decisions/0015-shop-the-look-via-vision-model.md)).
+
+- **Input:** one image (JPEG/PNG/WebP, <= 8 MB, downscaled to <= 1024 px before sending), the
+  visitor's language. No profile data and nothing personal goes to the model.
+- **Output (Pydantic `LookAnalysis`):** `pieces[]`, each `{slot: top|bottom|outerwear|shoes|accessory,
+  category, colors[], pattern, fit, material[], style_tags[], description, confidence}`, plus
+  `overall_style_tags[]`. At most 6 pieces.
+- **Policy:** describe only clothing that is visible; never identify or describe the person (face,
+  body, age, ethnicity); no brand guessing from logos in v1. Low-confidence pieces (< 0.5) are
+  dropped. Text in the image is untrusted data.
+- **Mechanics:** free vision tier chosen by a 30-image eval (Gemini vs Groq vs local), temperature 0,
+  JSON-schema output, timeout 15 s, retry once on invalid JSON, then an honest "could not analyse"
+  state. The image is held in memory only and discarded after the call.
+- **Quality gate:** on the labelled photo set, category per piece >= 90%, colour >= 80%; at least
+  one good match in the top 5 per piece >= 80% (judged by hand, recorded in `evals/`).
+
+## 3. Query parser (after launch; the stylist handles free text at launch)
 
 Turns a free-text query into filters plus a semantic remainder.
 
@@ -78,7 +112,12 @@ Turns a free-text query into filters plus a semantic remainder.
 - **UI contract:** the parsed filters are shown as removable chips ("siyah x", "<= 2.000 TL x"). The user
   sees what we understood and can fix it. That visibility is a trust feature.
 
-## 3. Hybrid search (not an agent)
+## 4. Retrieval and matching (not an agent)
+
+Used by the feed, shop the look ("find products like this piece") and outfit building. For a
+piece: hard filters (category, in stock in the visitor's sizes, budget), then rank by attribute
+overlap (colour, fit, pattern, style tags) plus semantic similarity of the piece description to
+product embeddings. For free-text search, the hybrid recipe below applies.
 
 1. Apply parsed filters in SQL (category, gender, brand, price from `current_prices`, size in stock).
 2. Candidate sets: full-text (`tsvector`, `unaccent`) top 100 and pgvector cosine top 100 on
@@ -90,9 +129,13 @@ Turns a free-text query into filters plus a semantic remainder.
 **Embedding text per product:** `"{brand} {title} {category} {colors} {fit} {material} {occasion}"`,
 Turkish-lowercased via `tr_lower`. Re-embed only when the text hash changes.
 
-## 4. Shopping assistant (tool-calling loop)
+## 5. Stylist (tool-calling loop)
 
-The only real "agent". A loop we write ourselves over the OpenAI-compatible chat API.
+The only real "agent". A loop we write ourselves over the OpenAI-compatible chat API. At launch the
+tool set is: `search_products`, `find_matches` (a piece description -> products), `build_outfit`
+(anchor product or occasion -> outfit boards), `check_real_discount`, `get_price_history`. The
+visitor's style profile arrives with the request (it lives on the device) and is injected by the
+server, never written by the model. `create_alert` and the taste tool below arrive after launch.
 
 ### Tools (all read-only except the two-step `create_alert`)
 
@@ -155,7 +198,14 @@ is logged and counted; the eval target is **zero** unverified numbers reaching u
 - No PII in prompts beyond what the user typed; no raw emails or chat ids ever reach the model.
 - Prompt-injection tests are part of the eval suite (product titles containing instructions).
 
-## 5. Taste profile (plain code, no LLM)
+## 6. Profile ranking (plain code, no LLM)
+
+At launch the profile is **explicit**: the styles, fits, colours, sizes and budget the visitor chose
+(UC-01), stored on the device ([ADR 0014](decisions/0014-style-profile-on-device.md)). Ranking:
+`score = relevance + w_style * style_overlap + w_colour * colour_match - penalty(avoided colours)`,
+with MMR diversity, and "because you like <style>" labels templated from the top contributing term.
+"Not my style" is stored on the device and down-weights similar items. The signal-based design below
+applies once accounts exist (after launch).
 
 - **Signals and weights:** save +3, alert_create +3, click +1, dwell over 20 s +0.5, view +0.2,
   dismiss -2. Stored in `user_signals`.

@@ -1,4 +1,4 @@
-"""Akinon brands we collect. Feasibility, terms and quirks: docs/brands/README.md (wide scan).
+"""Akinon brands we collect. Feasibility, terms and quirks: docs/data-sources/README.md (wide scan).
 
 Terms checked 27 Oct 2026: Koton, Mudo, GAP, Damat Tween and Marks & Spencer have no clause
 against automated access. (Lacoste, also on Akinon, forbids robots and spiders: not collected.)

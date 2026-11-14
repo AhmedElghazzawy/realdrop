@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Tokens from docs/DESIGN_SYSTEM.md. Light editorial by default; dark follows the device setting
+/* Tokens from docs/engineering/design-system.md. Light editorial by default; dark follows the device setting
    unless the reader picked one with the theme switch (data-theme on <html>, set before paint by the
    script in layout.tsx). */
 :root {

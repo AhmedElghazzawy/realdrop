@@ -9,7 +9,7 @@ Rule: **the failing case comes first, then the fix.**
 
 1. **Pick the suite:** `parser` (`evals/golden/queries.jsonl`), `retrieval` (`retrieval.jsonl`),
    `extractor` (`extractor.jsonl`), `assistant` (`assistant/*.yaml` scenarios), or `pricing` (pytest).
-2. **Write the case** in the format in `docs/EVALS.md`:
+2. **Write the case** in the format in `docs/engineering/testing-and-evals.md`:
    - Parser: `id` (next number), `query`, `lang`, `expect` (only fields that must match), optional
      `expect_absent`, `hard`, `notes`. Prices are kurus. Use Turkish-safe spellings exactly as users type them.
    - Extractor: label the product **by hand**, not by the model. Keep a 20-product held-out slice that is never used for tuning.

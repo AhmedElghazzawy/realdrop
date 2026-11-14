@@ -1,4 +1,6 @@
-"""The real-drop rule, on synthetic price series (docs/DATA_MODEL.md, docs/EVALS.md pricing suite).
+"""The real-drop rule, on synthetic price series.
+
+Rule: docs/architecture/data-model.md. Suite: docs/engineering/testing-and-evals.md ("pricing").
 
 The property-style tests run each check over many seeded random series, so a failure is
 reproducible from the seed in the assertion message.

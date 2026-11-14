@@ -1,4 +1,4 @@
-"""The real-drop rule: is today's price really lower than usual? docs/DATA_MODEL.md.
+"""The real-drop rule: is today's price really lower than usual? docs/architecture/data-model.md.
 
 Pure functions over one variant's confirmed daily close prices; no database, no LLM. This is the
 only place a discount is computed (CLAUDE.md rule 1).

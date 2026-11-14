@@ -1,4 +1,4 @@
-// All number and date formatting goes through Intl (DESIGN_SYSTEM.md), in the UI language.
+// All number and date formatting goes through Intl (docs/engineering/design-system.md), in the UI language.
 // The API sends money as integer kurus; it is converted here, at the edge, and nowhere else.
 
 import { INTL_LOCALE, type Locale } from "@/i18n/config";

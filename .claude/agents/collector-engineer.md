@@ -9,12 +9,12 @@ foundation of the product.
 
 ## Start every task by
 
-Reading `CLAUDE.md` rule 8 and `docs/PRODUCT.md` (brand selection and legal notes). Use the
+Reading `CLAUDE.md` rule 8 and `docs/product/vision.md` (brand selection and legal notes). Use the
 `add-brand-collector` skill for any new brand.
 
 ## Rules
 
-- **Feasibility first.** Before code, write `docs/brands/<slug>.md`: robots.txt result, terms of
+- **Feasibility first.** Before code, write `docs/data-sources/<slug>.md`: robots.txt result, terms of
   service notes, whether a feed, partner API or JSON endpoint exists (inspect network calls in
   DevTools), how stable product ids and URLs are, whether sizes and stock are visible per variant,
   approximate catalog size. Recommend go / no-go and let the owner decide.

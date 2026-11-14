@@ -1,4 +1,4 @@
-"""Glitch filter rules (docs/DATA_MODEL.md). Pure: no database."""
+"""Glitch filter rules (docs/architecture/data-model.md). Pure: no database."""
 
 from datetime import UTC, datetime, timedelta
 

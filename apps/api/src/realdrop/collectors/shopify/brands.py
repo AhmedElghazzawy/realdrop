@@ -1,4 +1,5 @@
-"""Shopify brands we collect. Feasibility, terms and quirks: docs/brands/README.md (wide scan).
+"""Shopify brands we collect. Feasibility, terms and quirks: docs/data-sources/README.md
+(wide scan).
 
 Les Benjamins (26 Oct 2026): robots.txt allows /products.json; no clause against automated
 access found. Products are tagged "men", "women" or "unisex"; we keep "men".

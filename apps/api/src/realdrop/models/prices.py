@@ -1,4 +1,6 @@
-"""Price tables: collection runs, raw observations, daily roll-up (docs/DATA_MODEL.md, "Prices").
+"""Price tables: collection runs, raw observations, daily roll-up.
+
+Schema doc: docs/architecture/data-model.md, "Prices".
 
 Money is integer kurus (`*_minor`) with the currency stored next to it (CLAUDE.md rule 5).
 """

@@ -5,7 +5,7 @@ import { claimedDiscount, formatMoney, formatPercent } from "@/lib/format";
 
 // A product in a grid or rail: image first, then brand, name and price, like a shop's listing.
 // A shop's claimed discount is shown the way shops show it (red price, struck old price), and the
-// badge says it is the shop's claim; our own verdict needs 14 days of history (DESIGN_SYSTEM.md).
+// badge says it is the shop's claim; our own verdict needs 14 days of history (docs/engineering/design-system.md).
 export async function PriceCard({ product, priority = false }: { product: ProductCard; priority?: boolean }) {
   const [locale, t] = [await getLocale(), await getDictionary()];
   const soldOut = product.sizes_in_stock === 0;
@@ -14,7 +14,7 @@ export async function PriceCard({ product, priority = false }: { product: Produc
     <Link href={`/${locale}/products/${product.id}`} className="group flex flex-col gap-3">
       <div className="relative aspect-[3/4] overflow-hidden bg-surface">
         {product.image_url ? (
-          // Hotlinked from the shop's CDN (PRODUCT.md); no copy is stored or optimised by us.
+          // Hotlinked from the shop's CDN (docs/product/vision.md); no copy is stored or optimised by us.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.image_url}

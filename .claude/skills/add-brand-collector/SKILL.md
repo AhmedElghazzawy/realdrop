@@ -16,7 +16,7 @@ Follow in order. Stop and ask the owner at every **[ASK]**.
    product page), then server-rendered HTML. Note the exact endpoints and parameters.
 4. Check: stable product ids and URLs, sizes and stock per variant, original (claimed) price, catalog size,
    pagination limits.
-5. Write `docs/brands/<slug>.md` with the findings and a go / no-go recommendation. **[ASK] owner decides.**
+5. Write `docs/data-sources/<slug>.md` with the findings and a go / no-go recommendation. **[ASK] owner decides.**
 
 ## 2. Skeleton
 
@@ -60,7 +60,7 @@ Copy the template `apps/api/src/realdrop/collectors/_example/` to `collectors/<s
 ## 6. Schedule and finish
 
 1. Add the brand to `jobs/schedule.py`, staggered from other brands.
-2. Update `docs/brands/<slug>.md` with the final endpoints and known quirks.
+2. Update `docs/data-sources/<slug>.md` with the final endpoints and known quirks.
 3. `uv run pytest`, `uv run ruff check .`, `uv run mypy src` pass.
 4. Commit: `feat(collector): add <slug>`.
 5. Tell the owner in 2-4 sentences how this site serves its data and what could break it.

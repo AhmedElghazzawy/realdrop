@@ -11,12 +11,12 @@ except for a hotfix the owner approves.
 ## Pre-flight
 
 1. `git status` clean; branch up to date. CI green (tests, ruff, mypy, web lint/typecheck/test, `pricing` evals).
-2. Relevant eval suites meet thresholds (`docs/EVALS.md`); record the scores.
+2. Relevant eval suites meet thresholds (`docs/engineering/testing-and-evals.md`); record the scores.
 3. Secrets are set in the hosts' settings (GitHub secrets, Render/Vercel env), never in the repo: `LLM_API_KEY`, `DATABASE_URL`,
    `REDIS_URL`, `COLLECTOR_USER_AGENT` (with a real contact address), `TELEGRAM_BOT_TOKEN`, `SENTRY_DSN`.
 4. A fresh database backup exists and a restore of it has been tested at least once.
 
-## First-time setup (once): `docs/DEPLOY.md`
+## First-time setup (once): `docs/operations/deployment.md`
 
 No-card free tiers only (ADR 12). Never add a paid plan or a service that asks for a card without the
 owner's explicit OK.
@@ -26,7 +26,7 @@ owner's explicit OK.
 2. **Collection:** `.github/workflows/collect.yml`, scheduled daily; manual runs via
    `gh workflow run collect -f brand=<slug> -f limit=20`.
 3. **API (later):** Render free web service from `apps/api/Dockerfile`; env: `DATABASE_URL`,
-   `REDIS_URL` (a free Redis such as Upstash, only when the worker exists), `LLM_*`.
+   `LLM_*`.
    Free services sleep when idle; the first request after a sleep is slow.
 4. **Web (later):** Vercel free, root `apps/web`, `NEXT_PUBLIC_API_URL` pointing at Render.
 5. Sentry free tier for API and web; a free uptime monitor on `/health`.
@@ -56,5 +56,5 @@ and tell the owner exactly what data would be lost first.
 
 ## After
 
-Record the release (date, commit, eval scores, notes) in `docs/ARCHITECTURE.md` decision log if it
-changed anything structural. Tell the owner in 2-4 sentences what shipped and what to watch.
+If the release changed anything structural, record it as an ADR in `docs/architecture/decisions/`
+(date, commit, eval scores). Update `docs/operations/runbook.md` if operating it changed. Tell the owner in 2-4 sentences what shipped and what to watch.

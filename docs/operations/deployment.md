@@ -1,13 +1,15 @@
 # Production setup (free tiers, no credit card)
 
-ADR 12: everything runs on free tiers that need no card. Phase 3 needs only the first two rows.
+Everything runs on free tiers that need no card ([ADR 0012](../architecture/decisions/0012-no-card-free-tier-hosting.md)).
+Day-to-day checks and incident steps: [`runbook.md`](runbook.md).
 
 | Piece | Service | Status |
 |---|---|---|
-| Database | Neon free Postgres (0.5 GB) | Phase 3 |
-| Daily collection | GitHub Actions, `.github/workflows/collect.yml` | Phase 3 |
-| API | Render free web service (Docker, `apps/api/Dockerfile`) | Phase 7-8 |
-| Web | Vercel free (Next.js) | Phase 8 |
+| Database | Neon free Postgres (0.5 GB) | Live since 25 Oct |
+| Collection | GitHub Actions, `.github/workflows/collect.yml` | Live since 25 Oct |
+| CI | GitHub Actions, `.github/workflows/ci.yml` | Live since 14 Nov |
+| API | Render free web service (Docker, `apps/api/Dockerfile`) | With the advisor (Phase 7) |
+| Web | Vercel free (Next.js) | With the redesign (Phase 8) |
 
 ## 1. Neon database (owner, ~3 min)
 
@@ -53,7 +55,7 @@ gh run view --log <run-id> | tail -20
 ## Limits to watch
 
 - **Storage 0.5 GB**: one brand daily is ~7 MB/day (fits until launch). More brands or 4-hourly runs
-  need change-only observations first (Phase 4 decision). Check usage in the Neon console.
+  are handled by change-only observations (ADR 0006). Check usage in the Neon console.
 - **Datacenter IPs**: some shops block cloud IPs. If a run stops with `CollectorBlockedError`, we stop
   for that brand and decide; we never route around a block.
-- **Backups**: Neon keeps a short restore window on the free tier. A `pg_dump` export comes in Phase 12.
+- **Backups**: Neon keeps a short restore window on the free tier. A `pg_dump` export is part of the launch phase (Phase 10).

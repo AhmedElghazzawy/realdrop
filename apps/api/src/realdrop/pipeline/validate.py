@@ -1,4 +1,6 @@
-"""Glitch filter: decide whether a newly observed price can be trusted. docs/DATA_MODEL.md.
+"""Glitch filter: decide whether a newly observed price can be trusted.
+
+Rules: docs/architecture/data-model.md, "Glitch filter".
 
 Pure functions, no database: pipeline/store.py loads the history and applies the verdict.
 

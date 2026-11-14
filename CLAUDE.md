@@ -4,9 +4,9 @@
 
 ## What this is
 
-An AI shopping-intelligence web app for Turkish clothing brands:
-daily real price collection -> honest price history -> "real discount" detection -> drop alerts
--> Turkish/English NLP search -> taste-based personalization -> a tool-calling shopping assistant.
+An **AI fashion advisor with honest prices** for Turkish clothing brands (pivot 14 Nov 2026, ADR 0013):
+style profile -> shop the look from a photo -> matches across brands -> outfit boards -> stylist chat,
+built on daily real price collection, honest price history and "real discount" detection.
 
 - Launch target: **Black Friday, Friday 27 Nov 2026**. Start date: Sat 24 Oct 2026.
 - The owner is a computer-engineering student who is building this to **learn and ship**. The AI
@@ -17,7 +17,7 @@ daily real price collection -> honest price history -> "real discount" detection
 
 1. **The AI never invents or calculates prices or discounts.** Code in `pricing/` computes them from
    stored price history. LLMs only call tools and explain the numbers the tools return.
-2. **Every AI feature ships with eval cases** (see `docs/EVALS.md`). No eval, not done.
+2. **Every AI feature ships with eval cases** (see `docs/engineering/testing-and-evals.md`). No eval, not done.
 3. **No LangChain, LlamaIndex or similar frameworks.** Use the `openai` Python package purely as a
    client for any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, Gemini) with raw tool calling,
    so the owner learns the loop. Small helper code in `ai/` is fine.
@@ -44,7 +44,7 @@ daily real price collection -> honest price history -> "real discount" detection
 - After every non-obvious change, add 2-4 sentences: **what changed, why, and what to learn from it.**
 - Small commits with clear messages (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
 - When something fails: show the exact error, state the likely cause, fix it. No blind retries.
-- Mind the schedule: `docs/ROADMAP.md` is organised by **phases, not days**; each phase has a latest-finish
+- Mind the schedule: `docs/product/roadmap.md` is organised by **phases, not days**; each phase has a latest-finish
   date and there are cut lines. Start the next phase as soon as one is done. Flag scope creep immediately.
 - The owner chats in English. The product UI is English by default with Turkish
   as the second language (`/en`, `/tr`); it shows men's clothing only for now (owner decision,
@@ -55,51 +55,42 @@ daily real price collection -> honest price history -> "real discount" detection
 ```
 apps/api/                  Python 3.12, FastAPI. Package: src/realdrop/
   src/realdrop/
-    main.py  config.py     app factory, settings (pydantic-settings)
+    main.py  config.py     app factory, settings (pydantic-settings, env only)
     text.py                Turkish-safe text helpers
-    db/                    engine, session, base
-    models/                SQLAlchemy 2.0 models
-    schemas/               Pydantic v2 request/response models
-    api/routes/            thin route handlers (no business logic)
-    collectors/            base.py, registry.py, <brand>/{collector.py,parser.py,fixtures/}
-    pipeline/              validate.py (glitch filter), store.py
-    pricing/               real_drop.py, config.py  <- the ONLY place discounts are computed
-    ai/                    extractor.py, query_parser.py, embeddings.py, rerank.py, taste.py,
-                           taxonomy.py, assistant/{loop.py,tools.py,guard.py}
-    search/                hybrid.py (FTS + pgvector + RRF), filters.py
-    alerts/                evaluate.py, notify/{telegram.py,email.py}
-    jobs/                  worker.py (Arq), schedule.py
-  tests/                   mirrors src/; fixtures; no live network
+    api/routes/            thin HTTP handlers -> services (no SQL, no models)
+    services/              use cases (catalog; advisor from Phase 6)
+    pricing/               real_drop.py, config.py  <- the ONLY place discounts are computed (pure)
+    pipeline/              validate (glitch filter), store, rollup, categorize (attributes from Phase 5)
+    collectors/            base, http, robots, run (entry point), <platform>/{collector,parser,fixtures}
+    models/  schemas/  db/ SQLAlchemy tables, Pydantic contracts, engine/session
+    ai/                    (Phase 5+) llm client, tagger, look analyzer, stylist loop, guard
+  tests/                   mirrors src/; test_architecture.py enforces the layering
   alembic/
-apps/web/                  Next.js (App Router), TypeScript, Tailwind, shadcn/ui
+apps/web/                  Next.js 16 (App Router), TypeScript, Tailwind 4
+docs/                      product/ architecture/ (incl. decisions/ ADRs) engineering/ operations/ data-sources/
 evals/                     golden/*.jsonl, runs/ (gitignored output)
-docs/                      PRODUCT, ARCHITECTURE, DATA_MODEL, AI_DESIGN, EVALS, DESIGN_SYSTEM, SETUP, ROADMAP
+.github/workflows/         ci.yml (quality gate), collect.yml (scheduled collection)
+Makefile                   `make help`: setup, up, api, web, test, lint, typecheck, check, migrate
 .claude/                   agents/, skills/, hooks/, settings.json
 ```
 
+The dependency rule (routes -> services -> pricing/models; pricing pure; parsers no IO; only
+`collectors/run.py` touches storage) is in `docs/architecture/overview.md` and enforced by
+`apps/api/tests/test_architecture.py`. Create a package only when a phase needs it.
+
 ## Commands
 
-Some of these exist only after the matching roadmap phase is built. Always run from the right folder.
-
 ```bash
-docker compose up -d                       # Postgres (pgvector) + Redis
-docker compose ps                          # both should be "healthy"
+make up                                    # Postgres (pgvector) in Docker, waits until healthy
+make api / make web                        # API :8010 (docs at /docs), web :3000
+make check                                 # what CI runs: lint, types, tests, web build
+make test | make lint | make typecheck | make format | make migrate
 
-# API (cd apps/api)
-uv sync
-uv run uvicorn realdrop.main:app --reload  # http://localhost:8000/docs
-uv run pytest                              # all tests (network blocked)
-uv run ruff check . && uv run ruff format --check .
-uv run mypy src
-uv run alembic upgrade head
+# API specifics (cd apps/api)
+uv run pytest tests/pipeline -q            # one folder
 uv run alembic revision --autogenerate -m "message"
-uv run arq realdrop.jobs.worker.WorkerSettings
 uv run python -m realdrop.collectors.run --brand <slug> --limit 20 --dry-run
-uv run python -m realdrop.evals.run --suite parser|retrieval|extractor|assistant|pricing
-
-# Web (cd apps/web)
-pnpm dev                                   # http://localhost:3000
-pnpm lint && pnpm typecheck && pnpm test
+gh run list --workflow collect --limit 4   # collection health (runbook: docs/operations/runbook.md)
 ```
 
 ## Conventions
@@ -113,27 +104,32 @@ pnpm lint && pnpm typecheck && pnpm test
 - Every LLM output is validated with Pydantic; invalid output is retried once, then falls back.
 - Tests: pytest, `pytest-socket` blocks network, collectors use stored fixtures, pricing logic gets
   property-style tests with synthetic price series.
-- Frontend: tokens from `docs/DESIGN_SYSTEM.md` only; UI text from `apps/web/src/i18n/{en,tr}.ts` (never
+- Frontend: tokens from `docs/engineering/design-system.md` only; UI text from `apps/web/src/i18n/{en,tr}.ts` (never
   hard-coded); number/date formatting via `lib/format.ts` (`Intl`, `en-GB` / `tr-TR`); every component has loading, empty, error and populated states.
 - Logging: structured JSON, no PII, no secrets, no full prompts in production logs.
 
 ## Where to read more (read the one you need; do not load them all)
 
+Index: `docs/README.md`.
+
 | Working on | Read |
 |---|---|
-| Scope, users, what's in/out | `docs/PRODUCT.md` |
-| Components and data flow | `docs/ARCHITECTURE.md` |
-| Tables, real-drop rule, glitch filter, alert rule | `docs/DATA_MODEL.md` |
-| Extractor, query parser, assistant, taste | `docs/AI_DESIGN.md` |
-| Quality gates and golden sets | `docs/EVALS.md` |
-| UI look and components | `docs/DESIGN_SYSTEM.md` |
-| Machine setup | `docs/SETUP.md` |
-| Production (Neon, GitHub Actions, Render, Vercel) | `docs/DEPLOY.md` |
-| Phases, deadlines, cut lines | `docs/ROADMAP.md` |
+| Scope, personas, what's in/out | `docs/product/vision.md` |
+| Use cases and acceptance criteria | `docs/product/use-cases.md` |
+| Phases, deadlines, cut lines | `docs/product/roadmap.md` |
+| Components, layers, flows | `docs/architecture/overview.md` |
+| Why something is the way it is | `docs/architecture/decisions/` (ADRs; add one when a decision changes) |
+| Tables, real-drop rule, glitch filter | `docs/architecture/data-model.md` |
+| Tagger, look analyzer, matching, stylist, ranking | `docs/architecture/ai-design.md` |
+| Tests and eval suites | `docs/engineering/testing-and-evals.md` |
+| UI look and components | `docs/engineering/design-system.md` |
+| Local setup | `docs/engineering/setup.md` |
+| Production setup / incidents | `docs/operations/deployment.md` / `docs/operations/runbook.md` |
+| A brand's feasibility and terms | `docs/data-sources/` |
 
 ## Definition of done
 
-A change is done only when: tests pass, `ruff` and `mypy` are clean, new AI behaviour has eval cases
+A change is done only when: `make check` passes (tests, `ruff`, `mypy`, web build), new AI behaviour has eval cases
 and the eval suite meets its threshold, docs are updated if behaviour or schema changed, no secrets
 or PII in the diff, the commit message explains the why, and the owner got the 2-4 sentence
 explanation of anything non-obvious.

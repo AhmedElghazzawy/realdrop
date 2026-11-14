@@ -4,7 +4,7 @@ The collector reads the men's category listings (`/erkek-giyim?page=N`, 24 produ
 Each product card carries a `data-documents='{...}'` JSON blob with the same fields as the
 product page's `DataLayer` (name, colour, `Price`, `DiscountedPrice`, `CampaignDiscountedPrice`,
 `CampaignBadge` with dates, `SubDivision`, and the sizes in stock with their barcodes), and
-`window.productImageN=[...]` lists the card's images. See docs/brands/defacto.md.
+`window.productImageN=[...]` lists the card's images. See docs/data-sources/defacto.md.
 
 `CampaignBadge` is a basket campaign ("Sepette Net %50 İndirim") with its price and start/end dates.
 It needs no coupon or second item, so its price is what everyone pays. Until 30 Oct 2026 we read

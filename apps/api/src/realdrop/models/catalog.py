@@ -1,4 +1,4 @@
-"""Catalog tables: brands, products, variants (docs/DATA_MODEL.md, "Catalog").
+"""Catalog tables: brands, products, variants (docs/architecture/data-model.md, "Catalog").
 
 Catalog rows are never deleted, only marked inactive: price history points at them and is the
 product's main asset. Foreign keys therefore use RESTRICT.

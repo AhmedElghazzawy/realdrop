@@ -1,6 +1,6 @@
 # RealDrop Web
 
-Next.js (App Router) + TypeScript + Tailwind. Turkish-first UI. Design rules: `docs/DESIGN_SYSTEM.md`.
+Next.js (App Router) + TypeScript + Tailwind. Turkish-first UI. Design rules: `docs/engineering/design-system.md`.
 
 ```bash
 pnpm install

@@ -1,11 +1,11 @@
 """Write collector output to the database: catalog upserts plus validated price observations.
 The caller owns the transaction (one per batch, so a crash loses at most one batch).
 
-Observations are change-only (docs/DATA_MODEL.md): a variant whose state (price, claimed original,
-stock, currency) is the same as its latest row only moves that row's `last_seen_at`; a change adds
-a new row. Seeing a pending row again confirms it (pipeline/validate.py); pending rows nobody
-confirms in time are rejected by expire_pending. A rejected latest row is never extended: the next
-sighting is judged afresh.
+Observations are change-only (docs/architecture/data-model.md): a variant whose state (price,
+claimed original, stock, currency) is the same as its latest row only moves that row's
+`last_seen_at`; a change adds a new row. Seeing a pending row again confirms it
+(pipeline/validate.py); pending rows nobody confirms in time are rejected by expire_pending. A
+rejected latest row is never extended: the next sighting is judged afresh.
 """
 
 import hashlib

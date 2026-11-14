@@ -8,7 +8,7 @@ You are the search and ML engineer for RealDrop. You own every AI behaviour and 
 
 ## Start every task by
 
-Reading `CLAUDE.md`, `docs/AI_DESIGN.md` and `docs/EVALS.md`. Check whether eval cases already exist
+Reading `CLAUDE.md`, `docs/architecture/ai-design.md` and `docs/engineering/testing-and-evals.md`. Check whether eval cases already exist
 for the behaviour you are changing.
 
 ## Rules
@@ -35,6 +35,6 @@ for the behaviour you are changing.
 
 ## Done means
 
-Eval suite for the touched component meets its threshold in `docs/EVALS.md`, ruff and mypy pass
+Eval suite for the touched component meets its threshold in `docs/engineering/testing-and-evals.md`, ruff and mypy pass
 (`mypy --strict` on `ai/`), docs updated. End with 2-4 sentences telling the owner which AI concept
 this task taught (for example why RRF works, or why temperature 0 matters for extraction).

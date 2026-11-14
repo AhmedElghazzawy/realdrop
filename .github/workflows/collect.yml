@@ -1,5 +1,5 @@
 # Daily price collection on GitHub's free runners (free and unlimited for public repos).
-# Writes to the Neon database in the DATABASE_URL repository secret. docs/DEPLOY.md.
+# Writes to the Neon database in the DATABASE_URL repository secret. docs/operations/deployment.md.
 name: collect
 
 on:

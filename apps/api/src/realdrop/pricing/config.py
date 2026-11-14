@@ -1,4 +1,6 @@
-"""Tunable thresholds for price validation and (later) the real-drop rule. docs/DATA_MODEL.md.
+"""Tunable thresholds for price validation and the real-drop rule.
+
+Rules: docs/architecture/data-model.md.
 
 Percentages are integers so every comparison stays in integer arithmetic (no floats near money).
 """

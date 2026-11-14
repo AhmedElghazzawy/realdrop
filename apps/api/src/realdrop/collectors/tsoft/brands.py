@@ -1,4 +1,4 @@
-"""T-Soft brands we collect. Feasibility, terms and quirks: docs/brands/README.md (wide scan).
+"""T-Soft brands we collect. Feasibility, terms and quirks: docs/data-sources/README.md (wide scan).
 
 Terms checked 27 Oct 2026 (membership agreements): Lufian, TommyLife and Hatemoğlu have no clause
 against automated access. Not collected: Süvari (Ticimax; its agreement bans "multiple queries

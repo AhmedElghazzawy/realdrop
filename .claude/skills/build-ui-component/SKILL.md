@@ -5,7 +5,7 @@ description: Checklist for building a frontend component or page in RealDrop's l
 
 # Build a UI component
 
-1. **Read `docs/DESIGN_SYSTEM.md`.** Find the component in the table; if it exists there, match it. If it is new,
+1. **Read `docs/engineering/design-system.md`.** Find the component in the table; if it exists there, match it. If it is new,
    add a row to the table first.
 2. **Data contract:** props come from the generated API client types. Prices are kurus; never compute
    discounts in the frontend. Show `status`, `real_discount_pct`, `claim_inflated`, `tracked_since` as given.
