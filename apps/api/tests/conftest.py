@@ -5,7 +5,8 @@ the dev database. The schema is built by running the real Alembic migrations, so
 prove the migrations work. Each test runs inside a transaction that is rolled back afterwards.
 
 The network stays blocked (pytest-socket); tests that use `db_session` are allowed to reach
-localhost only. If Postgres is not running, those tests are skipped with a hint.
+localhost only. If Postgres is not running, those tests are skipped with a hint (CI sets
+`REQUIRE_DB=1`, which turns the skip into a failure).
 """
 
 import asyncio
@@ -65,7 +66,10 @@ def database_url() -> str:
     try:
         asyncio.run(_create_database_if_missing(url))
     except OSError as exc:
-        pytest.skip(f"Postgres not reachable ({exc}). Start it with `docker compose up -d`.")
+        message = f"Postgres not reachable ({exc}). Start it with `docker compose up -d`."
+        if os.environ.get("REQUIRE_DB") == "1":  # CI: a missing database is a failure, not a skip
+            pytest.fail(message)
+        pytest.skip(message)
 
     rendered = url.render_as_string(hide_password=False)
     config = Config(API_DIR / "alembic.ini")
