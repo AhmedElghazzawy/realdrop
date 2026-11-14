@@ -8,16 +8,27 @@ outage the older gap days stay empty. A day no stretch covers has no row.
 
 Rows are rebuilt, not patched: every variant seen since `since` gets its days from `since`'s day on
 deleted and recomputed, so re-running is always safe.
+
+Concurrency: the collection workflow runs one job per brand in parallel. Two delete-then-insert
+rebuilds of the same rows would race (both delete, both insert, one hits `pk_price_daily`), so a
+transaction-scoped advisory lock serialises rebuilds, and `brand_id` limits a run to its own brand.
 """
 
+import uuid
 from datetime import datetime
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# Any constant works; it only has to be the same in every process that rebuilds price_daily.
+_LOCK_KEY = 7_301_001
+
 _TOUCHED = """
-    SELECT DISTINCT variant_id FROM price_observations
-    WHERE status = 'confirmed' AND last_seen_at >= :since
+    SELECT DISTINCT o.variant_id FROM price_observations o
+    JOIN variants v ON v.id = o.variant_id
+    JOIN products p ON p.id = v.product_id
+    WHERE o.status = 'confirmed' AND o.last_seen_at >= :since
+      AND (CAST(:brand_id AS uuid) IS NULL OR p.brand_id = CAST(:brand_id AS uuid))
 """
 
 _DELETE = f"""
@@ -54,9 +65,15 @@ _INSERT = f"""
 """
 
 
-async def refresh_daily(session: AsyncSession, since: datetime) -> int:
-    """Rebuild `price_daily` for days from `since` on. Returns how many rows were written."""
-    params = {"since": since}
+async def refresh_daily(
+    session: AsyncSession, since: datetime, brand_id: uuid.UUID | None = None
+) -> int:
+    """Rebuild `price_daily` for days from `since` on (one brand, or all when `brand_id` is None).
+
+    Returns how many rows were written. Holds an advisory lock until the transaction ends.
+    """
+    await session.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": _LOCK_KEY})
+    params = {"since": since, "brand_id": brand_id}
     await session.execute(text(_DELETE), params)
     result = await session.execute(text(_INSERT), params)
     return int(result.rowcount)  # type: ignore[attr-defined]

@@ -102,3 +102,17 @@ async def test_only_days_from_since_are_rebuilt(db_session: AsyncSession) -> Non
     await collect(db_session, [(T0, shirt(10_000)), (T0 + 2 * DAY, shirt(10_000))])
     await rollup.refresh_daily(db_session, T0 + 2 * DAY)
     assert [row[0] for row in await daily(db_session)] == [D0 + timedelta(days=2)]
+
+
+async def test_a_brand_scoped_rebuild_leaves_other_brands_alone(db_session: AsyncSession) -> None:
+    await collect(db_session, [(T0, shirt(10_000))])
+    other = await store.get_or_create_brand(
+        db_session, slug="other", name="Other", base_url="https://other.example.com"
+    )
+    assert await rollup.refresh_daily(db_session, T0 - DAY, other.id) == 0
+    assert await daily(db_session) == []
+    shop = await store.get_or_create_brand(
+        db_session, slug="shop", name="Shop", base_url="https://shop.example.com"
+    )
+    assert await rollup.refresh_daily(db_session, T0 - DAY, shop.id) == 1
+    assert len(await daily(db_session)) == 1

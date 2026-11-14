@@ -134,7 +134,9 @@ async def stored_run(slug: str, limit: int | None, shard: Shard) -> int:
     finally:
         async with sessionmaker() as session, session.begin():
             expired = await store.expire_pending(session, datetime.now(UTC))
-            daily = await rollup.refresh_daily(session, started_at - config.ROLLUP_LOOKBACK)
+            daily = await rollup.refresh_daily(
+                session, started_at - config.ROLLUP_LOOKBACK, brand_id
+            )
             summary = (
                 f"shard {shard.index}/{shard.count}; "
                 f"prices: {dict((s.value, n) for s, n in statuses.items())}; "
