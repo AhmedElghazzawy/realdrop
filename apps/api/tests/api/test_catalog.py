@@ -109,6 +109,25 @@ async def test_search_and_sort_by_claimed_discount(db_session: AsyncSession) -> 
     assert claimed["items"][0]["title"] == "Siyah Kaban"
 
 
+async def test_total_is_the_same_on_every_page(db_session: AsyncSession) -> None:
+    # The total comes from a window count on the page's rows, or a separate count past the end.
+    await seed(db_session)
+    pages = [
+        (await get(db_session, f"/products?limit=1&offset={offset}")).json()
+        for offset in (0, 1, 10)
+    ]
+    assert [page["total"] for page in pages] == [4, 4, 4]
+    assert [len(page["items"]) for page in pages] == [1, 1, 0]
+
+
+async def test_facets_with_nothing_to_count_are_empty_lists(db_session: AsyncSession) -> None:
+    await seed(db_session)
+    body = (await get(db_session, "/products/facets?q=nothing-matches")).json()
+    assert body["total"] == 0
+    assert (body["brands"], body["categories"], body["styles"], body["colors"]) == ([], [], [], [])
+    assert body["min_price_minor"] is None
+
+
 async def test_detail_has_sizes_and_daily_history(db_session: AsyncSession) -> None:
     await seed(db_session)
     coat_id = (await get(db_session, "/products?q=kaban")).json()["items"][0]["id"]

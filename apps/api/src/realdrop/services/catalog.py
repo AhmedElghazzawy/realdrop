@@ -12,7 +12,7 @@ from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from typing import Any, Literal
 
-from sqlalchemy import Select, Text, case, cast, func, select
+from sqlalchemy import ColumnClause, Select, Text, case, cast, func, literal_column, select
 from sqlalchemy.dialects.postgresql import ARRAY, array, distinct_on
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -217,6 +217,7 @@ def _escape_like(text: str) -> str:
 
 FacetName = Literal["brands", "category", "styles", "colors"]
 EMPTY_TEXT_ARRAY = cast(array([], type_=Text), ARRAY(Text))
+EMPTY_JSON_ARRAY: ColumnClause[Any] = literal_column("'[]'::json")
 
 
 @dataclass(frozen=True)
@@ -295,8 +296,21 @@ async def list_products(
         "price_desc": [columns.price_minor.desc()],
         "claimed_discount": [claimed.desc()],
     }[sort]
-    total = await session.scalar(select(func.count()).select_from(query.subquery())) or 0
-    rows = await session.execute(query.order_by(*order, Product.id).limit(limit).offset(offset))
+    # The total rides along as a window count, so a page is one scan of the base set, not two.
+    rows = (
+        await session.execute(
+            query.add_columns(func.count().over().label("total_count"))
+            .order_by(*order, Product.id)
+            .limit(limit)
+            .offset(offset)
+        )
+    ).all()
+    if rows:
+        total = rows[0].total_count
+    elif offset:  # past the last page: count separately so the pager still knows the size
+        total = await session.scalar(select(func.count()).select_from(query.subquery())) or 0
+    else:
+        total = 0
     items = [
         ProductCard.model_validate(_card(row[0], row[1], row[2], row._mapping)) for row in rows
     ]
@@ -304,47 +318,96 @@ async def list_products(
 
 
 async def facets(session: AsyncSession, filters: Filters = NO_FILTERS) -> Facets:
-    everything = _filtered(filters).subquery()
-    total = await session.scalar(select(func.count()).select_from(everything)) or 0
-    low, high = (
-        await session.execute(
-            select(func.min(everything.c.price_minor), func.max(everything.c.price_minor))
-        )
-    ).one()
+    """Counts for every facet in one round trip.
 
-    by_category = _filtered(replace(filters, skip=frozenset({"category"}))).subquery()
-    category_rows = await session.execute(
-        select(by_category.c.category, func.count())
-        .where(by_category.c.category.is_not(None))
-        .group_by(by_category.c.category)
+    The expensive part is the base set (each variant's current price, then one row per product).
+    It is built once, as a materialised CTE, with every filter except the facet filters; each
+    count then applies the facet filters on that set, leaving out its own (see Facets).
+    """
+    loose = replace(filters, brands=(), category=None, styles=(), colors=(), skip=frozenset())
+    base = _filtered(loose).cte("base").prefix_with("MATERIALIZED")
+
+    def where(skip: FacetName | None = None) -> list[Any]:
+        conditions: list[Any] = []
+        if filters.brands and skip != "brands":
+            conditions.append(base.c.slug.in_(filters.brands))
+        if filters.category and skip != "category":
+            conditions.append(base.c.category == filters.category)
+        if filters.styles and skip != "styles":
+            conditions.append(base.c.style_tags.op("&&")(_text_array(filters.styles)))
+        if filters.colors and skip != "colors":
+            conditions.append(base.c.colors.op("&&")(_text_array(filters.colors)))
+        return conditions
+
+    def as_json(rows: Select[Any], *columns: str) -> Any:
+        sub = rows.subquery()
+        pair = func.json_build_array(*(sub.c[name] for name in columns))
+        return (
+            select(func.coalesce(func.json_agg(pair), EMPTY_JSON_ARRAY))
+            .select_from(sub)
+            .scalar_subquery()
+        )
+
+    totals = select(
+        func.count().label("total"),
+        func.min(base.c.price_minor).label("low"),
+        func.max(base.c.price_minor).label("high"),
+    ).where(*where())
+    categories = (
+        select(base.c.category, func.count().label("n"))
+        .where(base.c.category.is_not(None), *where("category"))
+        .group_by(base.c.category)
     )
     # One photo per category: the most recently checked product that is in stock and has one.
-    image_rows = await session.execute(
-        select(by_category.c.category, by_category.c.image_urls[1])
+    images = (
+        select(base.c.category, base.c.image_urls[1].label("url"))
         .where(
-            by_category.c.category.is_not(None),
-            by_category.c.sizes_in_stock > 0,
-            func.cardinality(by_category.c.image_urls) > 0,
+            base.c.category.is_not(None),
+            base.c.sizes_in_stock > 0,
+            func.cardinality(base.c.image_urls) > 0,
+            *where("category"),
         )
-        .order_by(by_category.c.category, by_category.c.observed_at.desc(), by_category.c.id)
-        .ext(distinct_on(by_category.c.category))
+        .order_by(base.c.category, base.c.observed_at.desc(), base.c.id)
+        .ext(distinct_on(base.c.category))
     )
-    images: dict[str, str] = {key: url for key, url in image_rows}
+    brands = (
+        select(base.c.slug, base.c.name, func.count().label("n"))
+        .where(*where("brands"))
+        .group_by(base.c.slug, base.c.name)
+        .order_by(base.c.name)
+    )
 
-    by_brand = _filtered(replace(filters, skip=frozenset({"brands"}))).subquery()
-    brand_rows = await session.execute(
-        select(by_brand.c.slug, by_brand.c.name, func.count())
-        .group_by(by_brand.c.slug, by_brand.c.name)
-        .order_by(by_brand.c.name)
-    )
-    styles = await _tag_counts(session, replace(filters, skip=frozenset({"styles"})), "style_tags")
-    colors = await _tag_counts(session, replace(filters, skip=frozenset({"colors"})), "colors")
+    def tag_counts(column: str, skip: FacetName) -> Select[Any]:
+        values = select(func.unnest(base.c[column]).label("value")).where(*where(skip)).subquery()
+        return (
+            select(values.c.value, func.count().label("n"))
+            .group_by(values.c.value)
+            .order_by(func.count().desc(), values.c.value)
+        )
+
+    totals_sub = totals.subquery()
+    row = (
+        await session.execute(
+            select(
+                select(totals_sub.c.total).scalar_subquery(),
+                select(totals_sub.c.low).scalar_subquery(),
+                select(totals_sub.c.high).scalar_subquery(),
+                as_json(categories, "category", "n"),
+                as_json(images, "category", "url"),
+                as_json(brands, "slug", "name", "n"),
+                as_json(tag_counts("style_tags", "styles"), "value", "n"),
+                as_json(tag_counts("colors", "colors"), "value", "n"),
+            )
+        )
+    ).one()
+    total, low, high, category_rows, image_rows, brand_rows, style_rows, color_rows = row
+    image_by_key: dict[str, str] = dict(image_rows)
     return Facets(
-        total=total,
-        styles=styles,
-        colors=colors,
+        total=total or 0,
+        styles=[TagCount(key=key, count=count) for key, count in style_rows],
+        colors=[TagCount(key=key, count=count) for key, count in color_rows],
         categories=[
-            CategoryCount(key=key, count=count, image_url=images.get(key))
+            CategoryCount(key=key, count=count, image_url=image_by_key.get(key))
             for key, count in category_rows
         ],
         brands=[BrandCount(slug=slug, name=name, count=count) for slug, name, count in brand_rows],
@@ -353,17 +416,8 @@ async def facets(session: AsyncSession, filters: Filters = NO_FILTERS) -> Facets
     )
 
 
-async def _tag_counts(session: AsyncSession, filters: Filters, column: str) -> list[TagCount]:
-    """How many filtered products carry each value of an array column, most common first."""
-    base = _filtered(filters).subquery()
-    value = func.unnest(base.c[column]).label("value")
-    per_value = select(value).select_from(base).subquery()
-    rows = await session.execute(
-        select(per_value.c.value, func.count())
-        .group_by(per_value.c.value)
-        .order_by(func.count().desc(), per_value.c.value)
-    )
-    return [TagCount(key=key, count=count) for key, count in rows]
+def _text_array(values: tuple[str, ...]) -> Any:
+    return cast(array(list(values), type_=Text), ARRAY(Text))
 
 
 async def product_detail(session: AsyncSession, product_id: uuid.UUID) -> ProductDetail | None:
