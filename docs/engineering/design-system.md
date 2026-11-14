@@ -65,6 +65,7 @@ Cards and photos use `rounded-card` (`--radius: 14px`); buttons, chips and searc
   pill rail and a Filters drawer. Removable chips and "Clear all" above a 2/3/4-column grid,
   48 per page, numbered pagination. Counts come from `/products/facets`, each dimension counted
   without its own filter.
+- **Shop by style** (home): six tiles; photo and count come from `/products/facets` (`styles[].image_url`: the newest in-stock garment, preferring a fitting category per style).
 - **Rails** (home and product page): horizontal scroll-snap rows that bleed to the screen edge on
   phones and show 5 cards on desktop.
 

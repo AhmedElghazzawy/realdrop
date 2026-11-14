@@ -289,3 +289,7 @@ async def test_style_and_colour_filters_and_facets(db_session: AsyncSession) -> 
     assert styles["streetwear"] == 1 and styles["old_money"] == 1
     colours = {c["key"]: c["count"] for c in facets["colors"]}  # filtered by style
     assert colours == {"navy": 1}
+    photos = {s["key"]: s["image_url"] for s in facets["styles"]}  # garments only
+    assert photos["streetwear"] == "https://img.example.com/h.jpg"
+    assert photos["old_money"] == "https://img.example.com/k.jpg"
+    assert all(c["image_url"] is None for c in facets["colors"])

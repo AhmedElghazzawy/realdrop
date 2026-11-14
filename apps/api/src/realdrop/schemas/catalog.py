@@ -99,6 +99,8 @@ class BrandCount(BaseModel):
 class TagCount(BaseModel):
     key: str  # a style tag or canonical colour (pipeline/tagger.py vocabularies)
     count: int
+    # Styles only: a photo of the newest in-stock garment with the tag (not an accessory).
+    image_url: str | None = None
 
 
 class Facets(BaseModel):

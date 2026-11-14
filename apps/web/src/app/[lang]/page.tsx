@@ -8,7 +8,7 @@ import { type Filters, getFacets, getProducts, type SortOrder } from "@/lib/api"
 import { CATEGORIES, type CategoryKey, isCategory } from "@/lib/categories";
 import { formatCount } from "@/lib/format";
 import { dealsQuery, shopHref } from "@/lib/links";
-import { STYLES, type StyleKey } from "@/lib/styles";
+import { STYLES } from "@/lib/styles";
 
 // Men only for now (owner decision, 25 Oct 2026); a men/women choice comes later.
 const MEN: Filters = { audience: "men" };
@@ -165,34 +165,16 @@ function Section({
   );
 }
 
-// The picture for a style tile comes from the category that says the style best, so a tile shows
-// clothes rather than whatever accessory was tagged last.
-const STYLE_COVER: Record<StyleKey, CategoryKey> = {
-  old_money: "knitwear",
-  streetwear: "sweatshirts",
-  minimal: "tshirts",
-  smart_casual: "shirts",
-  classic_tailoring: "suits",
-  sporty: "tracksuits",
-  workwear: "jackets",
-  preppy: "knitwear",
-  techwear: "jackets",
-  y2k: "jeans",
-};
-
-/** One tile per style, with the newest in-stock piece of that style as the picture. */
+/** One tile per style; the photo and count come with the facets (newest in-stock garment). */
 async function StyleTiles() {
   const [locale, t] = [await getLocale(), await getDictionary()];
   const keys = STYLES.slice(0, 6);
-  const [facets, ...firsts] = await Promise.all([
-    getFacets(MEN),
-    ...keys.map((key) => getProducts({ ...MEN, styles: [key], category: STYLE_COVER[key], inStock: true }, { sort: "recent", limit: 1 })),
-  ]);
-  const counts = new Map(facets.styles.map((s) => [s.key, s.count]));
+  const facets = await getFacets(MEN);
+  const byKey = new Map(facets.styles.map((s) => [s.key, s]));
   return (
     <ul className="rail -mx-4 flex gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 lg:grid-cols-6 lg:gap-4">
-      {keys.map((key, i) => {
-        const image = firsts[i].items[0]?.image_url;
+      {keys.map((key) => {
+        const image = byKey.get(key)?.image_url;
         return (
           <li key={key} className="w-[42vw] shrink-0 sm:w-auto">
             <Link
@@ -210,7 +192,7 @@ async function StyleTiles() {
               ) : null}
               <div className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16 text-white">
                 <span className="font-display text-xl font-semibold tracking-tight">{t.styles[key]}</span>
-                <span className="text-xs opacity-80 tabular">{t.home.pieces(formatCount(locale, counts.get(key) ?? 0))}</span>
+                <span className="text-xs opacity-80 tabular">{t.home.pieces(formatCount(locale, byKey.get(key)?.count ?? 0))}</span>
               </div>
             </Link>
           </li>

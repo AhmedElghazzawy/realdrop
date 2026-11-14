@@ -217,6 +217,30 @@ def _escape_like(text: str) -> str:
 
 FacetName = Literal["brands", "category", "styles", "colors"]
 EMPTY_TEXT_ARRAY = cast(array([], type_=Text), ARRAY(Text))
+# Garments that can stand for a style in a photo (pipeline/categorize.py keys).
+STYLE_PHOTO_CATEGORIES = (
+    "tshirts",
+    "shirts",
+    "knitwear",
+    "sweatshirts",
+    "jackets",
+    "suits",
+    "trousers",
+    "jeans",
+    "tracksuits",
+)
+STYLE_PHOTO_PREFERENCE = {
+    "old_money": "knitwear",
+    "streetwear": "sweatshirts",
+    "minimal": "tshirts",
+    "smart_casual": "shirts",
+    "classic_tailoring": "suits",
+    "sporty": "tracksuits",
+    "workwear": "jackets",
+    "preppy": "knitwear",
+    "techwear": "jackets",
+    "y2k": "jeans",
+}
 EMPTY_JSON_ARRAY: ColumnClause[Any] = literal_column("'[]'::json")
 
 
@@ -385,6 +409,43 @@ async def facets(session: AsyncSession, filters: Filters = NO_FILTERS) -> Facets
             .order_by(func.count().desc(), values.c.value)
         )
 
+    # One photo per style, like categories: the newest in-stock garment carrying the tag. Small
+    # items (socks, ties, belts) make poor pictures of a style, so only clothing qualifies.
+    tagged = (
+        select(
+            func.unnest(base.c.style_tags).label("style"),
+            base.c.category,
+            base.c.image_urls,
+            base.c.observed_at,
+            base.c.id,
+        )
+        .where(
+            base.c.sizes_in_stock > 0,
+            func.cardinality(base.c.image_urls) > 0,
+            base.c.category.in_(STYLE_PHOTO_CATEGORIES),
+            *where("styles"),
+        )
+        .subquery()
+    )
+    style_images = (
+        select(tagged.c.style, tagged.c.image_urls[1].label("url"))
+        .order_by(
+            tagged.c.style,
+            # The garment that says the style best first (a cardigan for old money, a hoodie
+            # for streetwear), then the newest.
+            case(
+                *(
+                    ((tagged.c.style == style) & (tagged.c.category == category), 0)
+                    for style, category in STYLE_PHOTO_PREFERENCE.items()
+                ),
+                else_=1,
+            ),
+            tagged.c.observed_at.desc(),
+            tagged.c.id,
+        )
+        .ext(distinct_on(tagged.c.style))
+    )
+
     totals_sub = totals.subquery()
     row = (
         await session.execute(
@@ -397,14 +458,29 @@ async def facets(session: AsyncSession, filters: Filters = NO_FILTERS) -> Facets
                 as_json(brands, "slug", "name", "n"),
                 as_json(tag_counts("style_tags", "styles"), "value", "n"),
                 as_json(tag_counts("colors", "colors"), "value", "n"),
+                as_json(style_images, "style", "url"),
             )
         )
     ).one()
-    total, low, high, category_rows, image_rows, brand_rows, style_rows, color_rows = row
+    (
+        total,
+        low,
+        high,
+        category_rows,
+        image_rows,
+        brand_rows,
+        style_rows,
+        color_rows,
+        style_photos,
+    ) = row
     image_by_key: dict[str, str] = dict(image_rows)
+    photo_by_style: dict[str, str] = dict(style_photos)
     return Facets(
         total=total or 0,
-        styles=[TagCount(key=key, count=count) for key, count in style_rows],
+        styles=[
+            TagCount(key=key, count=count, image_url=photo_by_style.get(key))
+            for key, count in style_rows
+        ],
         colors=[TagCount(key=key, count=count) for key, count in color_rows],
         categories=[
             CategoryCount(key=key, count=count, image_url=image_by_key.get(key))

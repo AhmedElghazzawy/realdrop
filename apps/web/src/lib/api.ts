@@ -110,7 +110,7 @@ export interface Facets {
   total: number;
   categories: { key: string; count: number; image_url: string | null }[];
   brands: { slug: string; name: string; count: number }[];
-  styles: { key: string; count: number }[];
+  styles: { key: string; count: number; image_url: string | null }[];
   min_price_minor: number | null;
   max_price_minor: number | null;
 }
