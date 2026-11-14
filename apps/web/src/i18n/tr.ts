@@ -37,7 +37,7 @@ export const tr: Dictionary = {
   meta: {
     description: "Moda indirimlerinin gerçeği: gerçek fiyat geçmişi ve gerçek indirimler.",
   },
-  announcement: "Türkiye'nin moda markaları için gerçek fiyat geçmişi, her gün kontrol ediliyor",
+  announcement: "Türkiye'deki tüm erkek giyim markaları, stile göre · fiyatlar her gün kontrol edilir, indirimler doğrulanır",
   nav: {
     shop: "Alışveriş",
     clothing: "Giyim",
@@ -108,6 +108,7 @@ export const tr: Dictionary = {
     },
   },
   shop: {
+    style: "Stil",
     title: "Tüm ürünler",
     dealsTitle: "İndirimler",
     searchTitle: (q: string) => `“${q}” için sonuçlar`,
@@ -170,6 +171,8 @@ export const tr: Dictionary = {
     inStock: "Stokta",
     soldOut: "Tükendi",
     buyAt: (brand: string) => `${brand} sitesinde satın al`,
+    style: "Stil",
+    styleNote: "Ürünün adı ve kategorisinden otomatik etiketlendi.",
     buyNote: "Mağazanın kendi sayfası açılır. RealDrop satış yapmaz.",
     details: "Ayrıntılar",
     brand: "Marka",

@@ -61,7 +61,7 @@ Cards and photos use `rounded-card` (`--radius: 14px`); buttons, chips and searc
   `lib/categories.ts`. The shop's own category is kept and shown on the product page.
 - **Shop listing** (`/[lang]/shop`): all filters live in the URL (`q`, `category`, `brand` (repeatable),
   `style` (repeatable, max 3), `min`/`max` in lira, `sale=1`, `stock=1`, `sort`, `page`), so every view is linkable. Desktop: a
-  sidebar with category counts, brand checkboxes (2+ brands), price, availability. Phones: a category
+  sidebar with style pills (counts, up to 3), category counts, brand checkboxes (2+ brands), price, availability. Phones: a category
   pill rail and a Filters drawer. Removable chips and "Clear all" above a 2/3/4-column grid,
   48 per page, numbered pagination. Counts come from `/products/facets`, each dimension counted
   without its own filter.

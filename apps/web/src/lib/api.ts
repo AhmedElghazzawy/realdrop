@@ -49,6 +49,9 @@ export interface ProductCard {
   sizes_total: number;
   first_seen_at: string;
   observed_at: string;
+  // From the catalog tagger (apps/api pipeline/tagger.py); empty until a product is tagged.
+  style_tags: string[];
+  colors: string[];
 }
 
 export interface ProductList {

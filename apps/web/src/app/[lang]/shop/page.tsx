@@ -89,9 +89,12 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
   const lastPage = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
   const brandNames = new Map(facets.brands.map((b) => [b.slug, b.name]));
   const isDeals = query.sale && query.sort === "claimed_discount" && !query.category;
+  const onlyStyle = query.style?.length === 1 ? (query.style[0] as StyleKey) : undefined;
   const title = query.category
     ? t.categories[query.category as CategoryKey]
-    : query.q
+    : onlyStyle
+      ? t.styles[onlyStyle]
+      : query.q
       ? t.shop.searchTitle(query.q)
       : isDeals
         ? t.shop.dealsTitle
@@ -167,7 +170,7 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
               <span className="flex items-center gap-2 text-sm font-medium">
                 <FilterIcon className="size-[18px]" />
                 {t.shop.filters}
-                {chips.length ? <span className="bg-text px-1.5 text-[11px] text-on-text">{chips.length}</span> : null}
+                {chips.length ? <span className="rounded-full bg-text px-1.5 text-[11px] text-on-text">{chips.length}</span> : null}
               </span>
             }
             triggerClassName="h-10 border border-line-strong px-3 lg:hidden"
@@ -182,7 +185,7 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
               <Link
                 href={chip.href}
                 aria-label={t.shop.remove(chip.label)}
-                className="flex h-8 items-center gap-2 bg-surface px-3 text-xs hover:bg-surface-2"
+                className="flex h-8 items-center gap-2 rounded-full bg-surface px-3.5 text-xs hover:bg-surface-2"
               >
                 {chip.label} <span aria-hidden>✕</span>
               </Link>
@@ -206,7 +209,7 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
             id="sort"
             name="sort"
             defaultValue={query.sort}
-            className="h-10 border border-line-strong bg-bg px-2 text-sm"
+            className="h-10 rounded-full border border-line-strong bg-bg px-3 text-sm"
           >
             {SORTS.map((s) => (
               <option key={s} value={s}>
@@ -215,7 +218,7 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
             ))}
           </select>
           <noscript>
-            <button className="h-10 border border-line-strong px-3 text-sm">{t.shop.apply}</button>
+            <button className="h-10 rounded-full border border-line-strong px-4 text-sm">{t.shop.apply}</button>
           </noscript>
         </AutoSubmitForm>
       </div>
@@ -227,12 +230,12 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
 
         <section aria-label={title}>
           {data.items.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 border border-dashed border-line-strong px-6 py-20 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-card border border-dashed border-line-strong px-6 py-20 text-center">
               <p className="font-display font-semibold text-2xl">{chips.length ? t.shop.noMatch : t.shop.empty}</p>
               {chips.length ? (
                 <>
                   <p className="text-sm text-muted">{t.shop.noMatchHint}</p>
-                  <Link href={shopHref(locale)} className="mt-2 bg-text px-5 py-2.5 text-sm font-medium text-on-text">
+                  <Link href={shopHref(locale)} className="mt-2 rounded-full bg-text px-5 py-2.5 text-sm font-medium text-on-text">
                     {t.shop.clearAll}
                   </Link>
                 </>
@@ -312,6 +315,33 @@ async function FilterPanel({ locale, query, facets }: { locale: Locale; query: S
   const check = "size-4 accent-[var(--text)]";
   return (
     <div className="flex flex-col gap-8">
+      {facets.styles.length ? (
+        <section>
+          <h2 className={heading}>{t.shop.style}</h2>
+          <ul className="flex flex-wrap gap-1.5">
+            {facets.styles
+              .filter((s) => isStyle(s.key))
+              .map((s) => {
+                const on = query.style?.includes(s.key) ?? false;
+                const next = on ? query.style?.filter((v) => v !== s.key) : [...(query.style ?? []), s.key].slice(-3);
+                return (
+                  <li key={s.key}>
+                    <Link
+                      href={shopHref(locale, { ...query, style: next, page: 1 })}
+                      aria-current={on ? "true" : undefined}
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors ${
+                        on ? "border-text bg-text text-on-text" : "border-line-strong hover:border-text"
+                      }`}
+                    >
+                      {t.styles[s.key as StyleKey]}
+                      <span className={`tabular text-[11px] ${on ? "opacity-70" : "text-muted"}`}>{s.count}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+          </ul>
+        </section>
+      ) : null}
       <section>
         <h2 className={heading}>{t.shop.category}</h2>
         <ul className="flex flex-col gap-1.5 text-sm">
@@ -376,7 +406,7 @@ async function FilterPanel({ locale, query, facets }: { locale: Locale; query: S
                 pattern="[0-9]*"
                 defaultValue={query.min}
                 placeholder={facets.min_price_minor ? String(Math.floor(facets.min_price_minor / 100)) : "0"}
-                className="h-10 w-full border border-line-strong bg-bg px-2 text-sm text-text"
+                className="h-10 w-full rounded-full border border-line-strong bg-bg px-3 text-sm text-text"
               />
             </label>
             <label className="flex flex-1 flex-col gap-1 text-xs text-muted">
@@ -387,10 +417,10 @@ async function FilterPanel({ locale, query, facets }: { locale: Locale; query: S
                 pattern="[0-9]*"
                 defaultValue={query.max}
                 placeholder={facets.max_price_minor ? String(Math.ceil(facets.max_price_minor / 100)) : ""}
-                className="h-10 w-full border border-line-strong bg-bg px-2 text-sm text-text"
+                className="h-10 w-full rounded-full border border-line-strong bg-bg px-3 text-sm text-text"
               />
             </label>
-            <button className="h-10 border border-text px-3 text-xs font-medium hover:bg-text hover:text-on-text">
+            <button className="h-10 rounded-full border border-text px-4 text-xs font-medium hover:bg-text hover:text-on-text">
               {t.shop.apply}
             </button>
           </div>
@@ -429,7 +459,7 @@ async function Pagination({
   const pages = [...new Set([1, current - 2, current - 1, current, current + 1, current + 2, lastPage])]
     .filter((p) => p >= 1 && p <= lastPage)
     .sort((a, b) => a - b);
-  const cell = "grid h-10 min-w-10 place-items-center px-2 text-sm tabular";
+  const cell = "grid h-10 min-w-10 place-items-center rounded-full px-2 text-sm tabular";
   return (
     <nav aria-label={t.shop.pages} className="mt-14 flex items-center justify-center gap-1">
       {current > 1 ? (

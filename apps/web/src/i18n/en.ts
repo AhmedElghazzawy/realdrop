@@ -40,7 +40,7 @@ export const en = {
   meta: {
     description: "The truth about fashion discounts: real price history and real price drops.",
   },
-  announcement: "Real price history for Turkey's fashion brands, checked every day",
+  announcement: "Every menswear brand in Turkey, sorted by style · prices checked daily, discounts verified",
   nav: {
     shop: "Shop",
     clothing: "Clothing",
@@ -111,6 +111,7 @@ export const en = {
     },
   },
   shop: {
+    style: "Style",
     title: "All products",
     dealsTitle: "Deals",
     searchTitle: (q: string) => `Results for “${q}”`,
@@ -171,6 +172,8 @@ export const en = {
     inStock: "In stock",
     soldOut: "Sold out",
     buyAt: (brand: string) => `Buy at ${brand}`,
+    style: "Style",
+    styleNote: "Tagged automatically from the product's name and category.",
     buyNote: "Opens the shop's own page. RealDrop sells nothing.",
     details: "Details",
     brand: "Brand",

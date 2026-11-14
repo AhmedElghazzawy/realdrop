@@ -9,6 +9,7 @@ import { type Filters, getProduct, getProducts, NotFoundError, type ProductDetai
 import { isCategory } from "@/lib/categories";
 import { claimedDiscount, formatDay, formatDayTime, formatMoney, formatPercent } from "@/lib/format";
 import { shopHref } from "@/lib/links";
+import { isStyle } from "@/lib/styles";
 
 export default function ProductPage(props: PageProps<"/[lang]/products/[id]">) {
   return (
@@ -35,6 +36,7 @@ async function Product({ params }: { params: Promise<{ id: string }> }) {
   const discount = claimedDiscount(p.price_minor, p.original_price_minor);
   const pct = discount === null ? null : formatPercent(locale, discount);
   const inStock = p.variants.filter((v) => v.in_stock).length;
+  const styles = p.style_tags.filter(isStyle);
 
   return (
     <div className="mx-auto flex max-w-[90rem] flex-col gap-16 px-4 pb-10 pt-5 lg:gap-24 lg:px-8">
@@ -88,7 +90,7 @@ async function Product({ params }: { params: Promise<{ id: string }> }) {
                     </s>
                     <span
                       title={dict.claim.title}
-                      className="bg-sale px-1.5 py-0.5 text-xs font-semibold text-on-text"
+                      className="rounded-full bg-sale px-2 py-0.5 text-xs font-semibold text-white"
                     >
                       {dict.claim.shopSays(pct)}
                     </span>
@@ -100,6 +102,26 @@ async function Product({ params }: { params: Promise<{ id: string }> }) {
               ) : null}
             </header>
 
+            {styles.length ? (
+              <section className="flex flex-col gap-3">
+                <h2 className="eyebrow">{t.style}</h2>
+                <ul className="flex flex-wrap gap-2">
+                  {styles.map((key) => (
+                    <li key={key}>
+                      <Link
+                        href={shopHref(locale, { style: [key] })}
+                        className="flex items-center gap-1.5 rounded-full bg-surface px-3.5 py-1.5 text-[13px] font-medium transition-colors hover:bg-text hover:text-on-text"
+                      >
+                        <span className="size-1.5 rounded-full bg-signal" aria-hidden />
+                        {dict.styles[key]}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted">{t.styleNote}</p>
+              </section>
+            ) : null}
+
             <section className="flex flex-col gap-3">
               <div className="flex items-baseline justify-between">
                 <h2 className="eyebrow">{t.sizes}</h2>
@@ -109,7 +131,7 @@ async function Product({ params }: { params: Promise<{ id: string }> }) {
                 {p.variants.map((v, i) => (
                   <li
                     key={`${v.size_label}-${i}`}
-                    className={`flex h-11 items-center justify-center border text-xs tabular ${
+                    className={`flex h-11 items-center justify-center rounded-full border text-xs tabular ${
                       v.in_stock ? "border-line-strong" : "border-line text-muted line-through"
                     }`}
                   >
@@ -125,7 +147,7 @@ async function Product({ params }: { params: Promise<{ id: string }> }) {
                 href={p.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-13 items-center justify-center gap-2 bg-text px-6 text-sm font-medium text-on-text transition-opacity hover:opacity-85"
+                className="flex h-13 items-center justify-center gap-2 rounded-full bg-text px-6 text-sm font-medium text-on-text transition-opacity hover:opacity-85"
               >
                 {t.buyAt(p.brand_name)} <ExternalIcon className="size-4" />
               </a>
@@ -200,9 +222,9 @@ function Gallery({
   label: (n: number, of: number) => string;
 }) {
   const shown = images.slice(0, 6);
-  if (shown.length === 0) return <div className="aspect-[3/4] bg-surface" />;
+  if (shown.length === 0) return <div className="aspect-[3/4] rounded-card bg-surface" />;
   return (
-    <ul className="rail -mx-4 flex gap-1 overflow-x-auto lg:mx-0 lg:grid lg:grid-cols-2 lg:gap-1 lg:overflow-visible">
+    <ul className="rail -mx-4 flex gap-2 overflow-x-auto lg:mx-0 lg:grid lg:grid-cols-2 lg:gap-2 lg:overflow-visible">
       {shown.map((src, i) => (
         <li
           key={src}
@@ -216,7 +238,7 @@ function Gallery({
             src={src}
             alt={i === 0 ? title : label(i + 1, shown.length)}
             loading={i < 2 ? "eager" : "lazy"}
-            className="aspect-[3/4] w-full bg-surface object-cover"
+            className="aspect-[3/4] w-full rounded-card bg-surface object-cover"
           />
         </li>
       ))}
