@@ -22,8 +22,9 @@ behaviour (`test_campaign_end_is_turkey_time`), not the function.
 
 ## Evals
 
-Run: `uv run python -m realdrop.evals.run --suite <name>` (from `apps/api`, built with the first AI
-phase). Output goes to `evals/runs/<timestamp>/` (gitignored) with a summary and per-case failures.
+Run: `make eval SUITE=tagger TAGGER=rules` (or `TAGGER=llm MODEL=gemma4:12b RUNS=3`), which calls
+`python -m realdrop.evals.run` in `apps/api`. Output goes to `apps/api/evals/runs/<timestamp>-<suite>-<tagger>/`
+(gitignored): `summary.json` (dev, held-out and all, scored separately) and `failures.jsonl`.
 
 ### Suites
 
@@ -64,6 +65,21 @@ Start with 30 queries; 10 minutes each at the beginning is normal.
 
 Pick ~60 products across brands and categories, label them by hand (not by the model), freeze the set.
 Never tune prompts on the same cases you report; keep a 20-product held-out slice.
+
+**Status (14 Nov 2026):** 60 products, 4 per category, sampled at random from the catalog
+(`split`: every third case is `holdout`). Labels are a **draft written by Claude**
+(`"labeled_by": "claude-draft"`) and must be reviewed by a person before the set is frozen;
+change `labeled_by` to the reviewer when a case is checked. Fields: `style_tags` (set), `colors`
+(set), `fit` (labelled only where the text states it, else `null`).
+
+| Tagger | Style tags F1 (dev / holdout) | Colours F1 | Fit accuracy |
+|---|---|---|---|
+| Rules, `TAGGER_VERSION=1` (baseline) | 0.64 / 0.68 | 0.96 | 0.98 |
+| LLM styles (`ai/style_tagger.py`) | not measured yet: local Ollama hung under memory pressure (16 GB Mac with the dev stack running); run with the dev servers stopped | | |
+
+Colours and fit already meet the launch thresholds with rules alone; only style tags need the LLM.
+`qwen3:4b` with thinking on spent ~3,100 tokens (124 s) on one product: unusable for a batch, so
+thinking must be off (`think: false`) or a non-thinking model used.
 
 ### Stylist suite
 

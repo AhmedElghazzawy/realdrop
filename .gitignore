@@ -21,7 +21,7 @@ out/
 .idea/
 
 # project
-evals/runs/
+**/evals/runs/
 data/
 *.log
 .claude/settings.local.json

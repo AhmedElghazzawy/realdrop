@@ -3,7 +3,7 @@
 API := apps/api
 WEB := apps/web
 
-.PHONY: help setup up down api web test lint format typecheck check migrate collect-dry
+.PHONY: help setup up down api web test lint format typecheck check migrate collect-dry eval
 
 help: ## List the available targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[1m%-12s\033[0m %s\n", $$1, $$2}'
@@ -46,3 +46,6 @@ migrate: ## Apply database migrations to DATABASE_URL (local by default)
 
 collect-dry: ## Dry-run a collector: make collect-dry BRAND=defacto LIMIT=20
 	cd $(API) && uv run python -m realdrop.collectors.run --brand $(BRAND) --limit $(or $(LIMIT),20) --dry-run
+
+eval: ## Run an eval suite: make eval SUITE=tagger TAGGER=rules|llm [MODEL=gemma4:12b RUNS=3]
+	cd $(API) && uv run python -m realdrop.evals.run --suite $(or $(SUITE),tagger) --tagger $(or $(TAGGER),rules) $(if $(MODEL),--model $(MODEL)) --runs $(or $(RUNS),1)

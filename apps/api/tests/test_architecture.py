@@ -88,6 +88,11 @@ RULES = (
         ),
     ),
     Rule(
+        "model calls never touch storage: text in, structured answers out (callers persist)",
+        applies_to=("realdrop.ai",),
+        forbidden=("sqlalchemy", "realdrop.db", "realdrop.models", "realdrop.services", "fastapi"),
+    ),
+    Rule(
         "routes are thin: they call services, never models, SQL or the pipeline",
         applies_to=("realdrop.api",),
         forbidden=("sqlalchemy", "realdrop.models", "realdrop.pipeline", "realdrop.collectors"),
