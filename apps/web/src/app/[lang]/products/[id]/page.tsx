@@ -74,7 +74,7 @@ async function Product({ params }: { params: Promise<{ id: string }> }) {
               >
                 {p.brand_name}
               </Link>
-              <h1 className="font-serif text-3xl leading-tight tracking-tight sm:text-4xl" lang="tr">
+              <h1 className="font-display font-semibold text-3xl leading-tight tracking-tight sm:text-4xl" lang="tr">
                 {p.title}
               </h1>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 tabular">
@@ -148,7 +148,7 @@ async function Product({ params }: { params: Promise<{ id: string }> }) {
 
       <section className="grid grid-cols-[minmax(0,1fr)] gap-6 border-t border-line pt-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-12">
         <div className="flex flex-col gap-3">
-          <h2 className="font-serif text-3xl leading-none tracking-tight sm:text-4xl">{t.history}</h2>
+          <h2 className="font-display font-semibold text-3xl leading-none tracking-tight sm:text-4xl">{t.history}</h2>
           {p.history.length < 14 ? (
             <p className="max-w-sm text-sm leading-6 text-muted">{t.notEnoughHistory(p.history.length)}</p>
           ) : null}
@@ -243,7 +243,7 @@ async function MoreRail({
   return (
     <section className="flex flex-col gap-6">
       <div className="flex items-end justify-between gap-4">
-        <h2 className="font-serif text-3xl leading-none tracking-tight sm:text-4xl">{title}</h2>
+        <h2 className="font-display font-semibold text-3xl leading-none tracking-tight sm:text-4xl">{title}</h2>
         <Link href={href} className="shrink-0 text-sm underline underline-offset-4">
           {viewAll}
         </Link>

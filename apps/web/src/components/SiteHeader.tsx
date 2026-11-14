@@ -13,7 +13,7 @@ import { ThemeToggle } from "./ThemeToggle";
 // keyboard focus, no JS), search, theme and language. Phones get the same links in a drawer.
 export async function SiteHeader() {
   const [locale, t] = [await getLocale(), await getDictionary()];
-  const link = "py-2 text-[13px] font-medium tracking-wide hover:text-muted";
+  const link = "py-2 text-sm font-medium hover:text-signal";
 
   const clothingPanel = (
     <div className="grid grid-cols-[1fr_1fr_14rem] gap-10 py-8">
@@ -48,17 +48,17 @@ export async function SiteHeader() {
       </div>
       <Link
         href={shopHref(locale, dealsQuery)}
-        className="flex flex-col justify-end gap-2 bg-surface p-5 hover:bg-surface-2"
+        className="flex flex-col justify-end gap-2 rounded-card bg-surface p-5 hover:bg-surface-2"
       >
         <span className="eyebrow text-sale">{t.nav.deals}</span>
-        <span className="font-serif text-2xl leading-tight">{t.home.dealsTitle}</span>
+        <span className="font-display font-semibold text-2xl leading-tight">{t.home.dealsTitle}</span>
       </Link>
     </div>
   );
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
-      <p className="hidden bg-text px-4 py-1.5 text-center text-[11px] tracking-wide text-on-text sm:block">
+      <p className="hidden bg-signal px-4 py-1.5 text-center text-[12px] text-on-text sm:block">
         {t.announcement}
       </p>
       <div className="mx-auto flex h-14 max-w-[90rem] items-center gap-2 px-4 lg:h-16 lg:gap-8 lg:px-8">
@@ -70,10 +70,10 @@ export async function SiteHeader() {
 
         <Link
           href={`/${locale}`}
-          className="text-lg font-semibold tracking-[0.18em] lg:text-xl"
+          className="font-display text-2xl font-bold tracking-tight lg:text-[26px]"
           aria-label="RealDrop"
         >
-          REAL<span className="text-signal">DROP</span>
+          real<span className="text-signal">drop</span>
         </Link>
 
         <nav aria-label={t.nav.shop} className="hidden h-full items-stretch gap-7 lg:flex">
@@ -100,7 +100,7 @@ export async function SiteHeader() {
           <Form
             action={`/${locale}/shop`}
             role="search"
-            className="hidden items-center border-b border-line-strong md:flex"
+            className="hidden items-center rounded-full bg-surface pl-4 md:flex"
           >
             <label htmlFor="header-q" className="sr-only">
               {t.search.label}

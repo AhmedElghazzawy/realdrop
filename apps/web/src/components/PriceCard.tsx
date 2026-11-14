@@ -12,7 +12,7 @@ export async function PriceCard({ product, priority = false }: { product: Produc
   const discount = claimedDiscount(product.price_minor, product.original_price_minor);
   return (
     <Link href={`/${locale}/products/${product.id}`} className="group flex flex-col gap-3">
-      <div className="relative aspect-[3/4] overflow-hidden bg-surface">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-card bg-surface">
         {product.image_url ? (
           // Hotlinked from the shop's CDN (docs/product/vision.md); no copy is stored or optimised by us.
           // eslint-disable-next-line @next/next/no-img-element
@@ -25,22 +25,22 @@ export async function PriceCard({ product, priority = false }: { product: Produc
             }`}
           />
         ) : null}
-        <div className="absolute left-0 top-0 flex flex-col items-start gap-1 p-2">
+        <div className="absolute left-0 top-0 flex flex-col items-start gap-1 p-2.5">
           {discount !== null && !soldOut ? (
             <span
-              className="bg-sale px-1.5 py-0.5 text-[11px] font-semibold text-on-text tabular"
+              className="rounded-full bg-sale px-2 py-0.5 text-[11px] font-semibold text-white tabular"
               title={t.claim.title}
             >
               {t.claim.shopSays(formatPercent(locale, discount))}
             </span>
           ) : null}
           {soldOut ? (
-            <span className="bg-bg px-1.5 py-0.5 text-[11px] font-medium">{t.card.soldOut}</span>
+            <span className="rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium">{t.card.soldOut}</span>
           ) : null}
         </div>
       </div>
       <div className="flex flex-col gap-1 px-0.5">
-        <p className="eyebrow font-medium">{product.brand_name}</p>
+        <p className="text-[12px] font-semibold">{product.brand_name}</p>
         <h3 className="line-clamp-2 text-[13px] leading-[18px] text-muted" lang="tr">
           {product.title}
         </h3>
@@ -67,7 +67,7 @@ export async function PriceCard({ product, priority = false }: { product: Produc
 export function CardSkeleton() {
   return (
     <div className="flex flex-col gap-3" aria-hidden>
-      <div className="aspect-[3/4] animate-pulse bg-surface" />
+      <div className="aspect-[3/4] animate-pulse rounded-card bg-surface" />
       <div className="h-3 w-1/3 animate-pulse bg-surface" />
       <div className="h-3 w-4/5 animate-pulse bg-surface" />
       <div className="h-3 w-1/4 animate-pulse bg-surface" />

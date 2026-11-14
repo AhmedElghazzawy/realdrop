@@ -2,16 +2,16 @@
 
 ## Direction
 
-**Light editorial store, with a dark mode.** (Redesign, 27 Oct 2026, owner decision.) The site looks
-and is organised like the big international fashion shops (COS, Zara, SSENSE, Mr Porter): white
-pages, large product photography, a thin black type system, a mega menu by category, and a shop
-listing with filters. Price history is still the reason the site exists, so the product page gives
-the chart its own full-width section and every discount is labelled as the shop's claim until our
-history can judge it.
+**Warm, soft and modern: an AI style advisor, not a discount table.** (Redesign, 14 Nov 2026, after
+the owner rejected both the white editorial store and a dark "editorial × data" concept.) Warm
+off-white pages, one deep-green accent, rounded photo cards, pill controls, and a characterful
+grotesque for headlines. The home page leads with styles (pick a style, we find the pieces); price
+honesty stays as a feature: every discount is labelled as the shop's claim until our history can
+judge it.
 
-Principles: truth first (never decorate a number), organised before clever (every product sits in
-one of our 15 categories), photography carries the colour, red is only for sale prices, square
-corners, and motion only for hover feedback.
+Principles: truth first (never decorate a number), photography carries the colour, one accent
+(green = the advisor and real drops), red only for sale prices, soft corners, motion only for hover
+feedback.
 
 ## Theme
 
@@ -26,41 +26,41 @@ CSS variables in `apps/web/src/app/globals.css`, mapped to Tailwind with `@theme
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `--bg` | `#ffffff` | `#0c0c0d` | page |
-| `--surface` | `#f4f4f2` | `#161618` | image wells, inputs, skeletons, footer |
-| `--surface-2` | `#ebebe8` | `#1f1f22` | hover |
-| `--line` / `--line-strong` | `#e3e3df` / `#c9c9c4` | `#2a2a2e` / `#3d3d42` | dividers / outlined controls |
-| `--text` | `#111111` | `#f2f2ee` | text, filled buttons |
-| `--on-text` | `#ffffff` | `#0c0c0d` | text on a `--text` or `--sale` fill |
-| `--muted` | `#5f5f5c` | `#a1a1a6` | secondary text (AA on bg and surface) |
-| `--sale` | `#c8102e` | `#ff6b6b` | the shop's sale price and its −% badge (a claim) |
-| `--signal` | `#0f7a3d` | `#c6ff3d` | REAL drop only (verified by our history); logo accent |
-| `--warn` | `#c2410c` | `#ff7a4d` | inflated claim; the note beside a claimed discount |
-| `--info` | `#1d4ed8` | `#8ab4ff` | focus ring, prose links |
+| `--bg` | `#f6f3ee` | `#12110f` | page (warm off-white / warm near-black) |
+| `--surface` | `#ece7df` | `#1c1a17` | image wells, inputs, skeletons, cards |
+| `--surface-2` | `#e3ddd3` | `#25221e` | hover |
+| `--line` / `--line-strong` | `#e2dcd2` / `#c9c1b5` | `#2c2925` / `#403b35` | dividers / outlined controls |
+| `--text` | `#1b1814` | `#f2eee7` | text, filled buttons |
+| `--on-text` | `#f6f3ee` | `#12110f` | text on a `--text` or `--signal` fill |
+| `--muted` | `#6a635a` | `#a69f94` | secondary text (AA on bg and surface) |
+| `--sale` | `#b3261e` | `#ff7b6e` | the shop's sale price and its −% badge (a claim) |
+| `--signal` | `#1f6b4a` | `#7fd6a4` | the one accent: advisor voice, REAL drop, logo |
+| `--warn` | `#b4501a` | `#ff9466` | inflated claim; the note beside a claimed discount |
+| `--info` | `#2b59c3` | `#8eb0ff` | focus ring, prose links |
 | `--series-1` / `--series-2` | `#2a78d6` / `#eb6834` | `#3987e5` / `#d95926` | chart: price paid / shop's claimed old price |
 
 The chart series come from the dataviz reference palette and pass its validator in both modes
 (lightness band, chroma, colour-blind separation, contrast): re-run it if you change them.
-Corners are square (`--radius: 2px` at most). Colour is never the only carrier of meaning.
+Cards and photos use `rounded-card` (`--radius: 14px`); buttons, chips and search are pills. Colour is never the only carrier of meaning.
 
 ## Type
 
-- **Display:** Instrument Serif, large and tight (`tracking-tight`, leading ~0.95-1.1), for page
-  titles, section titles and product names only.
+- **Display:** Bricolage Grotesque (`font-display font-semibold`, `tracking-tight`/`tighter`,
+  leading ~0.95-1.1), for page titles, section titles and product names only.
 - **UI and numbers:** Geist, with `.tabular` (tabular figures) on every price, count and date column.
 - **Eyebrows:** `.eyebrow` = 11 px, uppercase, 0.08em tracking (brand names, filter group titles).
-- All three ship `latin-ext`; `ığüşöçİĞÜŞÖÇ` checked in each.
+- All fonts ship `latin-ext`; `ığüşöçİĞÜŞÖÇ` checked in each.
 
 ## Layout and navigation
 
 - Page width `max-w-[90rem]`, gutter 16 px (phones) / 32 px (desktop). Pages pad themselves.
-- **Header** (sticky): black announcement bar; logo; *Clothing* mega panel (clothing / shoes and
+- **Header** (sticky): green announcement bar; lowercase `realdrop` logo; *Clothing* mega panel (clothing / shoes and
   accessories columns + a deals promo); *Deals* in `--sale`; *New in*; *Brands*; search; theme
   switch; EN / TR. Phones get a side drawer (`Drawer`, a `<dialog>`) and a search icon.
 - **Categories** are ours (`products.category`, keyword rules in `pipeline/categorize.py`), listed in
   `lib/categories.ts`. The shop's own category is kept and shown on the product page.
 - **Shop listing** (`/[lang]/shop`): all filters live in the URL (`q`, `category`, `brand` (repeatable),
-  `min`/`max` in lira, `sale=1`, `stock=1`, `sort`, `page`), so every view is linkable. Desktop: a
+  `style` (repeatable, max 3), `min`/`max` in lira, `sale=1`, `stock=1`, `sort`, `page`), so every view is linkable. Desktop: a
   sidebar with category counts, brand checkboxes (2+ brands), price, availability. Phones: a category
   pill rail and a Filters drawer. Removable chips and "Clear all" above a 2/3/4-column grid,
   48 per page, numbered pagination. Counts come from `/products/facets`, each dimension counted

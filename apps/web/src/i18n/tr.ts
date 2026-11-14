@@ -1,5 +1,19 @@
 import type { CategoryKey } from "@/lib/categories";
+import type { StyleKey } from "@/lib/styles";
 import type { Dictionary } from "./en";
+
+const styles: Record<StyleKey, string> = {
+  old_money: "Old money",
+  streetwear: "Sokak stili",
+  minimal: "Minimal",
+  smart_casual: "Smart casual",
+  classic_tailoring: "Klasik terzilik",
+  sporty: "Spor",
+  workwear: "İş giyimi",
+  preppy: "Preppy",
+  techwear: "Techwear",
+  y2k: "Y2K",
+};
 
 const categories: Record<CategoryKey, string> = {
   tshirts: "Tişört & Polo",
@@ -43,6 +57,7 @@ export const tr: Dictionary = {
     men: "Erkek",
   },
   categories,
+  styles,
   footer: {
     note: "Fiyatlar mağazaların kendi sitelerinden her gün toplanır. Her iddia, gözlemlediğimiz fiyatlara dayanır. RealDrop bir mağaza değildir, satış yapmaz.",
     shop: "Alışveriş",
@@ -54,11 +69,17 @@ export const tr: Dictionary = {
     button: "Ara",
   },
   home: {
-    kicker: "Erkek giyim · gerçek fiyat geçmişi · her gün güncel",
-    title: "İndirim gerçek mi?",
-    titleAccent: "Fiyat geçmişi söylesin.",
+    kicker: "Yapay zekâ stil danışmanınız · erkek giyim",
+    title: "Tarzını bul.",
+    titleAccent: "Parçaları biz bulalım.",
     intro:
-      "Türkiye'deki moda mağazalarının her fiyatını her gün kaydediyoruz. Bir mağaza “−%50” dediğinde, fiyatın gerçekte ne olduğunu görebilirsiniz.",
+      "Sevdiğin bir stili seç. Tüm markaların kataloğunda onu arıyoruz ve bir indirimin gerçek olup olmadığını dürüstçe söylüyoruz.",
+    stylesTitle: "Stile göre alışveriş",
+    stylesNote: "Her ürün stil, renk ve kalıba göre etiketli. Başlamak için birini seç.",
+    pieces: (n: string) => `${n} parça`,
+    soon: "Yakında",
+    lookSoon: "Fotoğraftan kombin bul",
+    lookSoonNote: "Yakında: Instagram veya Pinterest'ten bir kombin yükle, her parçayı bulalım.",
     ctaDeals: "En büyük indirimler",
     ctaAll: "Tüm ürünler",
     categoriesTitle: "Kategoriye göre",

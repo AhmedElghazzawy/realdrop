@@ -10,6 +10,7 @@ import type { Locale } from "@/i18n/config";
 import { type Facets, type Filters, getFacets, getProducts, type SortOrder } from "@/lib/api";
 import { CATEGORIES, type CategoryKey, isCategory } from "@/lib/categories";
 import { formatCount } from "@/lib/format";
+import { isStyle, type StyleKey } from "@/lib/styles";
 import { type ShopQuery, shopHref } from "@/lib/links";
 
 const SORTS: SortOrder[] = ["recent", "claimed_discount", "price_asc", "price_desc"];
@@ -29,6 +30,7 @@ function readQuery(raw: Raw): ShopQuery & { sort: SortOrder; page: number } {
   return {
     q: one(raw.q).trim().slice(0, 100) || undefined,
     category: isCategory(category) ? category : undefined,
+    style: many(raw.style).filter(isStyle).slice(0, 3),
     brand: many(raw.brand)
       .filter((b) => /^[a-z0-9-]{1,64}$/.test(b))
       .slice(0, 20),
@@ -45,6 +47,7 @@ function toFilters(query: ShopQuery): Filters {
   return {
     q: query.q,
     category: query.category,
+    styles: query.style,
     brands: query.brand,
     audience: AUDIENCE,
     // The shopper types whole lira; the API takes kurus.
@@ -102,6 +105,11 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
       label: t.categories[query.category as CategoryKey],
       href: shopHref(locale, { ...query, category: undefined, page: 1 }),
     });
+  for (const style of query.style ?? [])
+    chips.push({
+      label: t.styles[style as StyleKey],
+      href: shopHref(locale, { ...query, style: query.style?.filter((s) => s !== style), page: 1 }),
+    });
   for (const slug of query.brand ?? [])
     chips.push({
       label: brandNames.get(slug) ?? slug,
@@ -144,7 +152,7 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
       </nav>
 
       <header className="flex flex-col gap-1">
-        <h1 className="font-serif text-4xl leading-none tracking-tight sm:text-5xl">{title}</h1>
+        <h1 className="font-display font-semibold text-4xl leading-none tracking-tight sm:text-5xl">{title}</h1>
         <p className="text-sm text-muted tabular">{t.shop.count(formatCount(locale, data.total))}</p>
       </header>
 
@@ -220,7 +228,7 @@ async function Shop({ searchParams }: { searchParams: Promise<Raw> }) {
         <section aria-label={title}>
           {data.items.length === 0 ? (
             <div className="flex flex-col items-center gap-3 border border-dashed border-line-strong px-6 py-20 text-center">
-              <p className="font-serif text-2xl">{chips.length ? t.shop.noMatch : t.shop.empty}</p>
+              <p className="font-display font-semibold text-2xl">{chips.length ? t.shop.noMatch : t.shop.empty}</p>
               {chips.length ? (
                 <>
                   <p className="text-sm text-muted">{t.shop.noMatchHint}</p>
@@ -284,6 +292,7 @@ function HiddenFields({ query, except }: { query: ShopQuery; except: (keyof Shop
       {query.category && !skip.has("category") ? (
         <input type="hidden" name="category" value={query.category} />
       ) : null}
+      {query.style?.map((v) => <input key={v} type="hidden" name="style" value={v} />)}
       {!skip.has("brand") && query.brand?.map((b) => <input key={b} type="hidden" name="brand" value={b} />)}
       {query.min && !skip.has("min") ? <input type="hidden" name="min" value={query.min} /> : null}
       {query.max && !skip.has("max") ? <input type="hidden" name="max" value={query.max} /> : null}

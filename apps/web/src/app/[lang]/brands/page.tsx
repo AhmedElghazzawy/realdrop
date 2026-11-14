@@ -15,7 +15,7 @@ export default async function BrandsPage() {
   return (
     <div className="mx-auto max-w-[90rem] px-4 pb-10 pt-10 lg:px-8">
       <header className="mb-10 flex flex-col gap-2 border-b border-line pb-8">
-        <h1 className="font-serif text-5xl leading-none tracking-tight sm:text-6xl">{t.title}</h1>
+        <h1 className="font-display font-semibold text-5xl leading-none tracking-tight sm:text-6xl">{t.title}</h1>
         <p className="text-sm text-muted">{t.intro}</p>
       </header>
       <Suspense fallback={<div className="h-64 animate-pulse bg-surface" />}>
@@ -38,7 +38,7 @@ async function BrandList() {
     <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
       {[...groups].map(([letter, group]) => (
         <section key={letter}>
-          <h2 className="mb-3 font-serif text-3xl">{letter}</h2>
+          <h2 className="mb-3 font-display font-semibold text-3xl">{letter}</h2>
           <ul className="flex flex-col gap-2">
             {group.map((b) => (
               <li key={b.slug}>

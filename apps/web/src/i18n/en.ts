@@ -3,6 +3,20 @@
 // Product titles and shop categories come from the shops and are not translated (yet).
 
 import type { CategoryKey } from "@/lib/categories";
+import type { StyleKey } from "@/lib/styles";
+
+const styles: Record<StyleKey, string> = {
+  old_money: "Old money",
+  streetwear: "Streetwear",
+  minimal: "Minimal",
+  smart_casual: "Smart casual",
+  classic_tailoring: "Tailoring",
+  sporty: "Sporty",
+  workwear: "Workwear",
+  preppy: "Preppy",
+  techwear: "Techwear",
+  y2k: "Y2K",
+};
 
 const categories: Record<CategoryKey, string> = {
   tshirts: "T-shirts & Polos",
@@ -46,6 +60,7 @@ export const en = {
     men: "Men",
   },
   categories,
+  styles,
   footer: {
     note: "Prices are collected daily from the shops' own websites. Every claim is based on prices we observed. RealDrop is not a shop and sells nothing.",
     shop: "Shop",
@@ -57,11 +72,17 @@ export const en = {
     button: "Search",
   },
   home: {
-    kicker: "Menswear · real price history · updated daily",
-    title: "Is that discount real?",
-    titleAccent: "Let the price history tell.",
+    kicker: "Your AI style advisor · menswear",
+    title: "Find your style.",
+    titleAccent: "We'll find the pieces.",
     intro:
-      "We record every price, every day, at Turkey's fashion shops. So when a shop says “−50%”, you can see what the price really was.",
+      "Pick a style you love. We search every brand's catalog for it, and tell you honestly whether a discount is real.",
+    stylesTitle: "Shop by style",
+    stylesNote: "Every product is tagged by style, colour and fit. Pick one to start.",
+    pieces: (n: string) => `${n} pieces`,
+    soon: "Coming soon",
+    lookSoon: "Shop a look from a photo",
+    lookSoonNote: "Coming soon: upload an outfit from Instagram or Pinterest and we find every piece.",
     ctaDeals: "Shop the biggest discounts",
     ctaAll: "Browse everything",
     categoriesTitle: "Shop by category",

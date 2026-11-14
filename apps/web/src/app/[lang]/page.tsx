@@ -1,13 +1,14 @@
 import Form from "next/form";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, SearchIcon } from "@/components/icons";
+import { SearchIcon } from "@/components/icons";
 import { CardSkeleton, PriceCard } from "@/components/PriceCard";
 import { getDictionary, getLocale } from "@/i18n";
 import { type Filters, getFacets, getProducts, type SortOrder } from "@/lib/api";
 import { CATEGORIES, type CategoryKey, isCategory } from "@/lib/categories";
 import { formatCount } from "@/lib/format";
 import { dealsQuery, shopHref } from "@/lib/links";
+import { STYLES, type StyleKey } from "@/lib/styles";
 
 // Men only for now (owner decision, 25 Oct 2026); a men/women choice comes later.
 const MEN: Filters = { audience: "men" };
@@ -17,46 +18,75 @@ export default async function Home() {
   const h = t.home;
   return (
     <div className="flex flex-col gap-20 pb-10 lg:gap-28">
-      <section className="border-b border-line">
-        <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-14 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:px-8 lg:py-24">
-          <div className="flex flex-col gap-6">
-            <p className="eyebrow text-muted">{h.kicker}</p>
-            <h1 className="font-serif text-5xl leading-[0.95] tracking-tight sm:text-7xl lg:text-8xl">
+      <section className="mx-auto w-full max-w-[90rem] px-4 pt-10 lg:px-8 lg:pt-16">
+        <div className="grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-stretch">
+          <div className="flex flex-col justify-center gap-7">
+            <p className="flex w-fit items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs font-medium">
+              <span className="size-1.5 rounded-full bg-signal" aria-hidden />
+              {h.kicker}
+            </p>
+            <h1 className="font-display text-5xl font-semibold leading-[0.95] tracking-tighter sm:text-7xl lg:text-[5.5rem]">
               {h.title}
               <br />
-              <span className="text-muted">{h.titleAccent}</span>
+              <span className="text-signal">{h.titleAccent}</span>
             </h1>
-          </div>
-          <div className="flex flex-col gap-6 lg:pb-3">
-            <p className="max-w-md text-base leading-7 text-muted">{h.intro}</p>
-            <Form action={`/${locale}/shop`} role="search" className="flex h-12 max-w-md items-center border border-text">
+            <p className="max-w-lg text-base leading-7 text-muted sm:text-lg">{h.intro}</p>
+            <Form
+              action={`/${locale}/shop`}
+              role="search"
+              className="flex h-14 max-w-lg items-center rounded-full bg-surface p-1.5 pl-5"
+            >
               <label htmlFor="home-q" className="sr-only">
                 {t.search.label}
               </label>
-              <SearchIcon className="ml-4 size-[18px] shrink-0 text-muted" />
+              <SearchIcon className="size-[18px] shrink-0 text-muted" />
               <input
                 id="home-q"
                 name="q"
                 type="search"
                 placeholder={t.search.placeholder}
-                className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-muted"
+                className="h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] outline-none placeholder:text-muted"
               />
-              <button className="h-full bg-text px-5 text-sm font-medium text-on-text">{t.search.button}</button>
+              <button className="h-full rounded-full bg-text px-6 text-sm font-medium text-on-text">
+                {t.search.button}
+              </button>
             </Form>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-              <Link
-                href={shopHref(locale, dealsQuery)}
-                className="flex items-center gap-1.5 font-medium underline underline-offset-4"
-              >
-                {h.ctaDeals} <ArrowRight className="size-4" />
-              </Link>
-              <Link href={shopHref(locale)} className="text-muted underline underline-offset-4 hover:text-text">
-                {h.ctaAll}
-              </Link>
+            <ul className="flex max-w-xl flex-wrap gap-2">
+              {STYLES.slice(0, 6).map((key) => (
+                <li key={key}>
+                  <Link
+                    href={shopHref(locale, { style: [key] })}
+                    className="block rounded-full border border-line-strong px-4 py-2 text-sm font-medium transition-colors hover:border-text hover:bg-text hover:text-on-text"
+                  >
+                    {t.styles[key]}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex min-h-80 flex-col justify-between gap-6 rounded-[28px] bg-text p-7 text-on-text lg:p-9">
+            <span className="w-fit rounded-full bg-signal px-3 py-1 text-xs font-semibold text-on-text">
+              {h.soon}
+            </span>
+            <div className="grid flex-1 place-items-center rounded-[20px] border border-dashed border-on-text/30 p-6">
+              <svg viewBox="0 0 24 24" className="size-12 opacity-80" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+                <circle cx="12" cy="13" r="3.5" />
+              </svg>
+            </div>
+            <div className="flex flex-col gap-2">
+              <h2 className="font-display text-3xl font-semibold tracking-tight">{h.lookSoon}</h2>
+              <p className="max-w-sm text-sm leading-6 opacity-70">{h.lookSoonNote}</p>
             </div>
           </div>
         </div>
       </section>
+
+      <Section title={h.stylesTitle} note={h.stylesNote}>
+        <Suspense fallback={<TilesSkeleton />}>
+          <StyleTiles />
+        </Suspense>
+      </Section>
 
       <Section title={h.categoriesTitle}>
         <Suspense fallback={<TilesSkeleton />}>
@@ -86,9 +116,9 @@ export default async function Home() {
         </Suspense>
       </Section>
 
-      <section id="how" className="scroll-mt-28 bg-surface">
+      <section id="how" className="mx-4 scroll-mt-28 rounded-[28px] bg-surface lg:mx-8">
         <div className="mx-auto max-w-[90rem] px-4 py-16 lg:px-8 lg:py-24">
-          <h2 className="mb-12 max-w-xl font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+          <h2 className="mb-12 max-w-xl font-display font-semibold text-4xl leading-tight tracking-tight sm:text-5xl">
             {h.how.title}
           </h2>
           <ol className="grid gap-10 md:grid-cols-3">
@@ -121,8 +151,8 @@ function Section({
     <section className="mx-auto w-full max-w-[90rem] px-4 lg:px-8">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h2 className="font-serif text-3xl leading-none tracking-tight sm:text-4xl">{title}</h2>
-          {note ? <p className="text-xs text-muted">{note}</p> : null}
+          <h2 className="font-display text-3xl font-semibold leading-none tracking-tight sm:text-4xl">{title}</h2>
+          {note ? <p className="text-sm text-muted">{note}</p> : null}
         </div>
         {more ? (
           <Link href={more.href} className="flex shrink-0 items-center gap-1 text-sm underline underline-offset-4">
@@ -132,6 +162,61 @@ function Section({
       </div>
       {children}
     </section>
+  );
+}
+
+// The picture for a style tile comes from the category that says the style best, so a tile shows
+// clothes rather than whatever accessory was tagged last.
+const STYLE_COVER: Record<StyleKey, CategoryKey> = {
+  old_money: "knitwear",
+  streetwear: "sweatshirts",
+  minimal: "tshirts",
+  smart_casual: "shirts",
+  classic_tailoring: "suits",
+  sporty: "tracksuits",
+  workwear: "jackets",
+  preppy: "knitwear",
+  techwear: "jackets",
+  y2k: "jeans",
+};
+
+/** One tile per style, with the newest in-stock piece of that style as the picture. */
+async function StyleTiles() {
+  const [locale, t] = [await getLocale(), await getDictionary()];
+  const keys = STYLES.slice(0, 6);
+  const [facets, ...firsts] = await Promise.all([
+    getFacets(MEN),
+    ...keys.map((key) => getProducts({ ...MEN, styles: [key], category: STYLE_COVER[key], inStock: true }, { sort: "recent", limit: 1 })),
+  ]);
+  const counts = new Map(facets.styles.map((s) => [s.key, s.count]));
+  return (
+    <ul className="rail -mx-4 flex gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 lg:grid-cols-6 lg:gap-4">
+      {keys.map((key, i) => {
+        const image = firsts[i].items[0]?.image_url;
+        return (
+          <li key={key} className="w-[42vw] shrink-0 sm:w-auto">
+            <Link
+              href={shopHref(locale, { style: [key] })}
+              className="group relative block aspect-[3/4] overflow-hidden rounded-card bg-surface"
+            >
+              {image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={image}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                />
+              ) : null}
+              <div className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16 text-white">
+                <span className="font-display text-xl font-semibold tracking-tight">{t.styles[key]}</span>
+                <span className="text-xs opacity-80 tabular">{t.home.pieces(formatCount(locale, counts.get(key) ?? 0))}</span>
+              </div>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -149,7 +234,7 @@ async function CategoryTiles() {
       {tiles.map((c) => (
         <li key={c.key} className="w-[38vw] shrink-0 sm:w-auto">
           <Link href={shopHref(locale, { category: c.key })} className="group flex flex-col gap-2.5">
-            <div className="aspect-[4/5] overflow-hidden bg-surface">
+            <div className="aspect-[4/5] overflow-hidden rounded-card bg-surface">
               {c.image_url ? (
                 // Hotlinked from the shop's CDN, like product images.
                 // eslint-disable-next-line @next/next/no-img-element
@@ -189,12 +274,12 @@ async function BrandStrip() {
   const [locale, t] = [await getLocale(), await getDictionary()];
   const facets = await getFacets(MEN);
   return (
-    <ul className="grid grid-cols-2 border-l border-t border-line sm:grid-cols-3 lg:grid-cols-6">
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {facets.brands.map((b) => (
-        <li key={b.slug} className="border-b border-r border-line">
+        <li key={b.slug}>
           <Link
             href={shopHref(locale, { brand: [b.slug] })}
-            className="flex h-24 flex-col items-center justify-center gap-1 px-3 text-center hover:bg-surface"
+            className="flex h-24 flex-col items-center justify-center gap-1 rounded-card bg-surface px-3 text-center transition-colors hover:bg-surface-2"
           >
             <span className="text-sm font-semibold uppercase tracking-[0.14em]">{b.name}</span>
             <span className="text-[11px] text-muted tabular">{t.home.items(formatCount(locale, b.count))}</span>
@@ -209,7 +294,7 @@ function TilesSkeleton() {
   return (
     <ul className="flex gap-3 overflow-hidden sm:grid sm:grid-cols-3 lg:grid-cols-5 lg:gap-4" aria-busy="true">
       {Array.from({ length: 10 }, (_, i) => (
-        <li key={i} className="aspect-[4/5] w-[38vw] shrink-0 animate-pulse bg-surface sm:w-auto" />
+        <li key={i} className="aspect-[4/5] w-[38vw] shrink-0 animate-pulse rounded-card bg-surface sm:w-auto" />
       ))}
     </ul>
   );

@@ -1,6 +1,8 @@
 // Typed client for the RealDrop API (apps/api, schemas/catalog.py). Server-side only: pages fetch
 // in Server Components, so the API address never reaches the browser.
 
+import { cache } from "react";
+
 const API_URL = process.env.API_URL ?? "http://localhost:8010";
 
 export type RunStatus = "running" | "succeeded" | "partial" | "failed";
@@ -73,11 +75,17 @@ export interface ProductDetail extends ProductCard {
 
 export class NotFoundError extends Error {}
 
-async function get<T>(path: string): Promise<T> {
+// One render asks for the same facets from several sections (home: styles, categories, brands);
+// React's cache() shares a single response per path within a request.
+const getJson = cache(async (path: string): Promise<unknown> => {
   const response = await fetch(`${API_URL}${path}`, { cache: "no-store" });
   if (response.status === 404) throw new NotFoundError(path);
   if (!response.ok) throw new Error(`API ${response.status} for ${path}`);
-  return (await response.json()) as T;
+  return response.json();
+});
+
+async function get<T>(path: string): Promise<T> {
+  return (await getJson(path)) as T;
 }
 
 export function getStats(): Promise<Stats> {
@@ -90,6 +98,7 @@ export interface Filters {
   q?: string;
   brands?: string[];
   category?: string;
+  styles?: string[];
   audience?: Audience;
   minPrice?: number; // kurus
   maxPrice?: number; // kurus
@@ -101,6 +110,7 @@ export interface Facets {
   total: number;
   categories: { key: string; count: number; image_url: string | null }[];
   brands: { slug: string; name: string; count: number }[];
+  styles: { key: string; count: number }[];
   min_price_minor: number | null;
   max_price_minor: number | null;
 }
@@ -110,6 +120,7 @@ function filterParams(filters: Filters): URLSearchParams {
   if (filters.q) search.set("q", filters.q);
   for (const brand of filters.brands ?? []) search.append("brand", brand);
   if (filters.category) search.set("category", filters.category);
+  for (const style of filters.styles ?? []) search.append("style", style);
   if (filters.audience) search.set("audience", filters.audience);
   if (filters.minPrice !== undefined) search.set("min_price", String(filters.minPrice));
   if (filters.maxPrice !== undefined) search.set("max_price", String(filters.maxPrice));

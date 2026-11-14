@@ -19,7 +19,7 @@ export default async function StatusPage() {
   return (
     <div className="mx-auto flex max-w-[90rem] flex-col gap-10 px-4 pb-10 pt-10 lg:px-8 lg:pt-14">
       <header className="flex flex-col gap-3 border-b border-line pb-8">
-        <h1 className="font-serif text-4xl leading-none tracking-tight sm:text-5xl">{t.title}</h1>
+        <h1 className="font-display font-semibold text-4xl leading-none tracking-tight sm:text-5xl">{t.title}</h1>
         <p className="max-w-xl text-sm leading-6 text-muted">{t.intro}</p>
       </header>
       <Suspense fallback={<div className="h-64 animate-pulse bg-surface" />}>

@@ -1,42 +1,42 @@
 @import "tailwindcss";
 
-/* Tokens from docs/engineering/design-system.md. Light editorial by default; dark follows the device setting
+/* Tokens from docs/engineering/design-system.md. Warm, soft and modern by default (redesign 14 Nov 2026); dark follows the device setting
    unless the reader picked one with the theme switch (data-theme on <html>, set before paint by the
    script in layout.tsx). */
 :root {
-  --bg: #ffffff;
-  --surface: #f4f4f2; /* image wells, inputs */
-  --surface-2: #ebebe8; /* hover */
-  --line: #e3e3df;
-  --line-strong: #c9c9c4;
-  --text: #111111;
-  --muted: #5f5f5c; /* 6.4:1 on --bg, 5.8:1 on --surface: AA for small text */
-  --sale: #c8102e; /* the shop's sale price: a claim, shown the way shops show it */
-  --signal: #0f7a3d; /* REAL drop only (verified by our price history) */
-  --warn: #c2410c; /* inflated claim */
-  --info: #1d4ed8; /* focus ring, links in prose */
-  --on-text: #ffffff; /* text on a --text filled button */
+  --bg: #f6f3ee;
+  --surface: #ece7df; /* image wells, inputs */
+  --surface-2: #e3ddd3; /* hover */
+  --line: #e2dcd2;
+  --line-strong: #c9c1b5;
+  --text: #1b1814;
+  --muted: #6a635a; /* 5.6:1 on --bg, 5.0:1 on --surface: AA for small text */
+  --sale: #b3261e; /* the shop's sale price: a claim, shown the way shops show it */
+  --signal: #1f6b4a; /* REAL drop and the advisor's voice (one accent) */
+  --warn: #b4501a; /* inflated claim */
+  --info: #2b59c3; /* focus ring, links in prose */
+  --on-text: #f6f3ee; /* text on a --text filled button */
   /* Chart series (dataviz reference palette slots 1-2, validated light + dark). */
   --series-1: #2a78d6;
   --series-2: #eb6834;
-  --radius: 2px;
+  --radius: 14px;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0c0c0d;
-    --surface: #161618;
-    --surface-2: #1f1f22;
-    --line: #2a2a2e;
-    --line-strong: #3d3d42;
-    --text: #f2f2ee;
-    --muted: #a1a1a6;
-    --sale: #ff6b6b;
-    --signal: #c6ff3d;
-    --warn: #ff7a4d;
-    --info: #8ab4ff;
-    --on-text: #0c0c0d;
+    --bg: #12110f;
+    --surface: #1c1a17;
+    --surface-2: #25221e;
+    --line: #2c2925;
+    --line-strong: #403b35;
+    --text: #f2eee7;
+    --muted: #a69f94;
+    --sale: #ff7b6e;
+    --signal: #7fd6a4;
+    --warn: #ff9466;
+    --info: #8eb0ff;
+    --on-text: #12110f;
     --series-1: #3987e5;
     --series-2: #d95926;
     color-scheme: dark;
@@ -44,18 +44,18 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #0c0c0d;
-  --surface: #161618;
-  --surface-2: #1f1f22;
-  --line: #2a2a2e;
-  --line-strong: #3d3d42;
-  --text: #f2f2ee;
-  --muted: #a1a1a6;
-  --sale: #ff6b6b;
-  --signal: #c6ff3d;
-  --warn: #ff7a4d;
-  --info: #8ab4ff;
-  --on-text: #0c0c0d;
+  --bg: #12110f;
+  --surface: #1c1a17;
+  --surface-2: #25221e;
+  --line: #2c2925;
+  --line-strong: #403b35;
+  --text: #f2eee7;
+  --muted: #a69f94;
+  --sale: #ff7b6e;
+  --signal: #7fd6a4;
+  --warn: #ff9466;
+  --info: #8eb0ff;
+  --on-text: #12110f;
   --series-1: #3987e5;
   --series-2: #d95926;
   color-scheme: dark;
@@ -79,7 +79,7 @@
   --radius-card: var(--radius);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-instrument-serif);
+  --font-display: var(--font-bricolage);
 }
 
 body {

@@ -5,6 +5,7 @@ import type { Locale } from "@/i18n/config";
 export type ShopQuery = {
   q?: string;
   category?: string;
+  style?: string[];
   brand?: string[];
   min?: string;
   max?: string;
@@ -18,6 +19,7 @@ export function shopHref(locale: Locale, query: ShopQuery = {}): string {
   const search = new URLSearchParams();
   if (query.q) search.set("q", query.q);
   if (query.category) search.set("category", query.category);
+  for (const style of query.style ?? []) search.append("style", style);
   for (const brand of query.brand ?? []) search.append("brand", brand);
   if (query.min) search.set("min", query.min);
   if (query.max) search.set("max", query.max);
