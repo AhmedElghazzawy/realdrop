@@ -25,7 +25,6 @@ class Settings(BaseSettings):
     app_env: str = "dev"
 
     database_url: str = "postgresql+asyncpg://app:app@localhost:5432/realdrop"
-    redis_url: str = "redis://localhost:6379/0"
 
     # Free models only (CLAUDE.md rule 3). Defaults point at local Ollama.
     llm_base_url: str = "http://localhost:11434/v1"
