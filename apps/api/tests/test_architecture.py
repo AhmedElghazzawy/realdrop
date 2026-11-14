@@ -41,6 +41,23 @@ RULES = (
         ),
     ),
     Rule(
+        "catalog rules are pure: text in, categories and attributes out",
+        applies_to=(
+            "realdrop.pipeline.tagger",
+            "realdrop.pipeline.categorize",
+            "realdrop.pipeline.keywords",
+        ),
+        forbidden=(
+            "sqlalchemy",
+            "httpx",
+            "realdrop.db",
+            "realdrop.models",
+            "realdrop.collectors",
+            "realdrop.services",
+            "realdrop.api",
+        ),
+    ),
+    Rule(
         "parsers are pure: HTML/JSON in, RawProduct out, no IO",
         applies_to=(
             "realdrop.collectors.money",

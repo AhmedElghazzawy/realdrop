@@ -1,5 +1,6 @@
 """Every model, imported here so `Base.metadata` knows all tables (Alembic autogenerate)."""
 
+from realdrop.models.attributes import ProductAttributes
 from realdrop.models.catalog import Brand, Product, Variant
 from realdrop.models.prices import (
     CollectionRun,
@@ -16,6 +17,7 @@ __all__ = [
     "PriceObservation",
     "PriceStatus",
     "Product",
+    "ProductAttributes",
     "RunStatus",
     "Variant",
 ]

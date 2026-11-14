@@ -21,7 +21,7 @@ from realdrop.collectors.http import CollectorError
 from realdrop.collectors.registry import get_collector_class
 from realdrop.db.session import get_sessionmaker
 from realdrop.models import PriceStatus
-from realdrop.pipeline import rollup, store
+from realdrop.pipeline import rollup, store, tagging
 from realdrop.pricing import config
 
 MAX_FAILURES_IN_NOTES = 20
@@ -157,6 +157,15 @@ async def stored_run(slug: str, limit: int | None, shard: Shard) -> int:
             f"run {run_id}: {status.value}, {products} products, {failures} failures, "
             f"{elapsed:.0f}s\n{notes}"
         )
+        # Own transaction, after the run is recorded: tags are derived data, so a tagging bug must
+        # never cost a run its status; the next run (or `python -m realdrop.pipeline.tagging`)
+        # catches up.
+        try:
+            async with sessionmaker() as session, session.begin():
+                tagged = await tagging.refresh_attributes(session, brand_id)
+            print(f"attributes: {tagged} products tagged")
+        except Exception as exc:  # reported; the run itself is already recorded
+            print(f"ATTRIBUTES FAILED: {type(exc).__name__}: {exc}", file=sys.stderr)
     return 1 if stopped_by else 0
 
 
