@@ -19,6 +19,7 @@ trousers), "Blazer Ceket" (suits, not jackets). Keywords are whole words on fold
 import re
 from typing import Final
 
+from realdrop.pipeline.keywords import compile_keywords
 from realdrop.text import fold
 
 # Our categories, in menu order. Labels live in the web app's i18n files.
@@ -106,17 +107,7 @@ _RULES: Final[list[tuple[str, list[str]]]] = [
 ]  # fmt: skip
 
 
-def _pattern(keyword: str) -> str:
-    word = re.escape(keyword.rstrip("*")).replace(r"\ ", r"\s+")
-    return rf"\b{word}\w*" if keyword.endswith("*") else rf"\b{word}\b"
-
-
-# Longest keyword first: regex alternatives are tried in order, so "triko" would otherwise match
-# before "triko yelek" gets a chance.
-_COMPILED: Final = [
-    (category, re.compile("|".join(_pattern(k) for k in sorted(keywords, key=len, reverse=True))))
-    for category, keywords in _RULES
-]
+_COMPILED: Final = [(category, compile_keywords(keywords)) for category, keywords in _RULES]
 
 
 # A broad shop category narrowed by a word anywhere in the category or title: DeFacto files
