@@ -40,7 +40,7 @@ export const en = {
   meta: {
     description: "The truth about fashion discounts: real price history and real price drops.",
   },
-  announcement: "Every menswear brand in Turkey, sorted by style · prices checked daily, discounts verified",
+  announcement: "Turkish menswear brands in one place, sorted by style · prices checked daily",
   nav: {
     shop: "Shop",
     clothing: "Clothing",

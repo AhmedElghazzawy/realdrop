@@ -37,7 +37,7 @@ export const tr: Dictionary = {
   meta: {
     description: "Moda indirimlerinin gerçeği: gerçek fiyat geçmişi ve gerçek indirimler.",
   },
-  announcement: "Türkiye'deki tüm erkek giyim markaları, stile göre · fiyatlar her gün kontrol edilir, indirimler doğrulanır",
+  announcement: "Türk erkek giyim markaları tek yerde, stile göre · fiyatlar her gün kontrol edilir",
   nav: {
     shop: "Alışveriş",
     clothing: "Giyim",
