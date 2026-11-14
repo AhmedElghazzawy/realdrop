@@ -12,8 +12,8 @@ from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from typing import Any, Literal
 
-from sqlalchemy import Select, case, func, select
-from sqlalchemy.dialects.postgresql import distinct_on
+from sqlalchemy import Select, Text, case, cast, func, select
+from sqlalchemy.dialects.postgresql import ARRAY, array, distinct_on
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from realdrop.models import (
@@ -23,6 +23,7 @@ from realdrop.models import (
     PriceObservation,
     PriceStatus,
     Product,
+    ProductAttributes,
     Variant,
 )
 from realdrop.schemas.catalog import (
@@ -38,6 +39,7 @@ from realdrop.schemas.catalog import (
     RunOut,
     SortOrder,
     StatsOut,
+    TagCount,
     VariantOut,
 )
 
@@ -167,10 +169,21 @@ def _cards_query() -> Select[*tuple[Any, ...]]:
         .group_by(Variant.product_id)
         .subquery()
     )
+    attrs = ProductAttributes
     return (
-        select(Product, Brand.slug, Brand.name, per_product)
+        select(
+            Product,
+            Brand.slug,
+            Brand.name,
+            per_product,
+            func.coalesce(attrs.style_tags, EMPTY_TEXT_ARRAY).label("style_tags"),
+            func.coalesce(attrs.colors, EMPTY_TEXT_ARRAY).label("colors"),
+            attrs.fit,
+            attrs.formality,
+        )
         .join(Brand, Brand.id == Product.brand_id)
         .join(per_product, per_product.c.product_id == Product.id)
+        .outerjoin(attrs, attrs.product_id == Product.id)
     )
 
 
@@ -191,11 +204,19 @@ def _card(product: Product, slug: str, name: str, row: Any) -> dict[str, Any]:
         "sizes_total": row["sizes_total"],
         "first_seen_at": product.first_seen_at,
         "observed_at": row["observed_at"],
+        "style_tags": row["style_tags"],
+        "colors": row["colors"],
+        "fit": row["fit"],
+        "formality": row["formality"],
     }
 
 
 def _escape_like(text: str) -> str:
     return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+FacetName = Literal["brands", "category", "styles", "colors"]
+EMPTY_TEXT_ARRAY = cast(array([], type_=Text), ARRAY(Text))
 
 
 @dataclass(frozen=True)
@@ -210,8 +231,11 @@ class Filters:
     max_price: int | None = None
     on_sale: bool = False  # the shop shows an old price above today's (a claim, not a verdict)
     in_stock: bool = False
+    # Style tags and colours (pipeline/tagger.py vocabularies): a product matches if it has any.
+    styles: tuple[str, ...] = ()
+    colors: tuple[str, ...] = ()
     # Facet counting leaves out the facet's own filter (Facets docstring).
-    skip: frozenset[Literal["brands", "category"]] = field(default_factory=frozenset)
+    skip: frozenset[FacetName] = field(default_factory=frozenset)
 
 
 NO_FILTERS = Filters()
@@ -239,6 +263,10 @@ def _filtered(filters: Filters) -> Select[*tuple[Any, ...]]:
         query = query.where(columns.original_price_minor > columns.price_minor)
     if filters.in_stock:
         query = query.where(columns.sizes_in_stock > 0)
+    if filters.styles and "styles" not in filters.skip:
+        query = query.where(ProductAttributes.style_tags.overlap(list(filters.styles)))
+    if filters.colors and "colors" not in filters.skip:
+        query = query.where(ProductAttributes.colors.overlap(list(filters.colors)))
     return query
 
 
@@ -309,8 +337,12 @@ async def facets(session: AsyncSession, filters: Filters = NO_FILTERS) -> Facets
         .group_by(by_brand.c.slug, by_brand.c.name)
         .order_by(by_brand.c.name)
     )
+    styles = await _tag_counts(session, replace(filters, skip=frozenset({"styles"})), "style_tags")
+    colors = await _tag_counts(session, replace(filters, skip=frozenset({"colors"})), "colors")
     return Facets(
         total=total,
+        styles=styles,
+        colors=colors,
         categories=[
             CategoryCount(key=key, count=count, image_url=images.get(key))
             for key, count in category_rows
@@ -319,6 +351,19 @@ async def facets(session: AsyncSession, filters: Filters = NO_FILTERS) -> Facets
         min_price_minor=low,
         max_price_minor=high,
     )
+
+
+async def _tag_counts(session: AsyncSession, filters: Filters, column: str) -> list[TagCount]:
+    """How many filtered products carry each value of an array column, most common first."""
+    base = _filtered(filters).subquery()
+    value = func.unnest(base.c[column]).label("value")
+    per_value = select(value).select_from(base).subquery()
+    rows = await session.execute(
+        select(per_value.c.value, func.count())
+        .group_by(per_value.c.value)
+        .order_by(func.count().desc(), per_value.c.value)
+    )
+    return [TagCount(key=key, count=count) for key, count in rows]
 
 
 async def product_detail(session: AsyncSession, product_id: uuid.UUID) -> ProductDetail | None:

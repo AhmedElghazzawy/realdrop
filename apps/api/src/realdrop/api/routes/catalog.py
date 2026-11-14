@@ -36,8 +36,10 @@ def _filters(
     max_price: Annotated[int | None, Query(ge=0, description="kurus")] = None,
     on_sale: bool = False,
     in_stock: bool = False,
+    style: Annotated[list[str], Query(max_length=10)] = [],  # noqa: B006 (FastAPI copies it)
+    color: Annotated[list[str], Query(max_length=10)] = [],  # noqa: B006
 ) -> catalog.Filters:
-    """Query parameters shared by the list and its facets; `brand` may repeat."""
+    """Query parameters shared by the list and its facets; `brand`, `style`, `color` may repeat."""
     return catalog.Filters(
         q=q,
         brands=tuple(b[:64] for b in brand),
@@ -47,6 +49,8 @@ def _filters(
         max_price=max_price,
         on_sale=on_sale,
         in_stock=in_stock,
+        styles=tuple(v[:24] for v in style),
+        colors=tuple(v[:24] for v in color),
     )
 
 

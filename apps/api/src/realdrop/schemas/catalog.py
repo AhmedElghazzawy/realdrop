@@ -59,6 +59,11 @@ class ProductCard(BaseModel):
     sizes_total: int
     first_seen_at: datetime
     observed_at: datetime
+    # Derived attributes (pipeline/tagger.py); empty or None until the product is tagged.
+    style_tags: list[str] = []
+    colors: list[str] = []
+    fit: str | None = None
+    formality: str | None = None
 
 
 class ProductList(BaseModel):
@@ -91,6 +96,11 @@ class BrandCount(BaseModel):
     count: int
 
 
+class TagCount(BaseModel):
+    key: str  # a style tag or canonical colour (pipeline/tagger.py vocabularies)
+    count: int
+
+
 class Facets(BaseModel):
     """What the filters would show. Each list ignores its own filter (selecting one category still
     lists the others, with counts under the other filters); `total` uses every filter."""
@@ -98,6 +108,8 @@ class Facets(BaseModel):
     total: int
     categories: list[CategoryCount]
     brands: list[BrandCount]
+    styles: list[TagCount]
+    colors: list[TagCount]
     min_price_minor: int | None
     max_price_minor: int | None
 

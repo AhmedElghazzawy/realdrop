@@ -233,3 +233,40 @@ async def test_a_size_the_shop_stopped_listing_no_longer_counts(db_session: Asyn
     assert card["price_minor"] == 100_000
     detail = (await get(db_session, f"/products/{card['id']}")).json()
     assert [v["size_label"] for v in detail["variants"]] == ["S", "M"]
+
+
+async def test_style_and_colour_filters_and_facets(db_session: AsyncSession) -> None:
+    from realdrop.pipeline import tagging
+
+    brand = await store.get_or_create_brand(
+        db_session, slug="shop", name="Shop", base_url="https://shop.example.com"
+    )
+    run = await store.start_run(db_session, brand.id)
+    batch = [
+        (
+            product(
+                "k",
+                "Lacivert Yünlü Balıkçı Yaka Regular Fit Kazak",
+                90_000,
+                category="Erkek > Triko",
+            ),
+            T0,
+        ),
+        (product("h", "Siyah Oversize Baskılı Hoodie", 60_000, category="Erkek > Sweatshirt"), T0),
+    ]
+    await store.store_products(db_session, brand_id=brand.id, run_id=run.id, batch=batch)
+    await tagging.refresh_attributes(db_session)
+
+    body = (await get(db_session, "/products?style=streetwear")).json()
+    assert [p["title"] for p in body["items"]] == ["Siyah Oversize Baskılı Hoodie"]
+    assert "streetwear" in body["items"][0]["style_tags"]
+
+    body = (await get(db_session, "/products?color=navy&color=black")).json()
+    assert body["total"] == 2
+
+    facets = (await get(db_session, "/products/facets?style=old_money")).json()
+    assert facets["total"] == 1
+    styles = {s["key"]: s["count"] for s in facets["styles"]}  # ignores its own filter
+    assert styles["streetwear"] == 1 and styles["old_money"] == 1
+    colours = {c["key"]: c["count"] for c in facets["colors"]}  # filtered by style
+    assert colours == {"navy": 1}

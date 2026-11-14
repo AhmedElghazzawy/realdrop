@@ -112,15 +112,19 @@ erDiagram
   variant directly and are fast enough; add a table or materialized view only when a query
   measurably needs it.
 
-## Planned for launch (Phase 5)
+## Advisor tables (Phase 5)
 
-- **product_attributes** (derived; rebuilt when `content_hash` or `tagger_version` changes):
-  `product_id` PK/FK, `style_tags` (text[], from the style vocabulary: `old_money`, `streetwear`,
-  `minimal`, `smart_casual`, `classic_tailoring`, `techwear`, `workwear`, `preppy`, `sporty`, `y2k`),
-  `subcategory`, `colors` (text[], canonical), `pattern`, `fit`, `material` (text[]), `formality`
-  (`casual` | `smart_casual` | `formal`), `season` (text[]), `occasion` (text[]), `source`
-  (`rules` | `llm`), `confidence` (jsonb per field), `tagger_version`, `tagged_at`.
-  GIN indexes on `style_tags` and `colors`.
+- **product_attributes** (derived, `pipeline/tagging.py`; migration `394bf33a1eed`): `product_id`
+  PK/FK, `style_tags` (text[]: `old_money`, `streetwear`, `minimal`, `smart_casual`,
+  `classic_tailoring`, `techwear`, `workwear`, `preppy`, `sporty`, `y2k`), `colors` (text[],
+  canonical, at most 3), `pattern` (`solid` | `stripe` | `check` | `graphic` | `pattern`), `fit`
+  (`slim` | `regular` | `relaxed` | `oversize`), `material` (text[]), `formality` (`casual` |
+  `smart_casual` | `formal`), `season` (text[]), `occasion` (text[], filled by the LLM pass),
+  `subcategory`, `source` (`rules` | `llm`), `evidence` (jsonb: per field, the text it came from),
+  `tagger_version`, `content_hash` (the product's hash when tagged), `tagged_at`. GIN indexes on
+  `style_tags` and `colors`. Re-tagged when the product's `content_hash` or `TAGGER_VERSION`
+  changes; LLM rows are only replaced when the product changed. Filled after every collection run
+  for that brand.
 - **product_embeddings** (derived): `product_id` PK/FK, `model`, `embedding` (`halfvec` or a reduced
   dimension to fit Neon's 0.5 GB; decided in Phase 5), `text_hash`, `created_at`. HNSW index,
   cosine distance.

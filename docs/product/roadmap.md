@@ -76,12 +76,14 @@ assistant, personalization). The useful parts of the old plan are folded into th
 
 Latest finish: 17 Nov.
 
-- [ ] Fashion attribute schema: category, colour, pattern, material, fit, formality, season, and
+- [x] Fashion attribute schema: category, colour, pattern, material, fit, formality, season, and
       **style tags** (old money, streetwear, minimal, smart casual, classic tailoring, techwear,
       workwear, sporty, Y2K, preppy, ...). Turkish and English synonyms.
-- [ ] Tag the catalog: rules from titles first, then the LLM extractor with local Ollama for the
+- [ ] Tag the catalog: rules from titles first (done 14 Nov: `pipeline/tagger.py`, 48k products
+      in 25 s, 76% get a style tag), then the LLM extractor with local Ollama for the
       rest (dry-run time estimate first; overnight). Label 60 products by hand for an eval.
-- [ ] bge-m3 text embeddings + pgvector; attribute-filtered semantic search API.
+- [ ] bge-m3 text embeddings + pgvector; attribute-filtered semantic search API. (Style and colour
+      filters and facets on `/products`: done 14 Nov.)
 - [ ] Raise collection frequency to every 4 h for the run-up to the sale (17 Nov at the latest).
 
 ## Phase 6: style profile and "For you"
