@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     llm_api_key: SecretStr = SecretStr("ollama")
     llm_model_fast: str = "gemma4:12b"
     llm_model_main: str = "gemma4:12b"
+    # "none" turns off thinking on local Ollama; leave unset for APIs that reject the field.
+    llm_reasoning_effort: str | None = None
 
     collector_user_agent: str = "realdrop-bot/0.1 (+https://github.com/AhmedElghazzawy/realdrop)"
 

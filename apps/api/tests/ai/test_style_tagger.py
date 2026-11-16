@@ -44,6 +44,15 @@ async def test_asks_for_schema_output_at_temperature_zero_and_keeps_known_styles
     assert request["response_format"]["type"] == "json_schema"
 
 
+async def test_reasoning_effort_is_sent_only_when_configured() -> None:
+    transport, seen = endpoint('{"style_tags": ["minimal"]}')
+    async with LLMClient(
+        base_url="http://llm.test/v1", model="m", reasoning_effort="none", transport=transport
+    ) as client:
+        await client.json([{"role": "user", "content": "x"}], {"type": "object"}, name="t")
+    assert seen[0]["reasoning_effort"] == "none"
+
+
 def test_unknown_styles_are_dropped_and_the_list_is_capped() -> None:
     answer = {"style_tags": ["y2k", "grunge", "minimal", "sporty", "preppy", "old_money", 7]}
     assert parse(answer) == ("old_money", "minimal", "preppy")[:MAX_STYLES]

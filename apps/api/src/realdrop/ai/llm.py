@@ -30,11 +30,13 @@ class LLMClient:
         base_url: str | None = None,
         api_key: str | None = None,
         model: str | None = None,
+        reasoning_effort: str | None = None,
         timeout: float = 120.0,
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         settings = get_settings()
         self.model = model or settings.llm_model_fast
+        self.reasoning_effort = reasoning_effort or settings.llm_reasoning_effort
         self._client = httpx.AsyncClient(
             base_url=(base_url or settings.llm_base_url).rstrip("/") + "/",
             headers={
@@ -54,18 +56,18 @@ class LLMClient:
         self, messages: list[dict[str, str]], schema: dict[str, Any], *, name: str
     ) -> tuple[dict[str, Any], Usage]:
         """The model's answer as an object matching `schema` (validated by the caller)."""
-        response = await self._client.post(
-            "chat/completions",
-            json={
-                "model": self.model,
-                "messages": messages,
-                "temperature": 0,
-                "response_format": {
-                    "type": "json_schema",
-                    "json_schema": {"name": name, "schema": schema, "strict": True},
-                },
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {"name": name, "schema": schema, "strict": True},
             },
-        )
+        }
+        if self.reasoning_effort:
+            payload["reasoning_effort"] = self.reasoning_effort
+        response = await self._client.post("chat/completions", json=payload)
         if response.status_code != 200:
             raise LLMError(f"{response.status_code}: {response.text[:300]}")
         body = response.json()

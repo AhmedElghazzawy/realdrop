@@ -75,11 +75,18 @@ change `labeled_by` to the reviewer when a case is checked. Fields: `style_tags`
 | Tagger | Style tags F1 (dev / holdout) | Colours F1 | Fit accuracy |
 |---|---|---|---|
 | Rules, `TAGGER_VERSION=1` (baseline) | 0.64 / 0.68 | 0.96 | 0.98 |
-| LLM styles (`ai/style_tagger.py`) | not measured yet: local Ollama hung under memory pressure (16 GB Mac with the dev stack running); run with the dev servers stopped | | |
+| LLM styles, `gemma4:12b`, thinking off, 16 Nov (n=1) | **0.84 / 0.86** (P 0.89, R 0.80) | 0.96 | 0.98 |
 
-Colours and fit already meet the launch thresholds with rules alone; only style tags need the LLM.
-`qwen3:4b` with thinking on spent ~3,100 tokens (124 s) on one product: unusable for a batch, so
-thinking must be off (`think: false`) or a non-thinking model used.
+Colours and fit already meet the launch thresholds with rules alone; only style tags need the LLM,
+and `gemma4:12b` clears the 0.80 bar on both splits. Its misses are mostly recall: it gives one of two
+expected styles (e.g. `streetwear` but not `y2k` on baggy jeans). Labels are still `claude-draft`,
+so treat the score as provisional until a person has reviewed them. Next run should be n=3.
+
+Speed: 2.75 s per product on a 16 GB M2 with the dev servers stopped, which is about 37 h for 48k
+products, so the backfill must run incrementally (new and changed products first), not in one sitting.
+`qwen3:4b` with thinking on spent ~3,100 tokens (124 s) on one product. Thinking must be off:
+set `LLM_REASONING_EFFORT=none` for local Ollama (leave it unset for hosted APIs that reject the field).
+Run local LLM evals with the dev stack stopped; with it running, Ollama hung under memory pressure.
 
 ### Stylist suite
 
