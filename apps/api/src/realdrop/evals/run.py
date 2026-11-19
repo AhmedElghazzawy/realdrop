@@ -80,17 +80,23 @@ def load_cases(name: str) -> list[dict[str, Any]]:
 async def predict(
     cases: list[dict[str, Any]], tagger: str, model: str | None
 ) -> list[dict[str, Any]]:
-    """Predictions per case: rules always; the LLM replaces style tags when asked."""
+    """Predictions per case: rules always; the LLM replaces style tags when asked.
+
+    `llm` asks the model for every case; `hybrid` only where the rules found no style, which is
+    what the production pass (pipeline/llm_styles.py) does.
+    """
     rules = [tag(**case["input"]) for case in cases]
     predictions = [
         {"style_tags": list(r.style_tags), "colors": list(r.colors), "fit": r.fit} for r in rules
     ]
-    if tagger == "llm":
+    if tagger in ("llm", "hybrid"):
         async with LLMClient(model=model) as client:
             semaphore = asyncio.Semaphore(4)
 
             async def one(i: int) -> None:
                 case = cases[i]
+                if tagger == "hybrid" and rules[i].style_tags:
+                    return
                 async with semaphore:
                     result = await tag_styles(
                         client,
@@ -179,7 +185,7 @@ def main() -> None:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--suite", choices=["tagger"], required=True)
-    parser.add_argument("--tagger", choices=["rules", "llm"], default="rules")
+    parser.add_argument("--tagger", choices=["rules", "llm", "hybrid"], default="rules")
     parser.add_argument("--model", help="LLM model (default: LLM_MODEL_FAST)")
     parser.add_argument("--runs", type=int, default=1, help="LLM suites are noisy: use 3")
     args = parser.parse_args()

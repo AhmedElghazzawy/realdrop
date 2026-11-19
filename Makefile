@@ -47,5 +47,5 @@ migrate: ## Apply database migrations to DATABASE_URL (local by default)
 collect-dry: ## Dry-run a collector: make collect-dry BRAND=defacto LIMIT=20
 	cd $(API) && uv run python -m realdrop.collectors.run --brand $(BRAND) --limit $(or $(LIMIT),20) --dry-run
 
-eval: ## Run an eval suite: make eval SUITE=tagger TAGGER=rules|llm [MODEL=gemma4:12b RUNS=3]
+eval: ## Run an eval suite: make eval SUITE=tagger TAGGER=rules|llm|hybrid [MODEL=gemma4:12b RUNS=3]
 	cd $(API) && uv run python -m realdrop.evals.run --suite $(or $(SUITE),tagger) --tagger $(or $(TAGGER),rules) $(if $(MODEL),--model $(MODEL)) --runs $(or $(RUNS),1)
