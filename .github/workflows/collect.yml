@@ -9,8 +9,10 @@ on:
   # Brands run in parallel (different sites, each at its own polite rate).
   # GitHub may start scheduled runs some minutes late.
   schedule:
-    - cron: "0 0 * * *" # 03:00 Turkey time: shard 0/2
-    - cron: "0 12 * * *" # 15:00 Turkey time: shard 1/2
+    # Every 4 h for the Black Friday run-up (each half of the catalog every 8 h).
+    # Back to twice a day after launch: Neon free has 100 CU-h a month.
+    - cron: "0 0,8,16 * * *" # 03/11/19 Turkey time: shard 0/2
+    - cron: "0 4,12,20 * * *" # 07/15/23 Turkey time: shard 1/2
   workflow_dispatch:
     inputs:
       brand:
@@ -81,5 +83,5 @@ jobs:
         env: # inputs go through env, never straight into the script (no shell injection)
           BRAND: ${{ matrix.brand }}
           LIMIT: ${{ inputs.limit }}
-          SHARD: ${{ github.event_name == 'schedule' && (github.event.schedule == '0 0 * * *' && '0/2' || '1/2') || inputs.shard }}
+          SHARD: ${{ github.event_name == 'schedule' && (github.event.schedule == '0 0,8,16 * * *' && '0/2' || '1/2') || inputs.shard }}
         run: uv run python -m realdrop.collectors.run --brand "$BRAND" --shard "$SHARD" ${LIMIT:+--limit "$LIMIT"}

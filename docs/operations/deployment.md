@@ -28,8 +28,9 @@ The first workflow run creates the tables and extensions (`alembic upgrade head`
 
 ## 2. Collection on GitHub Actions
 
-- Scheduled twice a day: 00:00 UTC (03:00 Turkey) collects shard `0/2`, 12:00 UTC (15:00 Turkey)
-  shard `1/2`, for every brand in parallel (DeFacto, Colin's, Koton, Mudo, GAP, Marks & Spencer, Damat Tween, Les Benjamins, Lufian, TommyLife, Hatemoğlu).
+- Scheduled every 4 h for the Black Friday run-up (since 19 Nov): 00/08/16 UTC collect shard `0/2`,
+  04/12/20 UTC shard `1/2`, so every product is checked every 8 h. Return to twice a day (00 and 12
+  UTC) after launch: Neon free gives 100 CU-h a month and 6 runs a day use ~3 CU-h. For every brand in parallel (DeFacto, Colin's, Koton, Mudo, GAP, Marks & Spencer, Damat Tween, Les Benjamins, Lufian, TommyLife, Hatemoğlu).
   DeFacto has ~14.6k product pages, ~5 h at 1 request/s, so each half (~2.5-3 h) stays inside the
   job limit; Colin's (~5.75k pages) takes ~1 h per half. The Akinon brands collect men's products
   only; Koton's men's listing (~7k products, ~295 listing pages read by both halves) is the largest. Every product is still seen once a day. Up to 3 pages download at once;
